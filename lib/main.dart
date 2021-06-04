@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
-void main() {
-  runApp(MyApp());
-}
+import 'person_model.dart';
+
+void main() => runApp(MyApp());
 
 class MyApp extends StatelessWidget {
   @override
@@ -12,54 +13,87 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: MyHomePage(title: 'Flutter Demo Home Page'),
+      home: ParentWidget(),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  MyHomePage({Key? key, required this.title}) : super(key: key);
-
-  final String title;
+class ParentWidget extends StatelessWidget {
+  const ParentWidget({Key? key}) : super(key: key);
 
   @override
-  _MyHomePageState createState() => _MyHomePageState();
+  Widget build(BuildContext context) {
+    return ChangeNotifierProvider(
+      create: (context) => PersonModel(26, 'Gordon'),
+      child: Scaffold(
+        appBar: AppBar(title: Text('Parent Widget')),
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              CounterWidget(),
+              NameWidget(),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+class CounterWidget extends StatelessWidget {
+  const CounterWidget({Key? key}) : super(key: key);
 
-  void _incrementCounter() {
-    setState(() {
-      _counter++;
-    });
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Consumer<PersonModel>(
+          builder: (context, model, child) => Column(
+            children: [
+              Text('${model.counter}'),
+              child!,
+            ],
+          ),
+          child: MyExpensiveWidget(),
+        ),
+        ElevatedButton.icon(
+          label: Text('Increment'),
+          icon: Icon(Icons.add),
+          onPressed: () => context.read<PersonModel>().increment(),
+        ),
+      ],
+    );
+  }
+}
+
+class MyExpensiveWidget extends StatelessWidget {
+  const MyExpensiveWidget({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container();
+  }
+}
+
+class NameWidget extends StatefulWidget {
+  NameWidget({Key? key}) : super(key: key);
+
+  @override
+  _NameWidgetState createState() => _NameWidgetState();
+}
+
+class _NameWidgetState extends State<NameWidget> {
+  late PersonModel myModel;
+
+  @override
+  void initState() {
+    super.initState();
+    myModel = context.read<PersonModel>();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.title),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Text(
-              'You have pushed the button this many times:',
-            ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headline4,
-            ),
-          ],
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: Icon(Icons.add),
-      ),
-    );
+    return Text(myModel.name);
   }
 }
