@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -12,53 +13,135 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: MyHomePage(title: 'Flutter Demo Home Page'),
+      initialRoute: 'home',
+      onGenerateRoute: (RouteSettings settings) {
+        final name = settings.name;
+        if (name == 'home') {
+          return MaterialPageRoute(builder: (context) => Home());
+        } else if (name == 'red') {
+          return MaterialPageRoute(builder: (context) => RedView());
+        } else if (name == 'green') {
+          return MaterialPageRoute(builder: (context) => GreenView());
+        } else if (name == 'purple') {
+          return CupertinoPageRoute(builder: (context) => PurpleView());
+        }
+        return MaterialPageRoute(
+          builder: (context) => Center(child: Text('Error view')),
+        );
+      },
+      // routes: {
+      //   'home': (context) => Home(),
+      //   'red': (context) => RedView(),
+      //   'green': (context) => GreenView(),
+      //   'purple': (context) => PurpleView(),
+      // },
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  MyHomePage({Key? key, required this.title}) : super(key: key);
-
-  final String title;
-
-  @override
-  _MyHomePageState createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-
-  void _incrementCounter() {
-    setState(() {
-      _counter++;
-    });
-  }
-
+class PurpleView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.title),
+        title: Text('Purple 4'),
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Text(
-              'You have pushed the button this many times:',
-            ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headline4,
-            ),
-          ],
+      body: Container(
+        color: Colors.purple,
+        child: Center(
+          child: ElevatedButton(
+            child: Text('Pop'),
+            onPressed: () => Navigator.of(context).pop(),
+          ),
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: Icon(Icons.add),
+    );
+  }
+}
+
+class RedView extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Red 3'),
+      ),
+      body: Container(
+        color: Colors.red,
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              ElevatedButton(
+                child: Text('Push and replace purple view'),
+                onPressed: () => Navigator.of(context).pushReplacementNamed('purple'),
+              ),
+              ElevatedButton(
+                child: Text('Push purple and replace until home'),
+                onPressed: () {
+                  Navigator.of(context).pushNamedAndRemoveUntil(
+                    'purple',
+                    ModalRoute.withName('home'),
+                  );
+                },
+              ),
+              ElevatedButton(
+                child: Text('Pop until home'),
+                onPressed: () {
+                  Navigator.of(context).popUntil(
+                    ModalRoute.withName('home'),
+                  );
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class GreenView extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Green 2'),
+      ),
+      body: Container(
+        color: Colors.green,
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              ElevatedButton(
+                child: Text('Pop'),
+                onPressed: () => Navigator.of(context).pop(),
+              ),
+              ElevatedButton(
+                child: Text('Push red view'),
+                onPressed: () => Navigator.of(context).pushNamed('red'),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class Home extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Home 1'),
+      ),
+      body: Center(
+        child: ElevatedButton(
+          child: Text('Push green view'),
+          onPressed: () => Navigator.of(context).pushNamed('green'),
+        ),
       ),
     );
   }
