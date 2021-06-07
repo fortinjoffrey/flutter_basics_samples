@@ -1,0 +1,10 @@
+include: package:lint/analysis_options.yaml
+
+analyzer:
+  strong-mode:
+    implicit-dynamic: false
+    implicit-casts: false
+  errors:
+    missing_required_param: error
+    parameter_assignments: error
+    missing_return: error
