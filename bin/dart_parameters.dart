@@ -1,21 +1,32 @@
-// Positional parameters
-int add(int a, int b) => a + b; // add(1, 2)
+int multiply(int a, int b) => a * b;
 
-// Optional positional paramaters
-int add2(int a, [int b = 0]) => a + b; // add(1)
+int substract({required int a, required int b}) => a - b;
 
-// Required named paramaters
-int add3({required int a, required int b}) => a + b; // add(a: 1, b: 1)
+int getInt(int? a) => a ?? -1;
 
-// Optional named paramaters
-int add4({int a = 0, int b = 0}) => a + b; // add(), add(a: 1), add(b: 2)
+class Person {
+  Person({required this.age, required this.favoriteColor});
+
+  final int age;
+  String? favoriteColor;
+
+  String getFavoriteColor() => favoriteColor ?? 'None';
+}
 
 void main() {
-  print(add(1, 2)); // returns 3
-  print(add2(1)); // returns 1 (since b defaults to 0)
-  print(add2(1, 2)); // returns 3 (b is provided its default value is not used)
-  print(add3(a: 1, b: 2)); // return 3
-  print(add4()); // returns 0 a and b defaults to 0
-  print(add4(a: 3)); // return 3, b defaults to 0
-  print(add4(b: 3)); // returns 3, a defaults to 0
+  // Parameters exercice
+  print(multiply(3, 2)); // both paramas must be provided
+  print(substract(a: 4, b: 3)); // both params must be provided
+
+  // Créer une fonction qui retourne -1 si la valeur du int fournit est null
+  print(getInt(2)); // should print 2
+  print(getInt(null)); // should print -1
+
+  // null safety and keywords excercice
+  // age can never be null, favoriteColor can
+  // favoriteColor might change, age must never change
+  final person = Person(age: 14, favoriteColor: null);
+  print(person.getFavoriteColor()); // print should be 'None' if favorite is null
+  person.favoriteColor = 'Blue';
+  print(person.getFavoriteColor()); // print should be 'Blue'
 }
