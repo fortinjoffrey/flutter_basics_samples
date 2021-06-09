@@ -21,7 +21,22 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class HomeView extends StatelessWidget {
+class HomeView extends StatefulWidget {
+  const HomeView({Key? key}) : super(key: key);
+
+  @override
+  _HomeViewState createState() => _HomeViewState();
+}
+
+class _HomeViewState extends State<HomeView> {
+  late String name;
+
+  @override
+  void initState() {
+    super.initState();
+    name = context.read<Person>().name;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -33,7 +48,7 @@ class HomeView extends StatelessWidget {
               height: 100,
               child: Center(
                 child: Text(
-                  'Hello Gordon',
+                  'Hello $name',
                   style: Theme.of(context).textTheme.headline3,
                 ),
               ),
@@ -52,10 +67,15 @@ class HomeView extends StatelessWidget {
                 itemBuilder: (context, index) {
                   final color = Colors.primaries[index % Colors.primaries.length];
 
-                  return Container(
-                    color: color,
-                    child: Center(
-                      child: Text('$index'),
+                  return GestureDetector(
+                    onTap: () {
+                      context.read<Person>().changeFavoriteColor(color);
+                    },
+                    child: Container(
+                      color: color,
+                      child: Center(
+                        child: Text('$index'),
+                      ),
                     ),
                   );
                 },
@@ -86,10 +106,15 @@ class FavoriteColorWidget extends StatelessWidget {
             style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
           ),
         ),
-        Container(
-          color: Colors.red,
-          height: 50,
-          width: 50,
+        Selector<Person, Color?>(
+          builder: (context, color, child) {
+            return Container(
+              color: color ?? Colors.transparent,
+              height: 50,
+              width: 50,
+            );
+          },
+          selector: (context, person) => person.favoriteColor,
         ),
       ],
     );
