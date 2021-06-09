@@ -1,7 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-
-import 'person_model.dart';
 
 void main() => runApp(MyApp());
 
@@ -13,87 +10,82 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: ParentWidget(),
+      home: HomeView(),
     );
   }
 }
 
-class ParentWidget extends StatelessWidget {
-  const ParentWidget({Key? key}) : super(key: key);
-
+class HomeView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (context) => PersonModel(26, 'Gordon'),
-      child: Scaffold(
-        appBar: AppBar(title: Text('Parent Widget')),
-        body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              CounterWidget(),
-              NameWidget(),
-            ],
-          ),
+    return Scaffold(
+      appBar: AppBar(title: Text('Parent Widget')),
+      body: Center(
+        child: Column(
+          children: [
+            SizedBox(
+              height: 100,
+              child: Center(
+                child: Text(
+                  'Hello Gordon',
+                  style: Theme.of(context).textTheme.headline3,
+                ),
+              ),
+            ),
+            Text(
+              'Choose a favorite color',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
+            SizedBox(
+              height: 10,
+            ),
+            SizedBox(
+              height: 200,
+              child: GridView.builder(
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 4, childAspectRatio: 1),
+                itemBuilder: (context, index) {
+                  final color = Colors.primaries[index % Colors.primaries.length];
+
+                  return Container(
+                    color: color,
+                    child: Center(
+                      child: Text('$index'),
+                    ),
+                  );
+                },
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: FavoriteColorWidget(),
+            ),
+          ],
         ),
       ),
     );
   }
 }
 
-class CounterWidget extends StatelessWidget {
-  const CounterWidget({Key? key}) : super(key: key);
+class FavoriteColorWidget extends StatelessWidget {
+  const FavoriteColorWidget({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Column(
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
-        Consumer<PersonModel>(
-          builder: (context, model, child) => Column(
-            children: [
-              Text('${model.counter}'),
-              child!,
-            ],
+        Center(
+          child: Text(
+            'Your favorite color is: ',
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
           ),
-          child: MyExpensiveWidget(),
         ),
-        ElevatedButton.icon(
-          label: Text('Increment'),
-          icon: Icon(Icons.add),
-          onPressed: () => context.read<PersonModel>().increment(),
+        Container(
+          color: Colors.red,
+          height: 50,
+          width: 50,
         ),
       ],
     );
-  }
-}
-
-class MyExpensiveWidget extends StatelessWidget {
-  const MyExpensiveWidget({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Container();
-  }
-}
-
-class NameWidget extends StatefulWidget {
-  NameWidget({Key? key}) : super(key: key);
-
-  @override
-  _NameWidgetState createState() => _NameWidgetState();
-}
-
-class _NameWidgetState extends State<NameWidget> {
-  late PersonModel myModel;
-
-  @override
-  void initState() {
-    super.initState();
-    myModel = context.read<PersonModel>();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Text(myModel.name);
   }
 }
