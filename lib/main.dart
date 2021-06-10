@@ -17,13 +17,13 @@ class MyApp extends StatelessWidget {
       onGenerateRoute: (RouteSettings settings) {
         final name = settings.name;
         if (name == 'home') {
-          return MaterialPageRoute(builder: (context) => Home());
+          return MaterialPageRoute(settings: settings, builder: (context) => Home());
         } else if (name == 'red') {
-          return MaterialPageRoute(builder: (context) => RedView());
+          return MaterialPageRoute(settings: settings, builder: (context) => RedView());
         } else if (name == 'green') {
-          return MaterialPageRoute(builder: (context) => GreenView());
+          return MaterialPageRoute(settings: settings, builder: (context) => GreenView());
         } else if (name == 'purple') {
-          return CupertinoPageRoute(builder: (context) => PurpleView());
+          return CupertinoPageRoute(settings: settings, builder: (context) => PurpleView());
         }
         return MaterialPageRoute(
           builder: (context) => Center(child: Text('Error view')),
@@ -88,8 +88,11 @@ class RedView extends StatelessWidget {
               ElevatedButton(
                 child: Text('Pop until home'),
                 onPressed: () {
-                  Navigator.of(context).popUntil(
-                    ModalRoute.withName('home'),
+                  Navigator.of(context, rootNavigator: true).popUntil(
+                    (route) {
+                      print(route.settings.name);
+                      return route.settings.name == 'home';
+                    },
                   );
                 },
               ),
@@ -137,11 +140,78 @@ class Home extends StatelessWidget {
       appBar: AppBar(
         title: Text('Home 1'),
       ),
-      body: Center(
-        child: ElevatedButton(
-          child: Text('Push green view'),
-          onPressed: () => Navigator.of(context).pushNamed('green'),
-        ),
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          ElevatedButton(
+            onPressed: () async {
+              final res = await showDialog<bool>(
+                context: context,
+                builder: (context) {
+                  return AlertDialog(
+                    title: Text('Supprimer ?'),
+                    content: Text('Etes vous sur ?'),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.of(context).pop<bool>(false),
+                        child: Text('No'),
+                      ),
+                      TextButton(
+                        onPressed: () => Navigator.of(context).pop<bool>(true),
+                        child: Text('Yes'),
+                      ),
+                    ],
+                  );
+                },
+              );
+              print(res);
+            },
+            child: Text('Show Alert'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('A snackbar appeared'),
+                  action: SnackBarAction(
+                    label: 'Undo',
+                    onPressed: () {},
+                  ),
+                ),
+              );
+            },
+            child: Text('Show Snackbar'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              showModalBottomSheet(
+                context: context,
+                builder: (context) {
+                  return Container(
+                    color: Colors.blue,
+                    height: MediaQuery.of(context).size.height / 2,
+                    child: Center(
+                      child: TextButton(
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          },
+                          child: Text(
+                            'Modal bottom sheet',
+                            style: TextStyle(color: Colors.red),
+                          )),
+                    ),
+                  );
+                },
+              );
+            },
+            child: Text('Show modal bottom sheet'),
+          ),
+          ElevatedButton(
+            child: Text('Push green view'),
+            onPressed: () => Navigator.of(context).pushNamed('green'),
+          ),
+        ],
       ),
     );
   }
