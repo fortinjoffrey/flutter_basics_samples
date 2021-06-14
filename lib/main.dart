@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'data/sources/remote_source.dart';
-import 'domain/entities/album.dart';
+import 'domain/entities/user.dart';
 import 'package:http/http.dart' as http;
 
 void main() => runApp(MyApp());
@@ -14,12 +14,12 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  late final Future<Album> futureAlbum;
+  late final Future<User> futureUser;
 
   @override
   void initState() {
     super.initState();
-    futureAlbum = RemoteSource(client: http.Client()).fetchAlbum();
+    futureUser = RemoteSource(client: http.Client()).fetchUser();
   }
 
   @override
@@ -34,11 +34,11 @@ class _MyAppState extends State<MyApp> {
           title: Text('Fetch Data Example'),
         ),
         body: Center(
-          child: FutureBuilder<Album>(
-            future: futureAlbum,
+          child: FutureBuilder<User>(
+            future: futureUser,
             builder: (context, snapshot) {
               if (snapshot.hasData) {
-                return Text(snapshot.data!.title);
+                return Text(snapshot.data!.name);
               } else if (snapshot.hasError) {
                 return Text('${snapshot.error}');
               }
