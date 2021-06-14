@@ -1,10 +1,8 @@
+import 'package:equatable/equatable.dart';
+
 abstract class Failure {}
 
-class InvalidInputFailure extends Failure {
+class InvalidInputFailure extends Failure with EquatableMixin {
   @override
-  bool operator ==(Object other) =>
-      identical(this, other) || other is InvalidInputFailure && runtimeType == other.runtimeType;
-
-  @override
-  int get hashCode => runtimeType.hashCode;
+  List<Object?> get props => [];
 }
