@@ -1,8 +1,12 @@
 Future<int> sumStream(Stream<int> stream) async {
   var sum = 0;
-  await for (var value in stream) {
-    print(value);
-    sum += value;
+  try {
+    await for (var value in stream) {
+      print(value);
+      sum += value;
+    }
+  } catch (e) {
+    return -1;
   }
   return sum;
 }
@@ -10,12 +14,16 @@ Future<int> sumStream(Stream<int> stream) async {
 Stream<int> countStream(int to) async* {
   for (int i = 1; i <= to; i++) {
     await Future.delayed(Duration(milliseconds: 100));
-    yield i;
+    if (i == 4) {
+      throw Exception('Intentional exception');
+    } else {
+      yield i;
+    }
   }
 }
 
 Future<void> main() async {
-  var stream = countStream(10); // prints 1, 2, 3... every 100ms
+  var stream = countStream(10);
   var sum = await sumStream(stream);
-  print(sum); // 55
+  print(sum); // -1
 }
