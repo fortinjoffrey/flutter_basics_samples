@@ -1,64 +1,90 @@
+import 'package:basics_samples/l10n/locale_keys.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
-void main() {
-  runApp(MyApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await EasyLocalization.ensureInitialized();
+
+  runApp(
+    EasyLocalization(
+      supportedLocales: const [Locale('en'), Locale('fr')],
+      path: 'assets/translations',
+      fallbackLocale: const Locale('en'),
+      saveLocale: true,
+      useOnlyLangCode: true,
+      child: MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: MyHomePage(title: 'Flutter Demo Home Page'),
+      localizationsDelegates: context.localizationDelegates,
+      supportedLocales: context.supportedLocales,
+      locale: context.locale,
+      home: Home(),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  MyHomePage({Key? key, required this.title}) : super(key: key);
-
-  final String title;
+class Home extends StatefulWidget {
+  const Home({Key? key}) : super(key: key);
 
   @override
-  _MyHomePageState createState() => _MyHomePageState();
+  _HomeState createState() => _HomeState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-
-  void _incrementCounter() {
-    setState(() {
-      _counter++;
-    });
-  }
+class _HomeState extends State<Home> {
+  int _count = 0;
 
   @override
   Widget build(BuildContext context) {
+    print('title'.tr());
+
+    print(context.locale.toString());
     return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.title),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Text(
-              'You have pushed the button this many times:',
-            ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headline4,
-            ),
-          ],
-        ),
-      ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
         child: Icon(Icons.add),
+        onPressed: () {
+          setState(
+            () {
+              _count++;
+            },
+          );
+        },
+      ),
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          Text(
+            LocaleKeys.title.tr(),
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 38),
+          ),
+          Text('${LocaleKeys.current_locale.tr()}: ${context.locale}'),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              ElevatedButton(
+                onPressed: () {
+                  context.setLocale(Locale('en'));
+                },
+                child: Text('EN'),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  context.setLocale(Locale('fr'));
+                },
+                child: Text('FR'),
+              ),
+            ],
+          ),
+          Text(
+            LocaleKeys.counter.plural(_count),
+          ),
+        ],
       ),
     );
   }

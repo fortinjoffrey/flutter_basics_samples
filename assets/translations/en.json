@@ -1,0 +1,9 @@
+{
+  "title": "Welcome",
+  "current_locale": "Application locale",
+  "counter": {
+    "zero": "You have not pushed the counter yet",
+    "one": "You have pushed 1 time",
+    "other": "You have pushed {} times"
+  }
+}
