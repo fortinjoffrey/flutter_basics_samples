@@ -1,23 +1,21 @@
+import 'package:basics_samples/data/model/data_state.dart';
 import 'package:basics_samples/data/weather_repository.dart';
 import 'package:bloc/bloc.dart';
 import 'package:basics_samples/data/model/weather.dart';
-import 'package:meta/meta.dart';
 
-part 'weather_state.dart';
-
-class WeatherCubit extends Cubit<WeatherState> {
+class WeatherCubit extends Cubit<DataState<Weather>> {
   final WeatherRepository _weatherRepository;
 
-  WeatherCubit(this._weatherRepository) : super(WeatherInitial());
+  WeatherCubit(this._weatherRepository) : super(DataState.initial());
 
   Future<void> getWeatcher(String cityName) async {
     try {
-      emit(const WeatherLoading());
+      emit(const DataState.pending());
 
       final weather = await _weatherRepository.fetchWeather(cityName);
-      emit(WeatherLoaded(weather));
+      emit(DataState.complete(weather));
     } catch (e) {
-      emit(WeatherError('Couldn\'t fetch weather.'));
+      emit(DataState.failure('Couldn\'t fetch weather.'));
     }
   }
 }

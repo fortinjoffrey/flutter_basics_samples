@@ -1,4 +1,5 @@
 import 'package:basics_samples/cubit/weather_cubit.dart';
+import 'package:basics_samples/data/model/data_state.dart';
 import 'package:basics_samples/data/model/weather.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -18,29 +19,29 @@ class _WeatherSearchPageState extends State<WeatherSearchPage> {
       body: Container(
         padding: EdgeInsets.symmetric(vertical: 16),
         alignment: Alignment.center,
-        child: BlocConsumer<WeatherCubit, WeatherState>(
+        child: BlocConsumer<WeatherCubit, DataState<Weather>>(
           // Reacts to new state
           // listener cb is not part of build process
           listener: (context, state) {
-            if (state is WeatherError) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(state.message),
-                ),
-              );
-            }
+            state.maybeWhen(
+              failure: (message) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(message),
+                  ),
+                );
+              },
+              orElse: () {},
+            );
           },
           // Builder is called when a new state is emited
           builder: (context, state) {
-            if (state is WeatherInitial)
-              return Center(child: CityInputField());
-            else if (state is WeatherLoading)
-              return Center(child: CircularProgressIndicator());
-            else if (state is WeatherLoaded)
-              return _WeatherDataWidget(weather: state.weather);
-            else {
-              return Center(child: CityInputField());
-            }
+            return state.when(
+              initial: () => Center(child: CityInputField()),
+              pending: () => const Center(child: CircularProgressIndicator()),
+              failure: (_) => Center(child: CityInputField()),
+              complete: (weather) => _WeatherDataWidget(weather: weather),
+            );
           },
         ),
       ),
