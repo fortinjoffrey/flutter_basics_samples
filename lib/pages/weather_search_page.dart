@@ -1,5 +1,11 @@
+<<<<<<< HEAD
 import 'package:basics_samples/blocs/weather/weather_bloc.dart';
 import 'package:basics_samples/data/model/weather.dart';
+=======
+import 'package:basics_samples/bloc/weather_bloc.dart';
+import 'package:basics_samples/bloc/weather_event.dart';
+import 'package:basics_samples/data/model/data_state.dart';
+>>>>>>> c541aaa (Add freezed package and DataState, WeatherEvent)
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -18,30 +24,29 @@ class _WeatherSearchPageState extends State<WeatherSearchPage> {
       body: Container(
         padding: EdgeInsets.symmetric(vertical: 16),
         alignment: Alignment.center,
-        child: BlocConsumer<WeatherBloc, WeatherState>(
+        child: BlocConsumer<WeatherBloc, DataState<Weather>>(
           // Reacts to new state
           // listener cb is not part of build process
           listener: (context, state) {
-            if (state is WeatherError) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(state.message),
-                ),
-              );
-            }
+            state.maybeWhen(
+              failure: (message) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(message),
+                  ),
+                );
+              },
+              orElse: () {},
+            );
           },
           // Builder is called when a new state is emited
           builder: (context, state) {
-            print(state);
-            if (state is WeatherInitial)
-              return buildInitialInput();
-            else if (state is WeatherLoading)
-              return buildLoading();
-            else if (state is WeatherLoaded)
-              return buildColumnWithData(state.weather);
-            else {
-              return buildInitialInput();
-            }
+            return state.when(
+              initial: () => buildInitialInput(),
+              pending: () => buildLoading(),
+              failure: (_) => buildInitialInput(),
+              complete: (weather) => buildColumnWithData(weather),
+            );
           },
         ),
       ),
