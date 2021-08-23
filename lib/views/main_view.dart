@@ -23,7 +23,14 @@ class MainView extends StatelessWidget {
       backgroundColor: const Color(0xFF494949),
       iconSize: 28,
       currentIndex: tabsRouter.activeIndex,
-      onTap: tabsRouter.setActiveIndex,
+      onTap: (index) {
+        // if the tapped tab is the current one, pop all pushed routes of this tab
+        if (index == tabsRouter.activeIndex) {
+          tabsRouter.popTop();
+        } else {
+          tabsRouter.setActiveIndex(index);
+        }
+      },
       items: [
         BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
         BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
