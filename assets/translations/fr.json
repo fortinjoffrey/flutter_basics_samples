@@ -1,0 +1,20 @@
+{
+  "views": {
+    "home": "Accueil",
+    "profile": "Profil",
+    "placeholder": "Placeholder",
+    "red": "Rouge"
+  },
+  "navigation": {
+    "to_placeholder_in_router": "Naviguer vers la vue placeholder dans le sous-router",
+    "to_placeholder": "Naviguer vers la vue placeholder dans le router racine",
+    "to_red_view": "Naviguer vers la vue rouge",
+    "back": "Pop la vue"
+  },
+  "common": {
+    "auth": {
+      "login": "Se connecter",
+      "sign_out": "Se déconnecter"
+    }
+  }
+}
