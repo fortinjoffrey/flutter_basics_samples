@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:basics_samples/local_notification_source.dart';
 import 'package:basics_samples/remote_source.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
@@ -36,12 +37,18 @@ class _HomeState extends State<Home> {
   final streamController = StreamController<double>();
 
   @override
+  void initState() {
+    super.initState();
+    LocalNotificationSource.init();
+  }
+
+  @override
   void dispose() {
     streamController.close();
     super.dispose();
   }
 
-  Future<void> _saveFileToDownloadFolder({
+  Future<String> _saveFileToDownloadFolder({
     required BuildContext context,
     required Uint8List fileBytes,
     required String filename,
@@ -58,11 +65,15 @@ class _HomeState extends State<Home> {
     parts.add('Download');
     final path = parts.join('/');
 
-    final file = File('$path/$filename');
+    final filepath = '$path/$filename';
+
+    final file = File(filepath);
 
     await file.writeAsBytes(fileBytes);
 
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('File downloaded')));
+
+    return filepath;
   }
 
   @override
@@ -86,37 +97,67 @@ class _HomeState extends State<Home> {
               },
             ),
             ElevatedButton(
+              onPressed: () {
+                LocalNotificationSource.show(
+                  title: 'Title',
+                  body: 'body',
+                );
+              },
+              child: Text('Show notification'),
+            ),
+            ElevatedButton(
               child: Text('Download flutter dash'),
               onPressed: () async {
-                final remoteSource = RemoteSource();
-
-                try {
-                  // (step 1): check if we have permission to storage
-                  if (!await Permission.storage.isGranted) {
-                    final status = await Permission.storage.request();
-
-                    if (status != PermissionStatus.granted) {
-                      return;
-                    }
-                  }
-
-                  // (step 2): once the permission is granted, download the file
-                  final fileBytes = await remoteSource.downloadFromUrl(
-                    'https://flutter.dev/assets/dash/early-dash-sketches2-a38190f3c27f9309101e711143e4a67af04757d7b9f29b00e9ae8cb2cb841d1a.jpg',
-                    streamController,
-                  );
-
-                  // (step 3): save the file into the download folder
-                  await _saveFileToDownloadFolder(context: context, fileBytes: fileBytes, filename: 'dash.jpg');
-                } catch (e) {
-                  print(e);
-                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('An error occured')));
-                }
+                _performDownload('https://flutter.dev/assets/images/dash/early-dash-sketches3.jpg');
+              },
+            ),
+            ElevatedButton(
+              child: Text('Download dummy pdf'),
+              onPressed: () async {
+                _performDownload('https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf');
               },
             ),
           ],
         ),
       ),
     );
+  }
+
+  Future<void> _performDownload(String url) async {
+    final remoteSource = RemoteSource();
+
+    try {
+      // (step 1): check if we have permission to storage
+      if (!await Permission.storage.isGranted) {
+        final status = await Permission.storage.request();
+
+        if (status != PermissionStatus.granted) {
+          return;
+        }
+      }
+
+      // (step 2): once the permission is granted, download the file
+      final fileBytes = await remoteSource.downloadFromUrl(
+        url,
+        streamController,
+      );
+
+      final filename = url.split('/').last;
+
+      // (step 3): save the file into the download folder
+      final filepath = await _saveFileToDownloadFolder(context: context, fileBytes: fileBytes, filename: filename);
+
+      await Future<void>.delayed(const Duration(seconds: 1), () {
+        LocalNotificationSource.show(
+          title: filename,
+          body: 'File downloaded',
+          payload: filepath,
+          filepath: filepath,
+        );
+      });
+    } catch (e) {
+      print(e);
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('An error occured')));
+    }
   }
 }
