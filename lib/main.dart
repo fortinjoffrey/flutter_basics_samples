@@ -1,3 +1,4 @@
+import 'package:basics_samples/overlay_mixin.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -12,7 +13,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: MyHomePage(title: 'Flutter Demo Home Page'),
+      home: MyHomePage(title: 'Flutter Demo Overlays'),
     );
   }
 }
@@ -26,15 +27,7 @@ class MyHomePage extends StatefulWidget {
   _MyHomePageState createState() => _MyHomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-
-  void _incrementCounter() {
-    setState(() {
-      _counter++;
-    });
-  }
-
+class _MyHomePageState extends State<MyHomePage> with OverlayMixin {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -45,21 +38,85 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            Text(
-              'You have pushed the button this many times:',
+            ElevatedButton(
+              onPressed: () async {
+                showOverlay();
+
+                await Future<void>.delayed(const Duration(seconds: 3));
+
+                hideOverlay();
+              },
+              child: Text(
+                'Show fullscreen overlay',
+              ),
             ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headline4,
+            ElevatedButton(
+              onPressed: () async {
+                showOverlay(secondOverlayEntry);
+
+                await Future<void>.delayed(const Duration(seconds: 3));
+
+                hideOverlay(secondOverlayEntry);
+              },
+              child: Text(
+                'Show bottom overlay',
+              ),
             ),
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: Icon(Icons.add),
-      ),
     );
   }
+
+  OverlayEntry firstOverlayEntry = OverlayEntry(
+    builder: (context) => Stack(
+      fit: StackFit.expand,
+      children: [
+        Opacity(
+          opacity: .5,
+          child: Container(
+            color: Colors.black,
+            width: double.infinity,
+            height: double.infinity,
+          ),
+        ),
+        Center(
+          child: const CircularProgressIndicator(
+            strokeWidth: 2,
+            color: Colors.black,
+          ),
+        ),
+      ],
+    ),
+  );
+  OverlayEntry secondOverlayEntry = OverlayEntry(
+    builder: (context) => Stack(
+      fit: StackFit.expand,
+      children: [
+        Align(
+          alignment: Alignment.bottomCenter,
+          child: Opacity(
+            opacity: .3,
+            child: Container(
+              height: MediaQuery.of(context).size.height / 5,
+              color: Colors.black,
+            ),
+          ),
+        ),
+        Align(
+          alignment: Alignment.bottomCenter,
+          child: Container(
+            height: MediaQuery.of(context).size.height / 5,
+            color: Colors.transparent,
+            child: Center(
+              child: CircularProgressIndicator(),
+            ),
+          ),
+        ),
+      ],
+    ),
+  );
+
+  @override
+  List<OverlayEntry> get overlayEntries => [firstOverlayEntry, secondOverlayEntry];
 }
