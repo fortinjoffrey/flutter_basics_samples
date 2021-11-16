@@ -1,6 +1,17 @@
+import 'package:basics_samples/services/preferences_service.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-void main() {
+import 'views/onboarding/onboarding_view.dart';
+
+late final PreferencesService preferencesService;
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  final sharedPreferences = await SharedPreferences.getInstance();
+
+  preferencesService = PreferencesService(sharedPreferences);
+
   runApp(MyApp());
 }
 
@@ -10,55 +21,73 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        primarySwatch: Colors.red,
+        textTheme: TextTheme(
+          headline4: TextStyle(
+            color: Color(0xFFEC6B06),
+            fontSize: 28,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
       ),
-      home: MyHomePage(title: 'Flutter Demo Home Page'),
+      home: const Home(),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  MyHomePage({Key? key, required this.title}) : super(key: key);
-
-  final String title;
+class Home extends StatefulWidget {
+  const Home({Key? key}) : super(key: key);
 
   @override
-  _MyHomePageState createState() => _MyHomePageState();
+  State<Home> createState() => _HomeState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+class _HomeState extends State<Home> {
+  @override
+  void initState() {
+    super.initState();
 
-  void _incrementCounter() {
-    setState(() {
-      _counter++;
-    });
+    if (preferencesService.showOnboarding) {
+      WidgetsBinding.instance?.addPostFrameCallback(
+        (_) async {
+          await _showOnboardingModal();
+          // only show the onboarding on first launch
+          preferencesService.showOnboarding = false;
+        },
+      );
+    }
+  }
+
+  Future<void> _showOnboardingModal() async {
+    await showModalBottomSheet(
+      context: context,
+      enableDrag: false,
+      isDismissible: false,
+      isScrollControlled: true,
+      builder: (_) => const OnboardingView(),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.title),
+        title: const Text('Home'),
       ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Text(
-              'You have pushed the button this many times:',
+          children: [
+            ElevatedButton(
+              onPressed: () => preferencesService.showOnboarding = true,
+              child: const Text('Reset onboarding preference'),
             ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headline4,
+            ElevatedButton(
+              onPressed: () => _showOnboardingModal(),
+              child: const Text('Show onboarding'),
             ),
           ],
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: Icon(Icons.add),
       ),
     );
   }
