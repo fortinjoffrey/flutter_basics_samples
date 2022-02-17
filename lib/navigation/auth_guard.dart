@@ -7,12 +7,12 @@ import 'app_router.gr.dart';
 /// navigation. If not, the [LoginRoute] should be pushed.
 class AuthGuard extends AutoRouteGuard {
   @override
-  void onNavigation(NavigationResolver resolver, StackRouter router) async {
+  Future<void> onNavigation(NavigationResolver resolver, StackRouter router) async {
     final sharedPreferences = await SharedPreferences.getInstance();
     final isUserLoggedIn = sharedPreferences.get('loggedIn') as bool?;
 
     if (isUserLoggedIn == null || isUserLoggedIn == false) {
-      router.push(LoginRoute());
+      router.push(const LoginRoute());
     } else {
       resolver.next();
     }

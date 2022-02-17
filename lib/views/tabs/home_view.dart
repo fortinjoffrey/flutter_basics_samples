@@ -10,7 +10,7 @@ class HomeView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Home'),
+        title: const Text('Home'),
       ),
       body: Center(
         child: Column(
@@ -18,35 +18,39 @@ class HomeView extends StatelessWidget {
           children: [
             ElevatedButton(
               onPressed: () async {
+                final autoRouter = AutoRouter.of(context);
+
                 final sharedPreferences = await SharedPreferences.getInstance();
 
                 sharedPreferences.setBool('loggedIn', false);
 
-                AutoRouter.of(context).root.replace(const MainRoute());
+                autoRouter.root.replace(const MainRoute());
               },
-              child: Text('Sign out'),
+              child: const Text('Sign out'),
             ),
             ElevatedButton(
               onPressed: () {
                 AutoRouter.of(context).push(const PlaceholderRoute());
               },
-              child: Text('Navigate to placeholder view in router'),
+              child: const Text('Navigate to placeholder view in router'),
             ),
             ElevatedButton(
               onPressed: () {
                 AutoRouter.of(context).root.push(const PlaceholderRoute());
               },
-              child: Text('Navigate to placeholder view in root router'),
+              child: const Text('Navigate to placeholder view in root router'),
             ),
             ElevatedButton(
               onPressed: () {
                 AutoTabsRouter.of(context).setActiveIndex(1);
               },
-              child: Text('Go to second tab'),
+              child: const Text('Go to second tab'),
             ),
             ElevatedButton(
               onPressed: () async {
-                AutoTabsRouter.of(context).setActiveIndex(1);
+                final autoTabsRouter = AutoTabsRouter.of(context);
+
+                autoTabsRouter.setActiveIndex(1);
 
                 // This delay is absolutely important for two reasons:
                 // 1. in autoroute 2.3.0, on first launch StackRouters are lazy loaded
@@ -58,14 +62,14 @@ class HomeView extends StatelessWidget {
                 //    It navigates itself and the user is aware of what's going on
                 // NB: 500ms is totally arbitrary
                 await Future<void>.delayed(const Duration(milliseconds: 500));
-                final router = AutoTabsRouter.of(context).innerRouterOf<StackRouter>(ProfileTab.name);
+                final router = autoTabsRouter.innerRouterOf<StackRouter>(ProfileTab.name);
 
                 if (router != null) {
                   router.popUntilRoot();
                   router.push(ColorfulRoute());
                 }
               },
-              child: Text('Go to profile and push red view'),
+              child: const Text('Go to profile and push red view'),
             ),
           ],
         ),

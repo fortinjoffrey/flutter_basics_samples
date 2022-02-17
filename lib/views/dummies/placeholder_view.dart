@@ -7,9 +7,9 @@ class PlaceholderView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Placeholder'),
+        title: const Text('Placeholder'),
       ),
-      body: Placeholder(),
+      body: const Placeholder(),
     );
   }
 }

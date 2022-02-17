@@ -9,7 +9,7 @@ class ColorfulView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Color view'),
+        title: const Text('Color view'),
       ),
       body: Center(child: Container(color: color ?? Colors.red)),
     );

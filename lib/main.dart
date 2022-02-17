@@ -4,7 +4,7 @@ import 'navigation/app_router.gr.dart';
 import 'navigation/auth_guard.dart';
 
 void main() {
-  runApp(App());
+  runApp(const App());
 }
 
 final _appRouter = AppRouter(authGuard: AuthGuard());

@@ -9,14 +9,14 @@ class ProfileView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Profile'),
+        title: const Text('Profile'),
       ),
       body: Center(
         child: ElevatedButton(
           onPressed: () {
             AutoRouter.of(context).push(ColorfulRoute());
           },
-          child: Text('Go to red view'),
+          child: const Text('Go to red view'),
         ),
       ),
     );

@@ -31,7 +31,7 @@ class MainView extends StatelessWidget {
           tabsRouter.setActiveIndex(index);
         }
       },
-      items: [
+      items: const [
         BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
         BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
       ],

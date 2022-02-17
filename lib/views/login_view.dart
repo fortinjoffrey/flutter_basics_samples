@@ -12,11 +12,13 @@ class LoginView extends StatelessWidget {
       body: Center(
         child: ElevatedButton(
           onPressed: () async {
+            final autoRouter = AutoRouter.of(context);
+
             final sharedPreferences = await SharedPreferences.getInstance();
             sharedPreferences.setBool('loggedIn', true);
-            AutoRouter.of(context).replace(const MainRoute());
+            autoRouter.replace(const MainRoute());
           },
-          child: Text('LOG IN'),
+          child: const Text('LOG IN'),
         ),
       ),
     );

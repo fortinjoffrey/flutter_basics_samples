@@ -1,9 +1,8 @@
-import 'package:auto_route/annotations.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:basics_samples/views/dummies/colorful_view.dart';
+import 'package:basics_samples/views/dummies/placeholder_view.dart';
 import 'package:basics_samples/views/login_view.dart';
 import 'package:basics_samples/views/main_view.dart';
-import 'package:basics_samples/views/dummies/placeholder_view.dart';
 import 'package:basics_samples/views/tabs/home_view.dart';
 import 'package:basics_samples/views/tabs/profile_view.dart';
 
