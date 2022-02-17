@@ -1,5 +1,6 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
 import 'app_router.gr.dart';
 
 /// This [AuthGuard] makes sure that a user is signed in before continuing
@@ -11,14 +12,7 @@ class AuthGuard extends AutoRouteGuard {
     final isUserLoggedIn = sharedPreferences.get('loggedIn') as bool?;
 
     if (isUserLoggedIn == null || isUserLoggedIn == false) {
-      router.push(
-        LoginRoute(
-          onLogin: () {
-            router.removeLast();
-            resolver.next();
-          },
-        ),
-      );
+      router.push(LoginRoute());
     } else {
       resolver.next();
     }
