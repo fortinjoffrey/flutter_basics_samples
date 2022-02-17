@@ -46,3 +46,6 @@ app.*.map.json
 /android/app/release
 
 *.gr.dart
+# Flutter version manager flutter sdk source code
+# .fvm
+.fvm/flutter_sdk
