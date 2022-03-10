@@ -1,19 +1,15 @@
-import 'package:json_annotation/json_annotation.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 
+part 'child.freezed.dart';
 part 'child.g.dart';
 
-@JsonSerializable()
-class Child {
-  Child(this.name);
-
-  final String name;
-
-  @override
-  String toString() {
-    return 'Child(name: $name)';
-  }
+@freezed
+class Child with _$Child {
+  // ignore: invalid_annotation_target
+  @JsonSerializable(explicitToJson: true)
+  const factory Child({
+    required String name,
+  }) = _Child;
 
   factory Child.fromJson(Map<String, dynamic> json) => _$ChildFromJson(json);
-
-  Map<String, dynamic> toJson() => _$ChildToJson(this);
 }

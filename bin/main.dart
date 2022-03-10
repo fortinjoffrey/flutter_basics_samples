@@ -16,10 +16,10 @@ void testFromJson() {
 }
 
 void testToJson() {
-  final child = Child('Child');
+  final child = Child(name: 'child');
   print(child.toJson());
 
-  final father = Father('Father', child);
+  final father = Father(name: 'father', child: child);
   print(father.toJson());
 }
 

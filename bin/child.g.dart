@@ -6,10 +6,10 @@ part of 'child.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-Child _$ChildFromJson(Map<String, dynamic> json) => Child(
-      json['name'] as String,
+_$_Child _$$_ChildFromJson(Map<String, dynamic> json) => _$_Child(
+      name: json['name'] as String,
     );
 
-Map<String, dynamic> _$ChildToJson(Child instance) => <String, dynamic>{
+Map<String, dynamic> _$$_ChildToJson(_$_Child instance) => <String, dynamic>{
       'name': instance.name,
     };
