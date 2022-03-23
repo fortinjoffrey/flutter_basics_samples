@@ -1,7 +1,7 @@
-import 'package:basics_samples/bloc/weather_bloc.dart';
+import 'package:basics_samples/blocs/weather/weather_bloc.dart';
+import 'package:basics_samples/data/model/weather.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:basics_samples/data/model/weather.dart';
 
 class WeatherSearchPage extends StatefulWidget {
   @override
@@ -102,6 +102,6 @@ class CityInputField extends StatelessWidget {
   void submitCityName(BuildContext context, String cityName) {
     final weatherBloc = BlocProvider.of<WeatherBloc>(context);
 
-    weatherBloc.add(GetWeather(cityName));
+    weatherBloc.add(GetWeatherEvent(cityName));
   }
 }
