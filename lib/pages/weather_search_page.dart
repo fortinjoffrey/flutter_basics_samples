@@ -1,7 +1,7 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:basics_samples/cubit/weather_cubit.dart';
 import 'package:basics_samples/data/model/weather.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class WeatherSearchPage extends StatefulWidget {
   @override
@@ -32,35 +32,32 @@ class _WeatherSearchPageState extends State<WeatherSearchPage> {
           },
           // Builder is called when a new state is emited
           builder: (context, state) {
-            print(state);
             if (state is WeatherInitial)
-              return buildInitialInput();
+              return Center(child: CityInputField());
             else if (state is WeatherLoading)
-              return buildLoading();
+              return Center(child: CircularProgressIndicator());
             else if (state is WeatherLoaded)
-              return buildColumnWithData(state.weather);
+              return _WeatherDataWidget(weather: state.weather);
             else {
-              return buildInitialInput();
+              return Center(child: CityInputField());
             }
           },
         ),
       ),
     );
   }
+}
 
-  Widget buildInitialInput() {
-    return Center(
-      child: CityInputField(),
-    );
-  }
+class _WeatherDataWidget extends StatelessWidget {
+  const _WeatherDataWidget({
+    Key? key,
+    required this.weather,
+  }) : super(key: key);
 
-  Widget buildLoading() {
-    return Center(
-      child: CircularProgressIndicator(),
-    );
-  }
+  final Weather weather;
 
-  Column buildColumnWithData(Weather weather) {
+  @override
+  Widget build(BuildContext context) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: <Widget>[
