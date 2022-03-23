@@ -1,5 +1,6 @@
 // coverage:ignore-file
 // GENERATED CODE - DO NOT MODIFY BY HAND
+// ignore_for_file: type=lint
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target
 
 part of 'data_state.dart';
@@ -130,23 +131,18 @@ class __$InitialCopyWithImpl<T, $Res> extends _$DataStateCopyWithImpl<T, $Res>
 
 /// @nodoc
 
-class _$_Initial<T> with DiagnosticableTreeMixin implements _Initial<T> {
+class _$_Initial<T> implements _Initial<T> {
   const _$_Initial();
 
   @override
-  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
+  String toString() {
     return 'DataState<$T>.initial()';
   }
 
   @override
-  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-    super.debugFillProperties(properties);
-    properties..add(DiagnosticsProperty('type', 'DataState<$T>.initial'));
-  }
-
-  @override
   bool operator ==(dynamic other) {
-    return identical(this, other) || (other is _Initial<T>);
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType && other is _Initial<T>);
   }
 
   @override
@@ -250,23 +246,18 @@ class __$PendingCopyWithImpl<T, $Res> extends _$DataStateCopyWithImpl<T, $Res>
 
 /// @nodoc
 
-class _$_Pending<T> with DiagnosticableTreeMixin implements _Pending<T> {
+class _$_Pending<T> implements _Pending<T> {
   const _$_Pending();
 
   @override
-  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
+  String toString() {
     return 'DataState<$T>.pending()';
   }
 
   @override
-  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-    super.debugFillProperties(properties);
-    properties..add(DiagnosticsProperty('type', 'DataState<$T>.pending'));
-  }
-
-  @override
   bool operator ==(dynamic other) {
-    return identical(this, other) || (other is _Pending<T>);
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType && other is _Pending<T>);
   }
 
   @override
@@ -383,36 +374,28 @@ class __$FailureCopyWithImpl<T, $Res> extends _$DataStateCopyWithImpl<T, $Res>
 
 /// @nodoc
 
-class _$_Failure<T> with DiagnosticableTreeMixin implements _Failure<T> {
+class _$_Failure<T> implements _Failure<T> {
   const _$_Failure(this.message);
 
   @override
   final String message;
 
   @override
-  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
+  String toString() {
     return 'DataState<$T>.failure(message: $message)';
-  }
-
-  @override
-  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-    super.debugFillProperties(properties);
-    properties
-      ..add(DiagnosticsProperty('type', 'DataState<$T>.failure'))
-      ..add(DiagnosticsProperty('message', message));
   }
 
   @override
   bool operator ==(dynamic other) {
     return identical(this, other) ||
-        (other is _Failure<T> &&
-            (identical(other.message, message) ||
-                const DeepCollectionEquality().equals(other.message, message)));
+        (other.runtimeType == runtimeType &&
+            other is _Failure<T> &&
+            const DeepCollectionEquality().equals(other.message, message));
   }
 
   @override
   int get hashCode =>
-      runtimeType.hashCode ^ const DeepCollectionEquality().hash(message);
+      Object.hash(runtimeType, const DeepCollectionEquality().hash(message));
 
   @JsonKey(ignore: true)
   @override
@@ -497,7 +480,7 @@ class _$_Failure<T> with DiagnosticableTreeMixin implements _Failure<T> {
 abstract class _Failure<T> implements DataState<T> {
   const factory _Failure(String message) = _$_Failure<T>;
 
-  String get message => throw _privateConstructorUsedError;
+  String get message;
   @JsonKey(ignore: true)
   _$FailureCopyWith<T, _Failure<T>> get copyWith =>
       throw _privateConstructorUsedError;
@@ -536,36 +519,28 @@ class __$CompleteCopyWithImpl<T, $Res> extends _$DataStateCopyWithImpl<T, $Res>
 
 /// @nodoc
 
-class _$_Complete<T> with DiagnosticableTreeMixin implements _Complete<T> {
+class _$_Complete<T> implements _Complete<T> {
   const _$_Complete(this.data);
 
   @override
   final T data;
 
   @override
-  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
+  String toString() {
     return 'DataState<$T>.complete(data: $data)';
-  }
-
-  @override
-  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-    super.debugFillProperties(properties);
-    properties
-      ..add(DiagnosticsProperty('type', 'DataState<$T>.complete'))
-      ..add(DiagnosticsProperty('data', data));
   }
 
   @override
   bool operator ==(dynamic other) {
     return identical(this, other) ||
-        (other is _Complete<T> &&
-            (identical(other.data, data) ||
-                const DeepCollectionEquality().equals(other.data, data)));
+        (other.runtimeType == runtimeType &&
+            other is _Complete<T> &&
+            const DeepCollectionEquality().equals(other.data, data));
   }
 
   @override
   int get hashCode =>
-      runtimeType.hashCode ^ const DeepCollectionEquality().hash(data);
+      Object.hash(runtimeType, const DeepCollectionEquality().hash(data));
 
   @JsonKey(ignore: true)
   @override
@@ -650,7 +625,7 @@ class _$_Complete<T> with DiagnosticableTreeMixin implements _Complete<T> {
 abstract class _Complete<T> implements DataState<T> {
   const factory _Complete(T data) = _$_Complete<T>;
 
-  T get data => throw _privateConstructorUsedError;
+  T get data;
   @JsonKey(ignore: true)
   _$CompleteCopyWith<T, _Complete<T>> get copyWith =>
       throw _privateConstructorUsedError;
