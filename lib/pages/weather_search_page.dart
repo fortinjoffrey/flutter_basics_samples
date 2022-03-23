@@ -1,11 +1,7 @@
-<<<<<<< HEAD
 import 'package:basics_samples/blocs/weather/weather_bloc.dart';
-import 'package:basics_samples/data/model/weather.dart';
-=======
-import 'package:basics_samples/bloc/weather_bloc.dart';
-import 'package:basics_samples/bloc/weather_event.dart';
+import 'package:basics_samples/blocs/weather/weather_event.dart';
 import 'package:basics_samples/data/model/data_state.dart';
->>>>>>> c541aaa (Add freezed package and DataState, WeatherEvent)
+import 'package:basics_samples/data/model/weather.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -42,30 +38,28 @@ class _WeatherSearchPageState extends State<WeatherSearchPage> {
           // Builder is called when a new state is emited
           builder: (context, state) {
             return state.when(
-              initial: () => buildInitialInput(),
-              pending: () => buildLoading(),
-              failure: (_) => buildInitialInput(),
-              complete: (weather) => buildColumnWithData(weather),
+              initial: () => Center(child: CityInputField()),
+              pending: () => Center(child: CircularProgressIndicator()),
+              failure: (_) => Center(child: CityInputField()),
+              complete: (weather) => _WeatherDataWidget(weather: weather),
             );
           },
         ),
       ),
     );
   }
+}
 
-  Widget buildInitialInput() {
-    return Center(
-      child: CityInputField(),
-    );
-  }
+class _WeatherDataWidget extends StatelessWidget {
+  const _WeatherDataWidget({
+    Key? key,
+    required this.weather,
+  }) : super(key: key);
 
-  Widget buildLoading() {
-    return Center(
-      child: CircularProgressIndicator(),
-    );
-  }
+  final Weather weather;
 
-  Column buildColumnWithData(Weather weather) {
+  @override
+  Widget build(BuildContext context) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: <Widget>[
@@ -93,7 +87,7 @@ class CityInputField extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 50),
       child: TextField(
-        onSubmitted: (value) => submitCityName(context, value),
+        onSubmitted: (value) => _submitCityName(context, value),
         textInputAction: TextInputAction.search,
         decoration: InputDecoration(
           hintText: "Enter a city",
@@ -104,9 +98,9 @@ class CityInputField extends StatelessWidget {
     );
   }
 
-  void submitCityName(BuildContext context, String cityName) {
+  void _submitCityName(BuildContext context, String cityName) {
     final weatherBloc = BlocProvider.of<WeatherBloc>(context);
 
-    weatherBloc.add(GetWeatherEvent(cityName));
+    weatherBloc.add(WeatherEvent.getWeather(cityName));
   }
 }

@@ -1,10 +1,8 @@
-part of 'weather_bloc.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 
-@immutable
-abstract class WeatherEvent {}
+part 'weather_event.freezed.dart';
 
-class GetWeatherEvent implements WeatherEvent {
-  GetWeatherEvent(this.cityname);
-
-  final String cityname;
+@freezed
+class WeatherEvent with _$WeatherEvent {
+  const factory WeatherEvent.getWeather(String cityName) = GetWeather;
 }
