@@ -22,4 +22,15 @@
     "body": ["test(", "  \"$1\",", "  () async {", "    $2", "  },", ");"],
     "description": "Test following the Arrange-Act-Assert pattern"
   },
+
+  "Flutter widget test boilerplate": {
+    "prefix": "wTest",
+    "body": [
+      "testWidgets(",
+      "  \"$1\",",
+      "  (WidgetTester tester) async {$2},",
+      ");"
+    ],
+    "description": "Flutter widget test boilerplate"
+  }
 }
