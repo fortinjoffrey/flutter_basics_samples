@@ -13,7 +13,6 @@ class CartView extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text('Cart', style: Theme.of(context).textTheme.headline1),
-        backgroundColor: Colors.white,
       ),
       body: Container(
         color: Colors.yellow,
@@ -30,6 +29,12 @@ class CartView extends StatelessWidget {
               ),
             ),
             Divider(height: 4, color: Colors.black),
+            ElevatedButton(
+                onPressed: () {
+                  context.read<CartModel>().clearItems();
+                },
+                child: Text('Remove all items')),
+            Divider(height: 4, color: Colors.black),
             _buildCartTotal(context),
             // _CartTotal()
           ],
@@ -41,13 +46,7 @@ class CartView extends StatelessWidget {
   Widget _buildCartItemsList(UnmodifiableListView<Item> items) {
     return ListView.builder(
       itemCount: items.length,
-      itemBuilder: (context, index) => ListTile(
-        leading: Icon(Icons.done),
-        title: Text(
-          items[index].name,
-          style: Theme.of(context).textTheme.headline6,
-        ),
-      ),
+      itemBuilder: (context, index) => _CartItemTile(item: items[index]),
     );
   }
 
@@ -75,6 +74,48 @@ class CartView extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _CartItemTile extends StatelessWidget {
+  const _CartItemTile({
+    Key? key,
+    required this.item,
+  }) : super(key: key);
+
+  final Item item;
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      onLongPress: () {
+        showDialog(
+            context: context,
+            builder: (context) {
+              return AlertDialog(
+                title: Text('Remove this item?'),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    child: Text('No'),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      context.read<CartModel>().remove(item);
+                      Navigator.of(context).pop();
+                    },
+                    child: Text('Yes'),
+                  ),
+                ],
+              );
+            });
+      },
+      leading: Icon(Icons.done),
+      title: Text(
+        item.name,
+        style: Theme.of(context).textTheme.headline6,
       ),
     );
   }

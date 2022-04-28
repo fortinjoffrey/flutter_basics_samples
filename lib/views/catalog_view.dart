@@ -30,9 +30,30 @@ class CatalogView extends StatelessWidget {
       appBar: AppBar(
         title: Text('Catalog'),
         actions: [
-          IconButton(
-            icon: Icon(Icons.shopping_cart),
-            onPressed: () => Navigator.pushNamed(context, '/cart'),
+          Stack(
+            alignment: Alignment.center,
+            children: [
+              IconButton(
+                icon: Icon(Icons.shopping_cart),
+                onPressed: () => Navigator.pushNamed(context, '/cart'),
+              ),
+              Align(
+                alignment: Alignment.bottomRight,
+                child: Container(
+                  width: 25,
+                  decoration: BoxDecoration(color: Colors.black, borderRadius: BorderRadius.circular(15)),
+                  child: Selector<CartModel, int>(
+                    selector: (_, cartModel) => cartModel.itemsCount,
+                    builder: (_, itemsCount, child) {
+                      return Text(
+                        itemsCount.toString(),
+                        textAlign: TextAlign.center,
+                      );
+                    },
+                  ),
+                ),
+              ),
+            ],
           ),
         ],
       ),

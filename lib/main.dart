@@ -22,7 +22,7 @@ class MyApp extends StatelessWidget {
       child: MaterialApp(
         title: 'Provider Demo',
         theme: ThemeData(
-          primarySwatch: Colors.yellow,
+          primarySwatch: Colors.green,
           textTheme: TextTheme(
             headline1: TextStyle(
               fontFamily: 'Corben',
