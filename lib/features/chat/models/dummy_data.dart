@@ -9,6 +9,7 @@ final List<Message> dummyMessages = List.generate(
   20,
   (index) {
     final senderId = Random().nextInt(2);
+    // const msgTypeIndex = 0;
     final msgTypeIndex = Random().nextInt(3);
     final loremChoice = Random().nextBool();
     const shortLorem = 'Nulla in voluptate elit.';

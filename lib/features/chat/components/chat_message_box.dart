@@ -1,16 +1,21 @@
 import 'package:flutter/material.dart';
-import 'package:swipe_to_reply/features/chat/components/chat_quoted_message_box.dart';
-import 'package:swipe_to_reply/features/chat/models/message.dart';
+import 'package:swipe_to_reply/features/chat/models/message_box_border_radius_data.dart';
+
+import '../../../common/presentation/ui_constants.dart';
+import '../models/message.dart';
+import 'chat_quoted_message_box.dart';
 
 class ChatMessageBox extends StatelessWidget {
   const ChatMessageBox({
     Key? key,
     required this.message,
     required this.fromCurrentUser,
+    this.messageBoxBorderRadiusData,
   }) : super(key: key);
 
   final Message message;
   final bool fromCurrentUser;
+  final MessageBoxBorderRadiusData? messageBoxBorderRadiusData;
 
   @override
   Widget build(BuildContext context) {
@@ -22,11 +27,23 @@ class ChatMessageBox extends StatelessWidget {
             ? ChatMessageBoxWithQuotedMessage(message: message)
             : _ChatMessageBoxContent(message: message),
         decoration: BoxDecoration(
-          color: fromCurrentUser ? Colors.green[200] : Colors.white,
-          borderRadius: BorderRadius.circular(10),
+          color: fromCurrentUser ? Colors.green[200] : Colors.grey[300],
+          borderRadius: BorderRadius.only(
+            topLeft: getRadiusFromCornerEnabled(messageBoxBorderRadiusData!.isTopLeftOn),
+            topRight: getRadiusFromCornerEnabled(messageBoxBorderRadiusData!.isTopRightOn),
+            bottomRight: getRadiusFromCornerEnabled(messageBoxBorderRadiusData!.isBottomRightOn),
+            bottomLeft: getRadiusFromCornerEnabled(messageBoxBorderRadiusData!.isBottomLeftOn),
+          ),
         ),
       ),
     );
+  }
+
+  Radius getRadiusFromCornerEnabled(bool? isCornerEnabled) {
+    const defaultRadius = Radius.circular(UIConstants.messageBorderRadiusValue);
+    const smallRadius = Radius.circular(UIConstants.messageSmallBorderRadiusValue);
+
+    return isCornerEnabled != null && isCornerEnabled ? smallRadius : defaultRadius;
   }
 }
 
@@ -45,7 +62,7 @@ class ChatMessageBoxWithQuotedMessage extends StatelessWidget {
             child: Container(
               decoration: BoxDecoration(
                 color: Colors.grey.withOpacity(.5),
-                border:  const Border(
+                border: const Border(
                   left: BorderSide(color: Colors.grey, width: 8),
                 ),
               ),
