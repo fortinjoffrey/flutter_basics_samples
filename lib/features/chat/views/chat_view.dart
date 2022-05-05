@@ -1,5 +1,7 @@
+
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:provider/provider.dart';
 import 'package:swipe_to/swipe_to.dart';
 import 'package:swipe_to_reply/common/presentation/ui_constants.dart';
 import 'package:swipe_to_reply/features/chat/components/chat_bottom_controls.dart';
@@ -7,6 +9,7 @@ import 'package:swipe_to_reply/features/chat/components/chat_quoted_message_prev
 import 'package:swipe_to_reply/features/chat/components/chat_user_message_row.dart';
 import 'package:swipe_to_reply/features/chat/models/dummy_data.dart';
 import 'package:swipe_to_reply/features/chat/models/message.dart';
+import 'package:swipe_to_reply/features/chat/models/message_box_border_radius_data.dart';
 
 // TODO: widget message qui si le message à un parentId (l'id du message cité) alors rendre différemnt
 // TODO: widget message qui si le message à un parentId qui supporte tous les types de messages
@@ -39,24 +42,51 @@ class _ChatViewState extends State<ChatView> {
               itemCount: dummyMessages.length,
               itemBuilder: (context, index) {
                 final Message msg = dummyMessages[index];
+                final Message? previousMsg = index > 0 ? dummyMessages[index - 1] : null;
+                final Message? nextMsg = index != dummyMessages.length - 1 ? dummyMessages[index + 1] : null;
 
-                return _MessageCell(
-                  message: msg,
-                  onMessageSwiped: () {
-                    if (quotedMessage == null) {
-                      SchedulerBinding.instance?.addPostFrameCallback((timeStamp) {
-                        scrollController.animateTo(
-                          scrollController.offset + UIConstants.quotedMessageHeight,
-                          duration: const Duration(milliseconds: 500),
-                          curve: Curves.easeInOut,
-                        );
+                //
+
+                final bool isCurrentUserAuthor = currentUser.name == msg.authorName;
+
+                final data = BorderRadiusFlags(
+                  isTopLeftOn: !isCurrentUserAuthor && previousMsg != null && previousMsg.authorName == msg.authorName,
+                  isTopRightOn: isCurrentUserAuthor && previousMsg != null && previousMsg.authorName == msg.authorName,
+                  isBottomLeftOn: !isCurrentUserAuthor && nextMsg != null && nextMsg.authorName == msg.authorName,
+                  isBottomRightOn: isCurrentUserAuthor && nextMsg != null && nextMsg.authorName == msg.authorName,
+                );
+                // String borderRadiusCode;
+
+                // borderRadiusCode = currentUser.name == msg.authorName ? '1' : '0';
+
+                // // 1 ou 0
+
+                // borderRadiusCode += (previousMsg != null && previousMsg.authorName == msg.authorName ? '1' : '0');
+                // //
+                // borderRadiusCode += (nextMsg != null && nextMsg.authorName == msg.authorName ? '1' : '0');
+
+                // print(borderRadiusCode);
+
+                return Provider<BorderRadiusFlags>.value(
+                  value: data,
+                  child: _MessageCell(
+                    message: msg,
+                    onMessageSwiped: () {
+                      if (quotedMessage == null) {
+                        SchedulerBinding.instance?.addPostFrameCallback((timeStamp) {
+                          scrollController.animateTo(
+                            scrollController.offset + UIConstants.quotedMessageHeight,
+                            duration: const Duration(milliseconds: 500),
+                            curve: Curves.easeInOut,
+                          );
+                        });
+                      }
+
+                      setState(() {
+                        quotedMessage = msg;
                       });
-                    }
-
-                    setState(() {
-                      quotedMessage = msg;
-                    });
-                  },
+                    },
+                  ),
                 );
               },
             ),
@@ -198,7 +228,6 @@ class _MessageCell extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: SwipeTo(
-
         onRightSwipe: onMessageSwiped,
         child: ChatUserMessageRow(message: message),
       ),

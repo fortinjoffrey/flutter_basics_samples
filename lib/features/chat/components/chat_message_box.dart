@@ -1,19 +1,28 @@
 import 'package:flutter/material.dart';
-import 'package:swipe_to_reply/features/chat/components/chat_quoted_message_box.dart';
-import 'package:swipe_to_reply/features/chat/models/message.dart';
+import 'package:swipe_to_reply/features/chat/models/message_box_border_radius_data.dart';
+
+import '../../../common/presentation/ui_constants.dart';
+import '../models/message.dart';
+import 'chat_quoted_message_box.dart';
 
 class ChatMessageBox extends StatelessWidget {
   const ChatMessageBox({
     Key? key,
     required this.message,
     required this.fromCurrentUser,
+    this.borderRadiusFlags,
   }) : super(key: key);
 
   final Message message;
   final bool fromCurrentUser;
+  final BorderRadiusFlags? borderRadiusFlags;
 
   @override
   Widget build(BuildContext context) {
+    final borderRadiusFlags = this.borderRadiusFlags; 
+    final bool useBorderRadiusFlags = borderRadiusFlags != null;
+
+
     return ConstrainedBox(
       constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.75),
       child: Container(
@@ -22,11 +31,23 @@ class ChatMessageBox extends StatelessWidget {
             ? ChatMessageBoxWithQuotedMessage(message: message)
             : _ChatMessageBoxContent(message: message),
         decoration: BoxDecoration(
-          color: fromCurrentUser ? Colors.green[200] : Colors.white,
-          borderRadius: BorderRadius.circular(10),
+          color: fromCurrentUser ? Colors.green[200] : Colors.grey[300],
+          borderRadius: useBorderRadiusFlags ? BorderRadius.only(
+            topLeft: getRadiusFromCornerEnabled(borderRadiusFlags.isTopLeftOn),
+            topRight: getRadiusFromCornerEnabled(borderRadiusFlags.isTopRightOn),
+            bottomRight: getRadiusFromCornerEnabled(borderRadiusFlags.isBottomRightOn),
+            bottomLeft: getRadiusFromCornerEnabled(borderRadiusFlags.isBottomLeftOn),
+          ) : const BorderRadius.all(Radius.circular(16.0)),
         ),
       ),
     );
+  }
+
+  Radius getRadiusFromCornerEnabled(bool? isCornerEnabled) {
+    const defaultRadius = Radius.circular(UIConstants.messageBorderRadiusValue);
+    const smallRadius = Radius.circular(UIConstants.messageSmallBorderRadiusValue);
+
+    return isCornerEnabled != null && isCornerEnabled ? smallRadius : defaultRadius;
   }
 }
 
@@ -45,7 +66,7 @@ class ChatMessageBoxWithQuotedMessage extends StatelessWidget {
             child: Container(
               decoration: BoxDecoration(
                 color: Colors.grey.withOpacity(.5),
-                border:  const Border(
+                border: const Border(
                   left: BorderSide(color: Colors.grey, width: 8),
                 ),
               ),
