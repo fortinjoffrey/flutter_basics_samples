@@ -1,4 +1,4 @@
-import 'package:basics_samples/change_notifiers/weather/weather_state.dart';
+import 'package:basics_samples/state_notifiers/weather/weather_state.dart';
 import 'package:basics_samples/main.dart';
 import 'package:basics_samples/models/weather.dart';
 import 'package:flutter/material.dart';
@@ -21,7 +21,7 @@ class _WeatherSearchPageState extends State<WeatherSearchPage> {
         alignment: Alignment.center,
         child: Consumer(
           builder: (context, ref, child) {
-            final state = ref.watch(weatherChangeNotifierProvider).state;
+            final state = ref.watch(weatherStateNotifierProvider);
             print(state);
             if (state is WeatherInitial)
               return _WeatherInitial();
@@ -148,7 +148,7 @@ class _SearchInputsState extends ConsumerState<_SearchInputs> {
   }
 
   void _submitSearch(BuildContext context, String cityName) {
-    final weatherChangeNotifier = ref.read(weatherChangeNotifierProvider.notifier);
+    final weatherChangeNotifier = ref.read(weatherStateNotifierProvider.notifier);
 
     weatherChangeNotifier.getWeather(cityName);
   }

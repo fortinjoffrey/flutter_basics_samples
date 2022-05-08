@@ -1,5 +1,5 @@
-import 'package:basics_samples/change_notifiers/weather/weather_state.dart';
 import 'package:basics_samples/data/weather_repository.dart';
+import 'package:basics_samples/state_notifiers/weather/weather_state.dart';
 import 'package:state_notifier/state_notifier.dart';
 
 class WeatherStateNotifier extends StateNotifier<WeatherState> {
