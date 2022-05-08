@@ -1,8 +1,8 @@
-import 'package:basics_samples/change_notifiers/weather/weather_change_notifier.dart';
 import 'package:basics_samples/change_notifiers/weather/weather_state.dart';
+import 'package:basics_samples/main.dart';
 import 'package:basics_samples/models/weather.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class WeatherSearchPage extends StatefulWidget {
   @override
@@ -19,8 +19,9 @@ class _WeatherSearchPageState extends State<WeatherSearchPage> {
       body: Container(
         padding: EdgeInsets.symmetric(vertical: 16),
         alignment: Alignment.center,
-        child: Selector<WeatherChangeNotifier, WeatherState>(
-          builder: (context, state, child) {
+        child: Consumer(
+          builder: (context, ref, child) {
+            final state = ref.watch(weatherChangeNotifierProvider).state;
             print(state);
             if (state is WeatherInitial)
               return _WeatherInitial();
@@ -34,7 +35,6 @@ class _WeatherSearchPageState extends State<WeatherSearchPage> {
               return _WeatherInitial();
             }
           },
-          selector: (context, notifier) => notifier.state,
         ),
       ),
     );
@@ -107,13 +107,12 @@ class _WeatherComplete extends StatelessWidget {
   }
 }
 
-class _SearchInputs extends StatefulWidget {
+class _SearchInputs extends ConsumerStatefulWidget {
   @override
-  State<_SearchInputs> createState() => _SearchInputsState();
+  ConsumerState<_SearchInputs> createState() => _SearchInputsState();
 }
 
-class _SearchInputsState extends State<_SearchInputs> {
-
+class _SearchInputsState extends ConsumerState<_SearchInputs> {
   String _cityname = '';
 
   @override
@@ -135,9 +134,7 @@ class _SearchInputsState extends State<_SearchInputs> {
           const SizedBox(height: 16),
           Container(
             width: double.infinity,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(12)
-            ),
+            decoration: BoxDecoration(borderRadius: BorderRadius.circular(12)),
             child: ElevatedButton(
               onPressed: () {
                 _submitSearch(context, _cityname);
@@ -151,7 +148,7 @@ class _SearchInputsState extends State<_SearchInputs> {
   }
 
   void _submitSearch(BuildContext context, String cityName) {
-    final weatherChangeNotifier = context.read<WeatherChangeNotifier>();
+    final weatherChangeNotifier = ref.read(weatherChangeNotifierProvider.notifier);
 
     weatherChangeNotifier.getWeather(cityName);
   }
