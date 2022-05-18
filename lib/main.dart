@@ -1,4 +1,7 @@
+import 'package:basics_samples/marquee_custom_widget.dart';
 import 'package:flutter/material.dart';
+// import 'package:marquee_widget/marquee_widget.dart';
+// import 'package:marquee/marquee.dart';
 
 void main() {
   runApp(MyApp());
@@ -17,48 +20,45 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class MyHomePage extends StatefulWidget {
+class MyHomePage extends StatelessWidget {
   MyHomePage({Key? key, required this.title}) : super(key: key);
 
   final String title;
 
   @override
-  _MyHomePageState createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-
-  void _incrementCounter() {
-    setState(() {
-      _counter++;
-    });
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.title),
+        title: Text(title),
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Text(
-              'You have pushed the button this many times:',
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          Container(
+            color: Colors.red,
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Marquee(
+                      startPadding: 100,
+                      child: Text(
+                          'Pariatur nulla aute consequat aute incididunt occaecat voluptate qui occaecat Lorem do eu.'),
+                      textDirection: TextDirection.ltr,
+                      backwardAnimation: Curves.easeInOut,
+                      forwardAnimation: Curves.easeInOut,
+                      animationDuration: Duration(seconds: 6),
+                      backDuration: Duration(seconds: 6),
+                      pauseDuration: Duration(seconds: 2),
+                      directionMarguee: DirectionMarguee.TwoDirection,
+                    ),
+                  ),
+                ],
+              ),
             ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headline4,
-            ),
-          ],
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: Icon(Icons.add),
+          )
+        ],
       ),
     );
   }
