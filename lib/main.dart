@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:keyboard_actions/keyboard_actions.dart';
 
 void main() {
   runApp(MyApp());
@@ -12,53 +13,99 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: MyHomePage(title: 'Flutter Demo Home Page'),
+      home: Home(),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  MyHomePage({Key? key, required this.title}) : super(key: key);
-
-  final String title;
+class Home extends StatefulWidget {
+  Home({Key? key}) : super(key: key);
 
   @override
-  _MyHomePageState createState() => _MyHomePageState();
+  State<Home> createState() => _HomeState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+class _HomeState extends State<Home> {
+  final _emailFocusNode = FocusNode();
+  final _passwordFocusNode = FocusNode();
+  final _phoneNumberFocusNode = FocusNode();
 
-  void _incrementCounter() {
-    setState(() {
-      _counter++;
-    });
+  @override
+  void dispose() {
+    _emailFocusNode.dispose();
+    _passwordFocusNode.dispose();
+    _phoneNumberFocusNode.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.title),
+        title: Text('TextField keyboard navigation'),
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Text(
-              'You have pushed the button this many times:',
+      body: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: KeyboardActions(
+          config: KeyboardActionsConfig(
+            nextFocus: true,
+            actions: [
+              KeyboardActionsItem(
+                focusNode: _emailFocusNode,
+              ),
+              KeyboardActionsItem(
+                focusNode: _passwordFocusNode,
+              ),
+              KeyboardActionsItem(
+                focusNode: _phoneNumberFocusNode,
+              ),
+            ],
+          ),
+          child: Form(
+            child: Column(
+              children: [
+                TextFormField(
+                  focusNode: _emailFocusNode,
+                  keyboardType: TextInputType.emailAddress,
+                  textInputAction: TextInputAction.next,
+                  decoration: InputDecoration(
+                    labelText: 'Email',
+                  ),
+                  onEditingComplete: () {
+                    _passwordFocusNode.requestFocus();
+                  },
+                ),
+                TextFormField(
+                  focusNode: _passwordFocusNode,
+                  keyboardType: TextInputType.text,
+                  obscureText: true,
+                  textInputAction: TextInputAction.next,
+                  decoration: InputDecoration(
+                    labelText: 'Password',
+                  ),
+                  onEditingComplete: () {
+                    _phoneNumberFocusNode.requestFocus();
+                  },
+                ),
+                TextFormField(
+                  keyboardType: TextInputType.number,
+                  textInputAction: TextInputAction.done,
+                  focusNode: _phoneNumberFocusNode,
+                  decoration: InputDecoration(
+                    labelText: 'Phone number',
+                  ),
+                ),
+                const SizedBox(height: 16),
+                ElevatedButton(
+                  onPressed: () {
+                    FocusScope.of(context).unfocus();
+                  },
+                  child: Text('Submit'),
+                ),
+              ],
             ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headline4,
-            ),
-          ],
+          ),
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: Icon(Icons.add),
       ),
     );
   }
