@@ -1,0 +1,18 @@
+name: semantic_announcement_tester
+description: This package provides a set of matchers that make testing semantic announcements made using SemanticsService.announce dead simple.
+version: 0.0.7
+homepage: https://github.com/abhaysood/semantic_announcement_tester
+repository: https://github.com/abhaysood/semantic_announcement_tester
+
+environment:
+  sdk: ">=2.12.0 <3.0.0"
+  flutter: ">=2.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_test:
+    sdk: flutter
+
+dev_dependencies:
+  flutter_lints: ^1.0.4
