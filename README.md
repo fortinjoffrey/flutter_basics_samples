@@ -5,6 +5,7 @@
 - [x] Full sized Drawer on mobile
 - [x] Navigation without animations
 - [x] URL navigation
+- [x] Active page indicator
 
 ## Demo
 
