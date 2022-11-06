@@ -1,16 +1,12 @@
-# basics_samples
+# Flutter web responsive navigation bar
 
-A new Flutter project.
+## 📚 Features
+- [x] Responsive navigation bar
+- [x] Full sized Drawer on mobile
+- [x] Navigation without animations
+- [x] URL navigation
 
-## Getting Started
+## Demo
 
-This project is a starting point for a Flutter application.
+https://user-images.githubusercontent.com/36731875/200190016-cccd0158-c024-49b7-9d0b-a615a9a7ea39.mp4
 
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
-
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
