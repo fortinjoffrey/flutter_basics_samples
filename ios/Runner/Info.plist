@@ -43,5 +43,20 @@
 	<false/>
 	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+		<key>CFBundleURLSchemes</key>
+		<array>
+			<string>fb836679897663724</string>
+		</array>
+		</dict>
+	</array>
+	<key>FacebookAppID</key>
+	<string>836679897663724</string>
+	<key>FacebookClientToken</key>
+	<string>49d29eafa956e3d21dcec58c222f8afe</string>
+	<key>FacebookDisplayName</key>
+	<string>flutter-sign-in-options</string>
 </dict>
 </plist>
