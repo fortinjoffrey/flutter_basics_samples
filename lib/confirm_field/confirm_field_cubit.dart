@@ -2,29 +2,50 @@ import 'package:basics_samples/confirm_field/confirm_field_state.dart';
 import 'package:bloc/bloc.dart';
 
 typedef FieldValidator = String? Function(String);
+typedef FieldValidatorExtra<T> = String? Function(String, T);
 
-class ConfirmFieldCubit extends Cubit<ConfirmFieldState> {
+class ConfirmFieldCubit<T> extends Cubit<ConfirmFieldState> {
   static const String defaultNonCorrespondingErrorMsg = 'Both fields are not equal';
 
-  final FieldValidator fieldValidator;
+  final FieldValidator? fieldValidator;
+  final FieldValidatorExtra<T>? fieldValidatorExtra;
   final String? nonCorrespondingErrorMsg;
+  T? extra;
 
   ConfirmFieldCubit({
-    required this.fieldValidator,
+    this.fieldValidator,
+    this.fieldValidatorExtra,
     this.nonCorrespondingErrorMsg = defaultNonCorrespondingErrorMsg,
-  }) : super(
+    this.extra,
+  })  : assert(fieldValidator != null && fieldValidatorExtra == null ||
+            fieldValidator == null && fieldValidatorExtra != null),
+        assert(fieldValidator != null || (fieldValidatorExtra != null && extra != null)),
+        super(
           ConfirmFieldState(
             fieldErrorMsg: null,
             confirmFieldErrorMsg: null,
           ),
         );
 
+  void setExtra(T newExtra) {
+    extra = newExtra;
+    onFieldChanged(state.field);
+    onConfirmFieldChanged(state.confirmField);
+  }
+
   void onFieldChanged(String newFieldValue) {
     String? emailValidationResult;
     bool isEmailValid = false;
     bool isConfirmFieldValid = false;
 
-    emailValidationResult = fieldValidator(newFieldValue);
+    if (fieldValidator != null) {
+      emailValidationResult = fieldValidator!(newFieldValue);
+    } else if (fieldValidatorExtra != null) {
+      emailValidationResult = fieldValidatorExtra!(newFieldValue, extra!);
+    } else {
+      throw 'Missing at least one validator';
+    }
+
     if (emailValidationResult == null) isEmailValid = true;
 
     String? confirmFieldValidationResult = state.confirmFieldErrorMsg;
@@ -62,7 +83,20 @@ class ConfirmFieldCubit extends Cubit<ConfirmFieldState> {
 
     String? validationResult;
 
-    validationResult = fieldValidator(confirmField);
+    // validationResult = fieldValidator(confirmField);
+    // if (extra != null) {
+    //   validationResult = fieldValidator(confirmField, extra!);
+    // } else {
+    //   validationResult = fieldValidator(confirmField);
+    // }
+
+    if (fieldValidator != null) {
+      validationResult = fieldValidator!(confirmField);
+    } else if (fieldValidatorExtra != null) {
+      validationResult = fieldValidatorExtra!(confirmField, extra!);
+    } else {
+      throw 'Missing at least one validator';
+    }
 
     if (validationResult == null && !isEqualToEmail) validationResult = nonCorrespondingErrorMsg;
 
