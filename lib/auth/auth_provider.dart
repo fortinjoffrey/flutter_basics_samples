@@ -2,6 +2,7 @@ import 'package:basics_samples/data/preferences_manager.dart';
 import 'package:basics_samples/models/login_method.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 class AuthProvider {
   final PreferencesManager _preferencesManager;
@@ -14,7 +15,7 @@ class AuthProvider {
   Future<UserCredential?> signInWithFacebook() async {
     final LoginResult loginResult = await FacebookAuth.instance.login();
     final AccessToken? accessToken = loginResult.accessToken;
-await FacebookAuth.instance.getUserData();
+    await FacebookAuth.instance.getUserData();
     if (loginResult.status == LoginStatus.success && accessToken != null) {
       final OAuthCredential facebookAuthCredential = FacebookAuthProvider.credential(accessToken.token);
       final UserCredential userCredential = await _firebaseAuth.signInWithCredential(facebookAuthCredential);
@@ -27,7 +28,21 @@ await FacebookAuth.instance.getUserData();
   }
 
   Future<UserCredential?> signInWithGoogle() async {
-    return null;
+    final GoogleSignInAccount? account = await GoogleSignIn().signIn();
+    if (account == null) return null;
+
+    final GoogleSignInAuthentication authTokens = await account.authentication;
+
+    final OAuthCredential credential = GoogleAuthProvider.credential(
+      accessToken: authTokens.accessToken,
+      idToken: authTokens.idToken,
+    );
+
+    final UserCredential userCredential = await _firebaseAuth.signInWithCredential(credential);
+
+    _preferencesManager.setLoginMethod(LoginMethod.google);
+
+    return userCredential;
   }
 
   Future<UserCredential?> signInWithApple() async {
@@ -47,6 +62,9 @@ await FacebookAuth.instance.getUserData();
     switch (loginMethod) {
       case LoginMethod.facebook:
         FacebookAuth.instance.logOut();
+        return;
+      case LoginMethod.google:
+        GoogleSignIn().disconnect();
         return;
       default:
     }

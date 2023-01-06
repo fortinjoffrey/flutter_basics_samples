@@ -40,7 +40,13 @@ class LoginScreen extends StatelessWidget {
               _SignInButton(
                 backgroundColor: Color(0xFFDE5246),
                 leadingIcon: SvgPicture.asset('assets/logos/google_simple.svg', color: Colors.white, height: 24),
-                onPressed: authProvider.signInWithGoogle,
+                onPressed: () async {
+                  final credentials = await authProvider.signInWithGoogle();
+
+                  if (credentials != null) {
+                    pushHomeScreen(context, authProvider.userEmail, authProvider.loginMethod);
+                  }
+                },
                 title: 'Sign in with Google',
               ),
               const SizedBox(height: 16),

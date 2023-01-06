@@ -2,7 +2,7 @@
 
 ## 📚 Features
 - [x] Facebook sign in
-- [ ] Google sign in
+- [x] Google sign in
 - [ ] Apple sign in
 - [ ] Email sign in
 
