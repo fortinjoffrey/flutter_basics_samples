@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "33582945119",
+    "project_id": "fbs-cloud-functions",
+    "storage_bucket": "fbs-cloud-functions.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:33582945119:android:cf9efa735ec5a409cd5cea",
+        "android_client_info": {
+          "package_name": "com.example.basics_samples"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "33582945119-7mbg0tph97bhp9t3mpe2ch3fqh5tpju9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC61GdubNFOZkpqDqC1t0VuDoFyDw9c9hc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "33582945119-7mbg0tph97bhp9t3mpe2ch3fqh5tpju9.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
