@@ -1,0 +1,36 @@
+import 'package:basics_samples/models/music.dart';
+
+class MusicFixtures {
+  static List<Music> get mostPopular => [
+        Music(title: 'Consectetur dolore'),
+        Music(title: 'Id aliqua Lorem'),
+        Music(title: 'Elit velit do occaecat'),
+        Music(title: 'Consectetur dolore'),
+        Music(title: 'Id aliqua Lorem'),
+        Music(title: 'Elit velit do occaecat'),
+        Music(title: 'Consectetur dolore'),
+        Music(title: 'Id aliqua Lorem'),
+        Music(title: 'Elit velit do occaecat'),
+        Music(title: 'Consectetur dolore'),
+        Music(title: 'Id aliqua Lorem'),
+        Music(title: 'Elit velit do occaecat'),
+        Music(title: 'Consectetur dolore'),
+        Music(title: 'Id aliqua Lorem'),
+        Music(title: 'Elit velit do occaecat'),
+        Music(title: 'Consectetur dolore'),
+        Music(title: 'Id aliqua Lorem'),
+        Music(title: 'Elit velit do occaecat'),
+        Music(title: 'Consectetur dolore'),
+        Music(title: 'Id aliqua Lorem'),
+        Music(title: 'Elit velit do occaecat'),
+        Music(title: 'Consectetur dolore'),
+        Music(title: 'Id aliqua Lorem'),
+        Music(title: 'Elit velit do occaecat'),
+        Music(title: 'Consectetur dolore'),
+        Music(title: 'Id aliqua Lorem'),
+        Music(title: 'Elit velit do occaecat'),
+        Music(title: 'Consectetur dolore'),
+        Music(title: 'Id aliqua Lorem'),
+        Music(title: 'Elit velit do occaecat'),
+      ];
+}
