@@ -1,6 +1,8 @@
 import 'dart:io';
 
 import 'package:basics_samples/auth/auth_provider.dart';
+import 'package:basics_samples/components/forms/login_form.dart';
+import 'package:basics_samples/components/forms/signup_form.dart';
 import 'package:basics_samples/models/login_method.dart';
 import 'package:basics_samples/screens/home_screen.dart';
 import 'package:flutter/material.dart';
@@ -50,13 +52,59 @@ class LoginScreen extends StatelessWidget {
                 title: 'Sign in with Google',
               ),
               const SizedBox(height: 16),
-              if (Platform.isIOS)
+              if (Platform.isIOS) ...[
                 _SignInButton(
                   backgroundColor: Colors.black,
                   leadingIcon: SvgPicture.asset('assets/logos/apple_simple.svg', color: Colors.white, height: 24),
                   onPressed: authProvider.signInWithApple,
                   title: 'Sign in with Apple',
                 ),
+                const SizedBox(height: 16),
+              ],
+              _SignInButton(
+                backgroundColor: Color(0xFFFFFFFF),
+                leadingIcon: SvgPicture.asset('assets/logos/email.svg', height: 24),
+                onPressed: () async {
+                  showModalBottomSheet(
+                    context: context,
+                    shape: const RoundedRectangleBorder(
+                      borderRadius: BorderRadius.only(topLeft: Radius.circular(32.0), topRight: Radius.circular(32.0)),
+                    ),
+                    builder: (context) {
+                      return LoginForm(
+                        authProvider: authProvider,
+                        onSuccess: () {
+                          Navigator.of(context).pop();
+                          pushHomeScreen(context, authProvider.userEmail, authProvider.loginMethod);
+                        },
+                      );
+                    },
+                  );
+                },
+                title: 'Sign in with email',
+                textColor: Colors.black,
+              ),
+              const SizedBox(height: 16),
+              TextButton(
+                  onPressed: () {
+                    showModalBottomSheet(
+                      context: context,
+                      shape: const RoundedRectangleBorder(
+                        borderRadius:
+                            BorderRadius.only(topLeft: Radius.circular(32.0), topRight: Radius.circular(32.0)),
+                      ),
+                      builder: (BuildContext context) {
+                        return SignUpForm(
+                          authProvider: authProvider,
+                          onSuccess: () {
+                            Navigator.of(context).pop();
+                            pushHomeScreen(context, authProvider.userEmail, authProvider.loginMethod);
+                          },
+                        );
+                      },
+                    );
+                  },
+                  child: const Text('Create an account')),
             ],
           ),
         ),
@@ -82,12 +130,14 @@ class _SignInButton extends StatelessWidget {
     required this.leadingIcon,
     required this.title,
     required this.backgroundColor,
+    this.textColor,
   });
 
   final VoidCallback? onPressed;
   final Widget leadingIcon;
   final String title;
   final Color backgroundColor;
+  final Color? textColor;
 
   @override
   Widget build(BuildContext context) {
@@ -112,8 +162,8 @@ class _SignInButton extends StatelessWidget {
                 Expanded(
                   child: Text(
                     title,
-                    style: const TextStyle(
-                      color: Colors.white,
+                    style: TextStyle(
+                      color: textColor ?? Colors.white,
                       fontWeight: FontWeight.w600,
                       fontSize: 17,
                     ),

@@ -4,7 +4,7 @@ import 'package:basics_samples/screens/login_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-class HomeScreen extends StatefulWidget {
+class HomeScreen extends StatelessWidget {
   const HomeScreen({
     super.key,
     required this.userEmail,
@@ -15,11 +15,6 @@ class HomeScreen extends StatefulWidget {
   final LoginMethod loginMethod;
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
-}
-
-class _HomeScreenState extends State<HomeScreen> {
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
         body: SizedBox(
@@ -28,9 +23,9 @@ class _HomeScreenState extends State<HomeScreen> {
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Text('Logged in with ${widget.loginMethod.name}!'),
+          Text('Logged in with ${loginMethod.name}!'),
           const SizedBox(height: 32),
-          Text('Email: ${widget.userEmail ?? 'error'}'),
+          Text('Email: ${userEmail ?? 'error'}'),
           const SizedBox(height: 32),
           ElevatedButton(
             onPressed: () async {
@@ -47,29 +42,8 @@ class _HomeScreenState extends State<HomeScreen> {
             },
             child: const Text('Sign out'),
           ),
-          _getText(),
-          MyText(),
-          TextButton(
-            onPressed: () {
-              setState((){});
-            },
-            child: const Text('setState'),
-          ),
         ],
       ),
     ));
   }
-}
-
-class MyText extends StatelessWidget {
-  const MyText({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Text('Widget');
-  }
-}
-
-Widget _getText() {
-  return Text('Helper method');
 }

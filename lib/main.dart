@@ -15,6 +15,7 @@ Future<void> main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+
   final sharedPreferences = await SharedPreferences.getInstance();
   runApp(MyApp(
     sharedPreferences: sharedPreferences,
@@ -43,9 +44,7 @@ class MyApp extends StatelessWidget {
       child: MaterialApp(
         title: 'Firebase Sign In Options',
         debugShowCheckedModeBanner: false,
-        theme: ThemeData(
-          primarySwatch: Colors.blue,
-        ),
+        theme: ThemeData.dark(),
         home: Builder(
           builder: (context) {
             final authProvider = context.read<AuthProvider>();

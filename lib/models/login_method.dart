@@ -9,18 +9,15 @@ enum LoginMethod {
 LoginMethod getLoginMehodFromString(String? value) {
   if (value == null) return LoginMethod.none;
 
-  switch (value) {
-    case 'none':
-      return LoginMethod.none;
-    case 'email':
-      return LoginMethod.email;
-    case 'google':
-      return LoginMethod.google;
-    case 'apple':
-      return LoginMethod.apple;
-    case 'facebook':
-      return LoginMethod.facebook;
-    default:
-      return LoginMethod.none;
-  }
+  if (value == LoginMethod.none.name)
+    return LoginMethod.none;
+  else if (value == LoginMethod.email.name)
+    return LoginMethod.email;
+  else if (value == LoginMethod.google.name)
+    return LoginMethod.google;
+  else if (value == LoginMethod.apple.name)
+    return LoginMethod.apple;
+  else if (value == LoginMethod.facebook.name) return LoginMethod.facebook;
+
+  throw Exception('Login method from string failed');
 }

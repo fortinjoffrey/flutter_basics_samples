@@ -12,6 +12,44 @@ class AuthProvider {
       : _preferencesManager = preferencesManager,
         _firebaseAuth = firebaseAuth;
 
+  Future<UserCredential> signInWithEmailAndPassword({
+    required String email,
+    required String password,
+  }) async {
+    try {
+      final userCredential = await _firebaseAuth.signInWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+
+      _preferencesManager.setLoginMethod(LoginMethod.email);
+      return userCredential;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  void forgotPassword({required String email}) {
+    _firebaseAuth.sendPasswordResetEmail(email: email);
+  }
+
+  Future<UserCredential> signUp({
+    required String email,
+    required String password,
+  }) async {
+    try {
+      final userCredential = await _firebaseAuth.createUserWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+
+      _preferencesManager.setLoginMethod(LoginMethod.email);
+      return userCredential;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
   Future<UserCredential?> signInWithFacebook() async {
     final LoginResult loginResult = await FacebookAuth.instance.login();
     final AccessToken? accessToken = loginResult.accessToken;
