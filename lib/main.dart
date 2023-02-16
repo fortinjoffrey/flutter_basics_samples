@@ -1,4 +1,6 @@
+import 'package:basics_samples/fake_data_source.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_html/flutter_html.dart';
 
 void main() {
   runApp(MyApp());
@@ -12,53 +14,99 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: MyHomePage(title: 'Flutter Demo Home Page'),
+      home: Home(),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  MyHomePage({Key? key, required this.title}) : super(key: key);
-
-  final String title;
+class Home extends StatefulWidget {
+  const Home({super.key});
 
   @override
-  _MyHomePageState createState() => _MyHomePageState();
+  State<Home> createState() => _HomeState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-
-  void _incrementCounter() {
-    setState(() {
-      _counter++;
-    });
-  }
+class _HomeState extends State<Home> {
+  String? htmlData;
 
   @override
   Widget build(BuildContext context) {
+    final Widget? html = htmlData == null
+        ? null
+        : Html(
+            data: htmlData,
+            style: {
+              'p': Style.fromTextStyle(
+                Theme.of(context).textTheme.bodyText2!,
+              ).copyWith(color: Colors.black),
+              'h1': Style(color: Colors.blue),
+              'i': Style(color: Colors.green),
+            },
+          );
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.title),
+        title: Text('Html'),
       ),
-      body: Center(
+      body: SingleChildScrollView(
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SizedBox(height: 16),
             Text(
-              'You have pushed the button this many times:',
+              'Standard flutter Text with bodyText2 style',
+              style: Theme.of(context).textTheme.bodyText2,
             ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headline4,
+            Divider(
+              color: Colors.black,
+              thickness: 2,
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: const Text('Package HTML example'),
+            ),
+            Html(
+              data: """<div>
+              <h1>Demo Page</h1>
+              <p>This is a fantastic product that you should buy!</p>
+              <h3>Features</h3>
+              <ul>
+                <li>It actually works</li>
+                <li>It exists</li>
+                <li>It doesn't cost much!</li>
+              </ul>
+              <!--You can pretty much put any html in here!-->
+            </div>""",
+            ),
+            Divider(
+              color: Colors.black,
+              thickness: 2,
+            ),
+            if (html != null) ...[
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: const Text('My HTML example extracted from a word document exported as .html'),
+              ),
+              html,
+            ],
+            ElevatedButton(
+              onPressed: () async {
+                final result = await FakeDataSource().getHtmlData();
+                setState(() {
+                  htmlData = result;
+                });
+              },
+              child: const Text('Get html data'),
+            ),
+            TextButton(
+              onPressed: () async {
+                setState(() {
+                  htmlData = null;
+                });
+              },
+              child: const Text('Reset html data'),
             ),
           ],
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: Icon(Icons.add),
       ),
     );
   }
