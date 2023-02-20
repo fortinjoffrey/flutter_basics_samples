@@ -1,16 +1,12 @@
-# basics_samples
+# Open email app with recipient adress, subject, body
 
-A new Flutter project.
+## Dependencies:
+- url_launcher
 
-## Getting Started
+## Demo
 
-This project is a starting point for a Flutter application.
+### iOS
+https://user-images.githubusercontent.com/36731875/220183177-bf224eec-cf19-4a0b-8111-29bed8e0b3cf.mp4
 
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
-
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+### Android
+https://user-images.githubusercontent.com/36731875/220183183-a6dce7b4-0f16-440b-88c7-9e90eeb60330.mp4
