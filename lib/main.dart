@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 void main() {
   runApp(MyApp());
@@ -17,49 +18,76 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class MyHomePage extends StatefulWidget {
+class MyHomePage extends StatelessWidget {
   MyHomePage({Key? key, required this.title}) : super(key: key);
 
   final String title;
 
   @override
-  _MyHomePageState createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-
-  void _incrementCounter() {
-    setState(() {
-      _counter++;
-    });
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.title),
+        title: Text(title),
       ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            Text(
-              'You have pushed the button this many times:',
+            TextButton(
+              onPressed: () async {
+                launchUrlInDefaultBrowser(url: 'https://flutter.dev');
+              },
+              child: Text(
+                'Open Flutter website in default browser',
+              ),
             ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headline4,
+            TextButton(
+              onPressed: () async {
+                launchUrlInDefaultBrowser(url: 'https://twitter.com/FlutterDev');
+              },
+              child: Text(
+                'Open Flutter twitter page in default browser',
+              ),
+            ),
+            TextButton(
+              onPressed: () async {
+                launchUrlInDefaultBrowser(
+                  url: 'https://flutter.dev',
+                  launchMode: LaunchMode.inAppWebView, 
+                );
+              },
+              child: Text(
+                'Open Flutter website in app web view',
+              ),
+            ),
+            TextButton(
+              onPressed: () async {
+                launchUrlInDefaultBrowser(
+                  url: 'https://twitter.com/FlutterDev',
+                  launchMode: LaunchMode.inAppWebView,
+                );
+              },
+              child: Text(
+                'Open Flutter twitter page in app web view',
+              ),
             ),
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: Icon(Icons.add),
-      ),
+    );
+  }
+}
+
+Future<void> launchUrlInDefaultBrowser({
+  required String url,
+  LaunchMode launchMode = LaunchMode.externalApplication,
+}) async {
+  final Uri _url = Uri.parse(url);
+
+  if (await canLaunchUrl(_url)) {
+    launchUrl(
+      _url,
+      mode: launchMode,
     );
   }
 }
