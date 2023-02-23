@@ -1,16 +1,16 @@
-# basics_samples
+# Open url links in default web app or app web view
 
-A new Flutter project.
+## Dependencies:
+- url_launcher
 
-## Getting Started
+## Demo
 
-This project is a starting point for a Flutter application.
+### iOS
 
-A few resources to get you started if this is your first Flutter project:
+https://user-images.githubusercontent.com/36731875/220953748-7b74a781-184c-439c-9670-29b28cc3a88c.mp4
 
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
+### Android
 
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+https://user-images.githubusercontent.com/36731875/220953786-d12c6986-6108-4f8a-a876-c9f475885b93.mp4
+
+
