@@ -1,16 +1,42 @@
-# basics_samples
+# flutter_value_state / value_cubit
 
-A new Flutter project.
+This project provide usage examples of the packages below
 
-## Getting Started
+## 📦 Packages
 
-This project is a starting point for a Flutter application.
+- [x] value_state
+- [x] flutter_value_state
+- [x] value_cubit
 
-A few resources to get you started if this is your first Flutter project:
+## 🚀 Demo
 
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
+## 📚 Examples
 
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+### 1️. flutter value state using *setState*
+
+~~Stateless~~ / **Stateful**
+
+##### Dependencies
+
+- [x] value_state
+- [x] flutter_value_state
+
+### 2. value cubit using *ValueCubitMixin* and *setState*
+
+~~Stateless~~ / **Stateful**
+
+##### Dependencies
+
+- [x] value_state
+- [x] flutter_value_state
+- [x] bloc
+
+### 3. value cubit using custom state
+
+**Stateless** / ~~Stateful~~
+
+##### Dependencies
+
+- [x] value_state
+- [x] flutter_value_state
+- [x] bloc

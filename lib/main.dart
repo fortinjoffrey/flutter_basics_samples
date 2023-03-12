@@ -1,4 +1,11 @@
+// import 'package:basics_samples/examples/value_cubit_using_value_cubit_mixin_and_setState/users_list_cubit.dart';
+// import 'package:basics_samples/examples/value_cubit_using_value_cubit_mixin_and_setState/users_list_screen.dart';
+import 'package:basics_samples/examples/value_cubit_using_custom_state/users_list_cubit.dart';
+import 'package:basics_samples/examples/value_cubit_using_custom_state/users_list_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+
+// import 'examples/flutter_value_state_using_setState/users_list_screen.dart';
 
 void main() {
   runApp(MyApp());
@@ -12,54 +19,11 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: MyHomePage(title: 'Flutter Demo Home Page'),
-    );
-  }
-}
-
-class MyHomePage extends StatefulWidget {
-  MyHomePage({Key? key, required this.title}) : super(key: key);
-
-  final String title;
-
-  @override
-  _MyHomePageState createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-
-  void _incrementCounter() {
-    setState(() {
-      _counter++;
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.title),
+      home: BlocProvider(
+        create: (context) => UsersListCubit(),
+        child: UsersListScreen(),
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Text(
-              'You have pushed the button this many times:',
-            ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headline4,
-            ),
-          ],
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: Icon(Icons.add),
-      ),
+      // home: UsersListScreen(),
     );
   }
 }
