@@ -1,4 +1,4 @@
-# flutter_value_state / value_cubit
+# flutter value_state / value cubit / value state
 
 This project provide usage examples of the packages below
 
@@ -9,6 +9,8 @@ This project provide usage examples of the packages below
 - [x] value_cubit
 
 ## 🚀 Demo
+
+https://user-images.githubusercontent.com/36731875/224577720-04604896-b314-4916-b473-fbe04782f4e7.mp4
 
 ## 📚 Examples
 
