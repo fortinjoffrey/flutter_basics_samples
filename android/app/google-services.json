@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "704473465844",
+    "project_id": "fbs-remote-config-forceupdate",
+    "storage_bucket": "fbs-remote-config-forceupdate.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:704473465844:android:ae11f9fef57b5ea073efa1",
+        "android_client_info": {
+          "package_name": "com.example.basics_samples"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "704473465844-7dsd0ec5cj0dhlsis7hidvuu32ik3obd.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDSC4kAWy0JFCqWBz4Sagv2hgnfd_lGdRU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "704473465844-7dsd0ec5cj0dhlsis7hidvuu32ik3obd.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
