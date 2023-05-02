@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "216153208032",
+    "project_id": "fbs-analytics-sample",
+    "storage_bucket": "fbs-analytics-sample.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:216153208032:android:93b77a04f61e656efb0c85",
+        "android_client_info": {
+          "package_name": "com.example.basics_samples"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "216153208032-48ifuleodmhakjjn9khceg8i4t3sls8r.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCDJWI_sInfH_IMGf0sefqBHzTTpmPadAc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "216153208032-48ifuleodmhakjjn9khceg8i4t3sls8r.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
