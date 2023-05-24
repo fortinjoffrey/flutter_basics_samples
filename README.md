@@ -1,16 +1,9 @@
-# basics_samples
+# TextFormField with characters count limited
 
-A new Flutter project.
+In this project:
+- [x] 1 TextFormField that blocks typing when count limit has been reached
+- [x] 1 TextFormField that does not block typing but invalidates fields when count limit has been exceeded
 
-## Getting Started
+## 🚀 Demo
 
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
-
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+https://github.com/fortinjoffrey/flutter_basics_samples/assets/36731875/d796ffa4-364b-4efa-b06e-888f77c5b346
