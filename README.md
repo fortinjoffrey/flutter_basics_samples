@@ -10,10 +10,28 @@ Application locale can be modified at runtime.
 - [x] intl
 - [x] intl_utils
 
+## Setup
+
+1. Add intl dependency
+2. Add intl_utils dev dependency
+3. Use flutter_localizations from sdk: flutter
+4. Create your arb files in lib/l10n named intl_LOCALE.dart (replace LOCALE by the desired locale intl_en.dart)
+5. In each arb files set the locale for ```@@locale``` key
+6. Generate l10n intl files
+
 ### To regenerate l10n intl files
 
 ```dart
 fvm flutter pub run intl_utils:generate
+```
+
+### arb files example (intl_en.arb)
+
+```arb
+{
+  "@@locale": "en",
+  "yes": "yes"
+}
 ```
 
 ## 🚀 Demo
