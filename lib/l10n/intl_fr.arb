@@ -1,0 +1,34 @@
+{
+  "@@locale": "fr",
+  "yes": "Oui",
+  "validation_errors_min_value": "La valeur doit être supérieur à {min}",
+  "@validation_errors_min_value": {
+    "placeholders": {
+        "min": {
+            "type": "double"
+        }
+    }
+  },
+  "helloAndWelcome": "Bienvenue {firstName} {lastName}!",
+  "@helloAndWelcome": {
+      "description": "Initial welcome message",
+      "placeholders": {
+          "firstName": {
+              "type": "String"
+          },
+          "lastName": {
+              "type": "String"
+          }
+      }
+  },
+  "newMessages": "{newMessages, plural, =0{Pas de nouveaux messages} =1 {Un nouveau message} other {{newMessages} nouveaux messages}}",
+  "@newMessages": {
+      "type": "text",
+      "description": "Number of new messages in inbox.",
+      "placeholders": {
+          "newMessages": {
+              "type": "int"
+          }
+      }
+  } 
+}

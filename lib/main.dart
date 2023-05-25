@@ -1,65 +1,95 @@
+import 'package:basics_samples/generated/l10n.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
-void main() {
+Future<void> main() async {
   runApp(MyApp());
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  Locale? locale;
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter Demo',
+      locale: locale,
+      localizationsDelegates: [
+        I18n.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+      ],
+      supportedLocales: I18n.delegate.supportedLocales,
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: MyHomePage(title: 'Flutter Demo Home Page'),
+      home: MyHomePage(
+        title: 'l10n',
+        onLocaleChangeAsked: (String languageCode) {
+          setState(() => locale = Locale(languageCode));
+        },
+      ),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  MyHomePage({Key? key, required this.title}) : super(key: key);
+class MyHomePage extends StatelessWidget {
+  MyHomePage({
+    Key? key,
+    required this.title,
+    required this.onLocaleChangeAsked,
+  }) : super(key: key);
 
   final String title;
-
-  @override
-  _MyHomePageState createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-
-  void _incrementCounter() {
-    setState(() {
-      _counter++;
-    });
-  }
+  final ValueChanged<String> onLocaleChangeAsked;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.title),
+        title: Text(title),
       ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            Text(
-              'You have pushed the button this many times:',
+            ElevatedButton(
+              onPressed: () => onLocaleChangeAsked('fr'),
+              child: const Text('fr'),
             ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headline4,
+            ElevatedButton(
+              onPressed: () => onLocaleChangeAsked('en'),
+              child: const Text('en'),
             ),
+            ElevatedButton(
+              onPressed: () => onLocaleChangeAsked('de'),
+              child: const Text('de'),
+            ),
+            Text('Current locale: ${Localizations.localeOf(context).toString()}'),
+            FooWidget(),
+            Text(I18n.current.validation_errors_min_value(3)),
+            Text(I18n.current.helloAndWelcome('John', 'Doe')),
+            Text(I18n.current.newMessages(0)),
+            Text(I18n.current.newMessages(1)),
+            Text(I18n.current.newMessages(4)),
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: Icon(Icons.add),
-      ),
     );
+  }
+}
+
+class FooWidget extends StatelessWidget {
+  const FooWidget({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(I18n.current.yes);
   }
 }
