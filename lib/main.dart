@@ -1,8 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:rate_my_app/rate_my_app.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  // await rateMyAppInstance.reset();
+  await rateMyAppInstance.init();
   runApp(MyApp());
 }
+
+final rateMyAppInstance = RateMyApp(
+  googlePlayIdentifier: 'com.distime.distime',
+  appStoreIdentifier: '6444045942',
+  minLaunches: 10,
+  remindLaunches: 3,
+  minDays: 0,
+  remindDays: 0,
+);
 
 class MyApp extends StatelessWidget {
   @override
@@ -27,11 +40,18 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-
-  void _incrementCounter() {
-    setState(() {
-      _counter++;
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (rateMyAppInstance.shouldOpenDialog) {
+        if (mounted && rateMyAppInstance.shouldOpenDialog) {
+          rateMyAppInstance.showRateDialog(
+            context,
+            barrierDismissible: true,
+          );
+        }
+      }
     });
   }
 
@@ -48,17 +68,43 @@ class _MyHomePageState extends State<MyHomePage> {
             Text(
               'You have pushed the button this many times:',
             ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headline4,
-            ),
+            ElevatedButton(
+                onPressed: () {
+                  rateMyAppInstance.showRateDialog(
+                    context,
+                    // barrierDismissible: true,
+                    // barrierLabel: 'BARRIERLABEL',
+                    // message: 'MESSAGE',
+                    // title: 'TITLE',
+                    // laterButton: 'LATER',
+                    // rateButton: 'TOTO',
+                    // noButton: 'NOBUTTON',
+                    // message: "mes",
+                    onDismissed: () {
+                      print('onDismiss');
+                    },
+
+                    listener: (button) {
+                      // The button click listener (useful if you want to cancel the click event).
+                      switch (button) {
+                        case RateMyAppDialogButton.rate:
+                          print('Clicked on "Rate".');
+                          break;
+                        case RateMyAppDialogButton.later:
+                          print('Clicked on "Later".');
+                          break;
+                        case RateMyAppDialogButton.no:
+                          print('Clicked on "No".');
+                          break;
+                      }
+
+                      return true; // Return false if you want to cancel the click event.
+                    },
+                  );
+                },
+                child: const Text('Show rate dialog')),
           ],
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: Icon(Icons.add),
       ),
     );
   }
