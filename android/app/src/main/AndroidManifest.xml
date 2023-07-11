@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.flutter_basics_samples">
+    package="com.johndoe.fluttergooglesign">
    <application
         android:label="flutter_basics_samples"
         android:name="${applicationName}"

@@ -1,4 +1,4 @@
-package com.example.flutter_basics_samples
+package com.johndoe.fluttergooglesign
 
 import io.flutter.embedding.android.FlutterActivity
 
