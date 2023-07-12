@@ -63,6 +63,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '539515202498',
     projectId: 'flutter-firebase--signin-62355',
     storageBucket: 'flutter-firebase--signin-62355.appspot.com',
+    androidClientId: '539515202498-ogevu1126mj8bc07gbanklbr8hl1ia5o.apps.googleusercontent.com',
     iosClientId: '539515202498-gteivk1j0cecrnrll1g4nvrganukihpl.apps.googleusercontent.com',
     iosBundleId: 'com.johndoe.fluttergooglesign',
   );
