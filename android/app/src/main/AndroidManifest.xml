@@ -1,7 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.johndoe.fluttergooglesign">
    <application
-        android:label="flutter_basics_samples"
+        android:label="fluttergooglesignin"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
