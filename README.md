@@ -34,7 +34,7 @@ Add the CFBundleURLTypes attributes below into the [my_project]/ios/Runner/Info.
 6. Implement the dart code to use Google Sign In
 7. In order to sign in with google in debug mode, your need to put your debug SHA1 key into your Android app in Firebase
 
-To get your debug SHA1 key
+To get your debug SHA1 key (password: android)
 
 ```
 keytool -list -v -alias androiddebugkey -keystore ~/.android/debug.keystore
