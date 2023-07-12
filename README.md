@@ -4,7 +4,7 @@ How to implement Google Sign In in Flutter from scratch
 
 ## Demo
 
-
+https://github.com/fortinjoffrey/flutter_basics_samples/assets/36731875/043c7226-3b93-4f78-bbac-919d72cf4fa2
 
 ## Implementation steps
 
