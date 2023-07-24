@@ -12,7 +12,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: MyHomePage(title: 'Flutter Demo Home Page'),
+      home: MyHomePage(title: 'Draggable Text'),
     );
   }
 }
@@ -27,12 +27,61 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+  List<Widget> texts = [];
+  bool isDragging = false;
+  final _stackKey = GlobalKey();
 
-  void _incrementCounter() {
-    setState(() {
-      _counter++;
-    });
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _createDraggableText();
+  }
+
+  void _createDraggableText({double? top, double? left}) {
+    texts.add(
+      Positioned(
+        top: top ?? 20,
+        left: left ?? null,
+        child: Draggable(
+          data: true,
+          childWhenDragging: const SizedBox.shrink(),
+          onDragStarted: () {
+            setState(() {
+              isDragging = true;
+            });
+          },
+          onDragEnd: (details) {
+            print(details.offset);
+
+            final renderBox = _stackKey.currentContext?.findRenderObject() as RenderBox;
+            final offset = renderBox.localToGlobal(Offset.zero);
+
+            setState(() {
+              isDragging = false;
+              if (texts.isNotEmpty) {
+                texts = [];
+                _createDraggableText(
+                  top: details.offset.dy - offset.dy,
+                  left: details.offset.dx - offset.dx,
+                );
+              }
+            });
+          },
+          feedback: Material(
+            color: Colors.transparent,
+            child: Text('Drag me'),
+          ),
+          child: GestureDetector(
+            onTap: () {
+              print('Tapped');
+            },
+            child: Container(
+              child: Text('Drag me'),
+            ),
+          ),
+        ),
+      ),
+    );
   }
 
   @override
@@ -41,25 +90,64 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: AppBar(
         title: Text(widget.title),
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Text(
-              'You have pushed the button this many times:',
-            ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headline4,
-            ),
-          ],
+      body: Padding(
+        padding: const EdgeInsets.only(top: 32),
+        child: Container(
+          width: MediaQuery.of(context).size.width,
+          height: 500,
+          color: Colors.grey[200],
+          child: Stack(
+            key: _stackKey,
+            alignment: Alignment.center,
+            children: <Widget>[
+              ...texts,
+              // if (isDragging)
+              Align(
+                alignment: Alignment.bottomCenter,
+                child: Padding(
+                  padding: const EdgeInsets.only(bottom: 16.0),
+                  child: DragTarget<bool>(
+                    onWillAccept: (data) {
+                      return data == true;
+                    },
+                    onAccept: (data) {
+                      print('onAccept');
+                      setState(() {
+                        texts = [];
+                      });
+                    },
+                    onLeave: (data) {
+                      print('onLeave');
+                    },
+                    builder: (context, candidates, rejects) {
+                      final hasCandidates = candidates.isNotEmpty;
+
+                      return CircleAvatar(
+                        backgroundColor: hasCandidates ? Colors.red : Colors.blue,
+                        radius: 20,
+                        child: Icon(
+                          Icons.delete,
+                          color: Colors.white,
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: Icon(Icons.add),
-      ),
+      floatingActionButton: texts.isEmpty
+          ? FloatingActionButton(
+              onPressed: () {
+                setState(() {
+                  _createDraggableText();
+                });
+              },
+              child: Icon(Icons.add),
+            )
+          : null,
     );
   }
 }
