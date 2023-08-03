@@ -1,25 +1,18 @@
 import 'package:flutter/material.dart';
 
-class DraggableText extends SelectableDraggableWidget {
-  DraggableText({
-    required super.id,
-    required super.onTap,
-    required super.onDragEnd,
-    required super.top,
-    required super.left,
-    required super.isSelected,
-  }) : super(child: Text('Drag me too'));
-}
+enum SelectableDraggableWidgetType { text, icon }
 
-class DraggableIcon extends SelectableDraggableWidget {
-  DraggableIcon({
-    required super.id,
-    required super.onTap,
-    required super.onDragEnd,
-    required super.top,
-    required super.left,
-    required super.isSelected,
-  }) : super(child: Icon(Icons.hardware));
+class _SelectableDraggableText extends StatelessWidget {
+  const _SelectableDraggableText({
+    required this.title,
+  });
+
+  final String title;
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(title);
+  }
 }
 
 class SelectableDraggableWidget extends StatelessWidget {
@@ -29,18 +22,88 @@ class SelectableDraggableWidget extends StatelessWidget {
     required this.onTap,
     required this.onDragEnd,
     required this.top,
+    required this.bottom,
     required this.left,
     required this.isSelected,
     required this.child,
+    required this.onTapOutside,
+    required this.type,
   });
+
+  String? get title {
+    final child = this.child;
+    return child is _SelectableDraggableText ? child.title : null;
+  }
+
+  SelectableDraggableWidget copyWith({
+    Key? key,
+    double? top,
+    double? bottom,
+    double? left,
+    bool? isSelected,
+    String? title,
+  }) {
+    print('(copywith:selected:$isSelected)');
+    final getChild = () {
+      if (title != null && type == SelectableDraggableWidgetType.text) {
+        return _SelectableDraggableText(title: title);
+      }
+      return child;
+    };
+
+    return SelectableDraggableWidget(
+      key: key,
+      id: id,
+      onTap: onTap,
+      onDragEnd: onDragEnd,
+      top: top ?? this.top,
+      bottom: bottom ?? this.bottom,
+      left: left ?? this.left,
+      isSelected: isSelected ?? this.isSelected,
+      child: getChild(),
+      onTapOutside: onTapOutside,
+      type: type,
+    );
+  }
+
+  SelectableDraggableWidget.text({
+    super.key,
+    required String title,
+    required this.id,
+    required this.onTap,
+    required this.onDragEnd,
+    required this.top,
+    required this.bottom,
+    required this.left,
+    required this.isSelected,
+    required this.onTapOutside,
+  })  : child = _SelectableDraggableText(title: title),
+        type = SelectableDraggableWidgetType.text;
+
+  SelectableDraggableWidget.icon({
+    super.key,
+    required IconData iconData,
+    required this.id,
+    required this.onTap,
+    required this.onDragEnd,
+    required this.top,
+    required this.bottom,
+    required this.left,
+    required this.isSelected,
+    required this.onTapOutside,
+  })  : child = Icon(iconData, color: Colors.red),
+        type = SelectableDraggableWidgetType.icon;
 
   final String id;
   final GestureTapCallback onTap;
+  final ValueChanged<Offset> onTapOutside;
   final DragEndCallback onDragEnd;
   final double? top;
+  final double? bottom;
   final double? left;
   final bool isSelected;
   final Widget child;
+  final SelectableDraggableWidgetType type;
 
   @override
   Widget build(BuildContext context) {
@@ -49,15 +112,28 @@ class SelectableDraggableWidget extends StatelessWidget {
         border: Border.all(
           color: isSelected ? Colors.blue : Colors.transparent,
         ),
+        borderRadius: BorderRadius.circular(4),
       ),
-      child: child,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 2.0),
+        child: child,
+      ),
     );
 
     return Positioned(
       top: top,
       left: left,
+      bottom: bottom,
       child: TapRegion(
-        onTap: onTap,
+        onTapOutside: (PointerDownEvent event) {
+          if (isSelected) {
+            onTapOutside(event.position);
+          }
+        },
+        onTapInside: (_) {
+          if (isSelected) return;
+          onTap();
+        },
         child: isSelected
             ? Draggable(
                 data: id,
@@ -69,21 +145,5 @@ class SelectableDraggableWidget extends StatelessWidget {
             : wrappedChild,
       ),
     );
-    // return Positioned(
-    //   top: top,
-    //   left: left,
-    //   child: GestureDetector(
-    //     onTap: onTap,
-    //     child: isSelected
-    //         ? Draggable(
-    //             data: id,
-    //             childWhenDragging: const SizedBox.shrink(),
-    //             onDragStarted: () {},
-    //             onDragEnd: onDragEnd,
-    //             feedback: Material(color: Colors.transparent, child: wrappedChild),
-    //             child: wrappedChild)
-    //         : wrappedChild,
-    //   ),
-    // );
   }
 }
