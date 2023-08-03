@@ -1,29 +1,23 @@
-import 'package:fighting_zombie_with_flame/assets.dart';
+import 'package:fighting_zombie_with_flame/zombie_game.dart';
+import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 
-void main() {
-  runApp(const MainApp());
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  final game = ZombieGame();
+  runApp(MainApp(
+    game: game,
+  ));
 }
 
 class MainApp extends StatelessWidget {
-  const MainApp({super.key});
+  const MainApp({super.key, required this.game});
+  final ZombieGame game;
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: Scaffold(
-        body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Image.asset(Assets.assets_images_banner_png),
-              Image.asset(Assets.assets_images_barrel_png),
-              Image.asset(Assets.assets_images_character_human_png),
-              Image.asset(Assets.assets_images_character_orc_png),
-            ],
-          ),
-        ),
-      ),
+      home: GameWidget(game: ZombieGame()),
     );
   }
 }
