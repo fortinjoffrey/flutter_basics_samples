@@ -41,4 +41,7 @@ class WeatherLoaded extends WeatherState {
 
   @override
   int get hashCode => weather.hashCode;
+
+  @override
+  String toString() => 'WeatherLoaded(weather: $weather)';
 }

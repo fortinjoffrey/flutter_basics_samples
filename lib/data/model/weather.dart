@@ -2,7 +2,7 @@ class Weather {
   final String cityName;
   final double temperatureCelsius;
 
-  Weather({
+  const Weather({
     required this.cityName,
     required this.temperatureCelsius,
   });
@@ -16,4 +16,7 @@ class Weather {
 
   @override
   int get hashCode => cityName.hashCode ^ temperatureCelsius.hashCode;
+
+  @override
+  String toString() => 'Weather(cityName: $cityName, temperatureCelsius: $temperatureCelsius)';
 }
