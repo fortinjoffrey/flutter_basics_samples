@@ -269,7 +269,7 @@ class _MyHomePageState extends State<MyHomePage> {
             Expanded(
               child: Container(
                 width: MediaQuery.of(context).size.width,
-                height: 500,
+                // height: 500,
                 color: Colors.grey[200],
                 child: Stack(
                   key: _stackKey,
@@ -320,55 +320,64 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             const SizedBox(height: 16),
             Container(
-              height: 200,
+              // height: 200,
               color: Colors.green,
               child: texts.hasTextSelected
-                  ? Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: TextField(
-                        controller: textEditingController,
-                        maxLines: null,
-                        onTap: () {
-                          print('onTextFieldTap');
-                        },
-                        onChanged: (text) {
-                          final updatedTexts = texts;
-                          final selectedWidgetIndex = texts.indexWhere((element) => element.isSelected);
+                  ? Column(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: TextField(
+                            controller: textEditingController,
+                            maxLines: null,
+                            onTap: () {
+                              print('onTextFieldTap');
+                            },
+                            onChanged: (text) {
+                              final updatedTexts = texts;
+                              final selectedWidgetIndex = texts.indexWhere((element) => element.isSelected);
 
-                          if (selectedWidgetIndex == -1) return;
+                              if (selectedWidgetIndex == -1) return;
 
-                          final updatedText = texts[selectedWidgetIndex].copyWith(title: text);
-                          updatedTexts[selectedWidgetIndex] = updatedText;
+                              final updatedText = texts[selectedWidgetIndex].copyWith(title: text);
+                              updatedTexts[selectedWidgetIndex] = updatedText;
 
-                          setState(() => texts = updatedTexts);
-                        },
-                        decoration: InputDecoration(
-                          hintText: 'Your name',
-                          suffixIcon: IconButton(
-                            onPressed: () {},
-                            icon: Icon(Icons.check),
-                            color: Colors.black,
-                          ),
-                          fillColor: Colors.grey[200],
-                          filled: true,
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: BorderSide(
-                              style: BorderStyle.solid,
-                              color: Colors.black,
-                              width: 2,
-                            ),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: BorderSide(
-                              style: BorderStyle.solid,
-                              color: Colors.black,
-                              width: 2,
+                              setState(() => texts = updatedTexts);
+                            },
+                            decoration: InputDecoration(
+                              hintText: 'Your name',
+                              suffixIcon: IconButton(
+                                onPressed: () {},
+                                icon: Icon(Icons.check),
+                                color: Colors.black,
+                              ),
+                              fillColor: Colors.grey[200],
+                              filled: true,
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide(
+                                  style: BorderStyle.solid,
+                                  color: Colors.black,
+                                  width: 2,
+                                ),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide(
+                                  style: BorderStyle.solid,
+                                  color: Colors.black,
+                                  width: 2,
+                                ),
+                              ),
                             ),
                           ),
                         ),
-                      ),
+                        if (MediaQuery.of(context).viewInsets.bottom == 0)
+                          Container(
+                            color: Colors.amber,
+                            height: 200,
+                          )
+                      ],
                     )
                   : const SizedBox.shrink(),
             ),
