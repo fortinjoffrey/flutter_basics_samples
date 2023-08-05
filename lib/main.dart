@@ -1,6 +1,7 @@
 import 'package:basics_samples/components/draggable_text.dart';
 import 'package:basics_samples/utils/offset_utils.dart';
 import 'package:flutter/material.dart';
+import 'package:quiver/core.dart';
 import 'package:uuid/uuid.dart';
 import 'package:collection/collection.dart';
 
@@ -60,6 +61,9 @@ class _MyHomePageState extends State<MyHomePage> {
     required DraggableDetails details,
     required String uuid,
   }) {
+    for (final f in texts) {
+      print(f.key);
+    }
     if (texts.firstWhereOrNull((element) => element.id == uuid) == null) return;
     final selectedElementSize = _selectedElementSize;
     if (selectedElementSize == null) return;
@@ -79,7 +83,7 @@ class _MyHomePageState extends State<MyHomePage> {
     final bottomSectionOffset = bottomSectionRenderBox.localToGlobal(Offset.zero);
 
     final updatedTexts = texts;
-    final selectedWidgetIndex = texts.indexWhere((element) => element.isSelected);
+    final selectedWidgetIndex = texts.indexWhere((element) => element.id == uuid);
 
     if (selectedWidgetIndex == -1) return;
 
@@ -105,8 +109,6 @@ class _MyHomePageState extends State<MyHomePage> {
       final updatedText = texts[selectedWidgetIndex].copyWith(
         top: details.offset.dy - stackOffset.dy,
         left: details.offset.dx - stackOffset.dx,
-        // bottom: 0,
-        // bottom: (stackOffset.dy + stackSize.height) - details.offset.dy - selectedElementSize.height,
       );
       updatedTexts.removeAt(selectedWidgetIndex);
       updatedTexts.add(updatedText);
@@ -123,10 +125,44 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void recomputeSelectedElementSize() {
+    print('recomputeSelectedElementSize programmed');
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final elementSize = _selectedElementKey.currentContext?.size;
       _selectedElementSize = elementSize;
+      print('recomputeSelectedElementSize executed');
     });
+  }
+
+  void onElementDragStarted({required String id}) {
+    var updatedTexts = texts;
+
+    for (final f in updatedTexts) {
+      print(f.key);
+    }
+
+    final widgetToUpdateIndex = updatedTexts.indexWhere((widget) => widget.id == id);
+    if (widgetToUpdateIndex != -1) {
+      print('updatedTexts:${updatedTexts.length}');
+      updatedTexts = texts.map((e) => e.copyWith(key: Optional.absent())).toList();
+
+      final updatedText = updatedTexts[widgetToUpdateIndex].copyWith(
+          key: Optional.of(_selectedElementKey),
+          top: 350,
+          left: 10,
+          );
+
+      updatedTexts[widgetToUpdateIndex] = updatedText;
+
+      recomputeSelectedElementSize();
+
+      // updatedTexts.removeAt(widgetToUpdateIndex);
+      // updatedTexts.add(updatedText);
+
+      setState(() {
+        isDragging = true;
+        texts = updatedTexts;
+      });
+    }
   }
 
   void selectUnselectWidget({
@@ -139,10 +175,10 @@ class _MyHomePageState extends State<MyHomePage> {
     if (isSelected) {
       final widgetToUpdateIndex = updatedTexts.indexWhere((widget) => widget.id == id);
       if (widgetToUpdateIndex != -1) {
-        updatedTexts = texts.map((e) => e.copyWith(key: null)).toList();
+        updatedTexts = texts.map((e) => e.copyWith(key: Optional.absent())).toList();
 
         final updatedText = updatedTexts[widgetToUpdateIndex].copyWith(
-          key: _selectedElementKey,
+          key: Optional.of(_selectedElementKey),
           isSelected: true,
         );
 
@@ -213,7 +249,12 @@ class _MyHomePageState extends State<MyHomePage> {
           selectUnselectWidget(id: uuid, isSelected: false);
         }
       },
-      onDragEnd: (details) {
+      onDragStarted: () {
+        print('onDragStarted id: $uuid');
+        onElementDragStarted(id: uuid);
+      },
+      onDragEnd: (details, id) {
+        print('onDragEnd id: $id');
         _onDragEnd(details: details, uuid: uuid);
       },
       top: top ?? null,
@@ -245,13 +286,18 @@ class _MyHomePageState extends State<MyHomePage> {
           selectUnselectWidget(id: uuid, isSelected: false);
         }
       },
-      onDragEnd: (details) {
+      onDragEnd: (details, id) {
+        print('onDragEnd id: $id');
         _onDragEnd(details: details, uuid: uuid);
       },
       top: top ?? 20,
       left: left ?? null,
       isSelected: isSelected,
       iconData: Icons.hardware,
+      onDragStarted: () {
+        print('onDragStarted id: $uuid');
+        onElementDragStarted(id: uuid);
+      },
     ));
   }
 

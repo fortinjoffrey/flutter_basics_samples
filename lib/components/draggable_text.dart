@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:quiver/core.dart';
 
 enum SelectableDraggableWidgetType { text, icon }
 
@@ -21,6 +22,7 @@ class SelectableDraggableWidget extends StatelessWidget {
     required this.id,
     required this.onTap,
     required this.onDragEnd,
+    required this.onDragStarted,
     required this.top,
     required this.left,
     required this.isSelected,
@@ -35,13 +37,12 @@ class SelectableDraggableWidget extends StatelessWidget {
   }
 
   SelectableDraggableWidget copyWith({
-    Key? key,
+    Optional<Key?>? key,
     double? top,
     double? left,
     bool? isSelected,
     String? title,
   }) {
-    print('(copywith:selected:$isSelected)');
     final getChild = () {
       if (title != null && type == SelectableDraggableWidgetType.text) {
         return _SelectableDraggableText(title: title);
@@ -50,10 +51,11 @@ class SelectableDraggableWidget extends StatelessWidget {
     };
 
     return SelectableDraggableWidget(
-      key: key,
+      key: key != null ? key.orNull : this.key,
       id: id,
       onTap: onTap,
       onDragEnd: onDragEnd,
+      onDragStarted: onDragStarted,
       top: top ?? this.top,
       left: left ?? this.left,
       isSelected: isSelected ?? this.isSelected,
@@ -69,6 +71,7 @@ class SelectableDraggableWidget extends StatelessWidget {
     required this.id,
     required this.onTap,
     required this.onDragEnd,
+    required this.onDragStarted,
     required this.top,
     required this.left,
     required this.isSelected,
@@ -82,6 +85,7 @@ class SelectableDraggableWidget extends StatelessWidget {
     required this.id,
     required this.onTap,
     required this.onDragEnd,
+    required this.onDragStarted,
     required this.top,
     required this.left,
     required this.isSelected,
@@ -92,7 +96,9 @@ class SelectableDraggableWidget extends StatelessWidget {
   final String id;
   final GestureTapCallback onTap;
   final ValueChanged<Offset> onTapOutside;
-  final DragEndCallback onDragEnd;
+  // final DragEndCallback onDragEnd;
+  final VoidCallback onDragStarted;
+  final void Function(DraggableDetails details, String id) onDragEnd;
   final double? top;
   final double? left;
   final bool isSelected;
@@ -120,16 +126,18 @@ class SelectableDraggableWidget extends StatelessWidget {
       child: GestureDetector(
         onTap: () {
           print('tap');
-             if (isSelected) return;
-              onTap();
+          if (isSelected) return;
+          onTap();
         },
         child: Draggable(
           data: id,
           childWhenDragging: const SizedBox.shrink(),
           onDragStarted: () {
-            print('object');
+            onDragStarted();
           },
-          onDragEnd: onDragEnd,
+          onDragEnd: (details) {
+            onDragEnd(details, id);
+          },
           feedback: Material(color: Colors.transparent, child: wrappedChild),
           child: TapRegion(
             onTapOutside: (PointerDownEvent event) {
