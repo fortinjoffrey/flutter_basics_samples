@@ -22,7 +22,6 @@ class SelectableDraggableWidget extends StatelessWidget {
     required this.onTap,
     required this.onDragEnd,
     required this.top,
-    required this.bottom,
     required this.left,
     required this.isSelected,
     required this.child,
@@ -38,7 +37,6 @@ class SelectableDraggableWidget extends StatelessWidget {
   SelectableDraggableWidget copyWith({
     Key? key,
     double? top,
-    double? bottom,
     double? left,
     bool? isSelected,
     String? title,
@@ -57,7 +55,6 @@ class SelectableDraggableWidget extends StatelessWidget {
       onTap: onTap,
       onDragEnd: onDragEnd,
       top: top ?? this.top,
-      bottom: bottom ?? this.bottom,
       left: left ?? this.left,
       isSelected: isSelected ?? this.isSelected,
       child: getChild(),
@@ -73,7 +70,6 @@ class SelectableDraggableWidget extends StatelessWidget {
     required this.onTap,
     required this.onDragEnd,
     required this.top,
-    required this.bottom,
     required this.left,
     required this.isSelected,
     required this.onTapOutside,
@@ -87,7 +83,6 @@ class SelectableDraggableWidget extends StatelessWidget {
     required this.onTap,
     required this.onDragEnd,
     required this.top,
-    required this.bottom,
     required this.left,
     required this.isSelected,
     required this.onTapOutside,
@@ -99,7 +94,6 @@ class SelectableDraggableWidget extends StatelessWidget {
   final ValueChanged<Offset> onTapOutside;
   final DragEndCallback onDragEnd;
   final double? top;
-  final double? bottom;
   final double? left;
   final bool isSelected;
   final Widget child;
@@ -123,27 +117,47 @@ class SelectableDraggableWidget extends StatelessWidget {
     return Positioned(
       top: top,
       left: left,
-      bottom: bottom,
-      child: TapRegion(
-        onTapOutside: (PointerDownEvent event) {
-          if (isSelected) {
-            onTapOutside(event.position);
-          }
+      child: GestureDetector(
+        onTap: () {
+          print('tap');
+             if (isSelected) return;
+              onTap();
         },
-        onTapInside: (_) {
-          if (isSelected) return;
-          onTap();
-        },
-        child: isSelected
-            ? Draggable(
-                data: id,
-                childWhenDragging: const SizedBox.shrink(),
-                onDragStarted: () {},
-                onDragEnd: onDragEnd,
-                feedback: Material(color: Colors.transparent, child: wrappedChild),
-                child: wrappedChild)
-            : wrappedChild,
+        child: Draggable(
+          data: id,
+          childWhenDragging: const SizedBox.shrink(),
+          onDragStarted: () {
+            print('object');
+          },
+          onDragEnd: onDragEnd,
+          feedback: Material(color: Colors.transparent, child: wrappedChild),
+          child: TapRegion(
+            onTapOutside: (PointerDownEvent event) {
+              if (isSelected) {
+                onTapOutside(event.position);
+              }
+            },
+            // onTapInside: (event) {
+            //   if (isSelected) return;
+            //   onTap();
+            // },
+            child: wrappedChild,
+          ),
+        ),
       ),
     );
+  }
+}
+
+extension DraggrableWidgetsExtension on List<SelectableDraggableWidget> {
+  bool get isTextSelected {
+    final selectedWidgetIndex =
+        this.indexWhere((widget) => widget.isSelected && widget.type == SelectableDraggableWidgetType.text);
+    return selectedWidgetIndex != -1;
+  }
+
+  bool get hasWidgetSelected {
+    final selectedWidgetIndex = this.indexWhere((widget) => widget.isSelected);
+    return selectedWidgetIndex != -1;
   }
 }
