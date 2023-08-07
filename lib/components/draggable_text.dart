@@ -96,9 +96,8 @@ class SelectableDraggableWidget extends StatelessWidget {
   final String id;
   final GestureTapCallback onTap;
   final ValueChanged<Offset> onTapOutside;
-  // final DragEndCallback onDragEnd;
+  final DragEndCallback onDragEnd;
   final VoidCallback onDragStarted;
-  final void Function(DraggableDetails details, String id) onDragEnd;
   final double? top;
   final double? left;
   final bool isSelected;
@@ -125,7 +124,6 @@ class SelectableDraggableWidget extends StatelessWidget {
       left: left,
       child: GestureDetector(
         onTap: () {
-          print('tap');
           if (isSelected) return;
           onTap();
         },
@@ -135,9 +133,7 @@ class SelectableDraggableWidget extends StatelessWidget {
           onDragStarted: () {
             onDragStarted();
           },
-          onDragEnd: (details) {
-            onDragEnd(details, id);
-          },
+          onDragEnd: onDragEnd,
           feedback: Material(color: Colors.transparent, child: wrappedChild),
           child: TapRegion(
             onTapOutside: (PointerDownEvent event) {
@@ -145,10 +141,6 @@ class SelectableDraggableWidget extends StatelessWidget {
                 onTapOutside(event.position);
               }
             },
-            // onTapInside: (event) {
-            //   if (isSelected) return;
-            //   onTap();
-            // },
             child: wrappedChild,
           ),
         ),

@@ -2,6 +2,7 @@ import 'package:basics_samples/components/draggable_text.dart';
 import 'package:basics_samples/utils/offset_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:quiver/core.dart';
+import 'package:quiver/pattern.dart';
 import 'package:uuid/uuid.dart';
 import 'package:collection/collection.dart';
 
@@ -35,8 +36,6 @@ class _MyHomePageState extends State<MyHomePage> {
   List<SelectableDraggableWidget> texts = [];
   bool isDragging = false;
   final _stackKey = GlobalKey();
-  final _selectedElementKey = GlobalKey();
-  Size? _selectedElementSize;
   final textEditingController = TextEditingController();
   double? initExpandedHeight;
   final _bottomSectionKey = GlobalKey();
@@ -64,8 +63,20 @@ class _MyHomePageState extends State<MyHomePage> {
     for (final f in texts) {
       print(f.key);
     }
-    if (texts.firstWhereOrNull((element) => element.id == uuid) == null) return;
-    final selectedElementSize = _selectedElementSize;
+
+    final selectedElement = texts.firstWhereOrNull((element) => element.id == uuid);
+
+    if (selectedElement == null) return;
+
+    //
+    final selectedElementKey = selectedElement.key;
+
+    if (selectedElementKey == null && selectedElementKey is GlobalKey) return;
+
+    final elementSize = (selectedElementKey as GlobalKey).currentContext?.size;
+    final selectedElementSize = elementSize;
+    //
+
     if (selectedElementSize == null) return;
 
     final stackContext = _stackKey.currentContext;
@@ -124,45 +135,8 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
-  void recomputeSelectedElementSize() {
-    print('recomputeSelectedElementSize programmed');
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final elementSize = _selectedElementKey.currentContext?.size;
-      _selectedElementSize = elementSize;
-      print('recomputeSelectedElementSize executed');
-    });
-  }
-
-  void onElementDragStarted({required String id}) {
-    var updatedTexts = texts;
-
-    for (final f in updatedTexts) {
-      print(f.key);
-    }
-
-    final widgetToUpdateIndex = updatedTexts.indexWhere((widget) => widget.id == id);
-    if (widgetToUpdateIndex != -1) {
-      print('updatedTexts:${updatedTexts.length}');
-      updatedTexts = texts.map((e) => e.copyWith(key: Optional.absent())).toList();
-
-      final updatedText = updatedTexts[widgetToUpdateIndex].copyWith(
-          key: Optional.of(_selectedElementKey),
-          top: 350,
-          left: 10,
-          );
-
-      updatedTexts[widgetToUpdateIndex] = updatedText;
-
-      recomputeSelectedElementSize();
-
-      // updatedTexts.removeAt(widgetToUpdateIndex);
-      // updatedTexts.add(updatedText);
-
-      setState(() {
-        isDragging = true;
-        texts = updatedTexts;
-      });
-    }
+  void onElementDragStarted() {
+    setState(() => isDragging = true);
   }
 
   void selectUnselectWidget({
@@ -175,14 +149,9 @@ class _MyHomePageState extends State<MyHomePage> {
     if (isSelected) {
       final widgetToUpdateIndex = updatedTexts.indexWhere((widget) => widget.id == id);
       if (widgetToUpdateIndex != -1) {
-        updatedTexts = texts.map((e) => e.copyWith(key: Optional.absent())).toList();
-
         final updatedText = updatedTexts[widgetToUpdateIndex].copyWith(
-          key: Optional.of(_selectedElementKey),
           isSelected: true,
         );
-
-        recomputeSelectedElementSize();
 
         updatedTexts.removeAt(widgetToUpdateIndex);
         updatedTexts.add(updatedText);
@@ -215,6 +184,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }) {
     final String uuid = Uuid().v1();
     texts.add(SelectableDraggableWidget.text(
+      key: GlobalKey(),
       title: title,
       id: uuid,
       onTap: () => selectUnselectWidget(id: uuid, isSelected: true),
@@ -249,12 +219,8 @@ class _MyHomePageState extends State<MyHomePage> {
           selectUnselectWidget(id: uuid, isSelected: false);
         }
       },
-      onDragStarted: () {
-        print('onDragStarted id: $uuid');
-        onElementDragStarted(id: uuid);
-      },
-      onDragEnd: (details, id) {
-        print('onDragEnd id: $id');
+      onDragStarted: onElementDragStarted,
+      onDragEnd: (details) {
         _onDragEnd(details: details, uuid: uuid);
       },
       top: top ?? null,
@@ -270,6 +236,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }) {
     final String uuid = Uuid().v1();
     texts.add(SelectableDraggableWidget.icon(
+      key: GlobalKey(),
       id: uuid,
       onTap: () => selectUnselectWidget(id: uuid, isSelected: true),
       onTapOutside: (tapPosition) {
@@ -286,18 +253,14 @@ class _MyHomePageState extends State<MyHomePage> {
           selectUnselectWidget(id: uuid, isSelected: false);
         }
       },
-      onDragEnd: (details, id) {
-        print('onDragEnd id: $id');
+      onDragStarted: onElementDragStarted,
+      onDragEnd: (details) {
         _onDragEnd(details: details, uuid: uuid);
       },
       top: top ?? 20,
       left: left ?? null,
       isSelected: isSelected,
       iconData: Icons.hardware,
-      onDragStarted: () {
-        print('onDragStarted id: $uuid');
-        onElementDragStarted(id: uuid);
-      },
     ));
   }
 
@@ -414,7 +377,9 @@ class _MyHomePageState extends State<MyHomePage> {
                                   decoration: InputDecoration(
                                     hintText: 'Your name',
                                     suffixIcon: IconButton(
-                                      onPressed: () {},
+                                      onPressed: () {
+                                        unselectedCurrentSelectedWidget();
+                                      },
                                       icon: Icon(Icons.check),
                                       color: Colors.black,
                                     ),
@@ -457,9 +422,12 @@ class _MyHomePageState extends State<MyHomePage> {
                           text: '',
                           selection: TextSelection(baseOffset: 0, extentOffset: 0),
                         );
-                        unselectedCurrentSelectedWidget();
+                        unselectedCurrentSelectedWidget(performSetState: false);
                         setState(() {
-                          _createDraggableText(isSelected: true, title: '');
+                          _createDraggableText(
+                            isSelected: true,
+                            title: '',
+                          );
                         });
                       },
                       child: const Text('Add Text'),
