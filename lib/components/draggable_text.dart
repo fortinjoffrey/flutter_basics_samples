@@ -6,13 +6,35 @@ enum SelectableDraggableWidgetType { text, icon }
 class _SelectableDraggableText extends StatelessWidget {
   const _SelectableDraggableText({
     required this.title,
+    this.fontSize,
+    this.color,
   });
 
   final String title;
+  final double? fontSize;
+  final Color? color;
 
   @override
   Widget build(BuildContext context) {
-    return Text(title);
+    return Text(
+      title,
+      style: TextStyle(
+        fontSize: fontSize,
+        color: color,
+      ),
+    );
+  }
+
+  _SelectableDraggableText copyWith({
+    Optional<double?>? fontSize,
+    Optional<Color?>? fontColor,
+    Optional<String>? title,
+  }) {
+    return _SelectableDraggableText(
+      title: title != null ? title.value : this.title,
+      color: fontColor != null ? fontColor.orNull : this.color,
+      fontSize: fontSize != null ? fontSize.orNull : this.fontSize,
+    );
   }
 }
 
@@ -40,12 +62,19 @@ class SelectableDraggableWidget extends StatelessWidget {
     Optional<Key?>? key,
     double? top,
     double? left,
+    Optional<double?>? fontSize,
+    Optional<Color?>? fontColor,
     bool? isSelected,
-    String? title,
+    Optional<String>? title,
   }) {
     final getChild = () {
-      if (title != null && type == SelectableDraggableWidgetType.text) {
-        return _SelectableDraggableText(title: title);
+      if (type == SelectableDraggableWidgetType.text && (fontSize != null || fontColor != null || title != null)) {
+        final widget = child as _SelectableDraggableText;
+        return widget.copyWith(
+          title: title,
+          fontColor: fontColor,
+          fontSize: fontSize,
+        );
       }
       return child;
     };
@@ -160,4 +189,8 @@ extension DraggrableWidgetsExtension on List<SelectableDraggableWidget> {
     final selectedWidgetIndex = this.indexWhere((widget) => widget.isSelected);
     return selectedWidgetIndex != -1;
   }
+}
+
+extension SelectableDraggableWidgetX on SelectableDraggableWidget {
+  bool get isText => this.child is _SelectableDraggableText;
 }

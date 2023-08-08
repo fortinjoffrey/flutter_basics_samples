@@ -39,6 +39,7 @@ class _MyHomePageState extends State<MyHomePage> {
   final textEditingController = TextEditingController();
   double? initExpandedHeight;
   final _bottomSectionKey = GlobalKey();
+  Size? _currentDraggedElementSize;
 
   @override
   void initState() {
@@ -47,11 +48,32 @@ class _MyHomePageState extends State<MyHomePage> {
     _createDraggableIcon(top: 50);
   }
 
+  void changeTextStyle({
+    double? fontSize,
+    Color? fontColor,
+  }) {
+    final updatedTexts = texts;
+    final selectedWidgetIndex = texts.indexWhere((widget) => widget.isSelected);
+    if (selectedWidgetIndex != -1) {
+      updatedTexts[selectedWidgetIndex] = updatedTexts[selectedWidgetIndex].copyWith(
+        fontSize: fontSize != null ? Optional.fromNullable(fontSize) : null,
+        fontColor: fontColor != null ? Optional.fromNullable(fontColor) : null,
+      );
+    }
+    setState(() => texts = updatedTexts);
+  }
+
   void unselectedCurrentSelectedWidget({bool performSetState = true}) {
     final updatedTexts = texts;
     final selectedWidgetIndex = texts.indexWhere((widget) => widget.isSelected);
     if (selectedWidgetIndex != -1) {
-      updatedTexts[selectedWidgetIndex] = updatedTexts[selectedWidgetIndex].copyWith(isSelected: false);
+      final SelectableDraggableWidget selectedWidget = updatedTexts[selectedWidgetIndex];
+
+      if (selectedWidget.isText && selectedWidget.title?.isEmpty == true) {
+        updatedTexts.removeAt(selectedWidgetIndex);
+      } else {
+        updatedTexts[selectedWidgetIndex] = selectedWidget.copyWith(isSelected: false);
+      }
     }
     if (performSetState) setState(() => texts = updatedTexts);
   }
@@ -60,22 +82,13 @@ class _MyHomePageState extends State<MyHomePage> {
     required DraggableDetails details,
     required String uuid,
   }) {
-    for (final f in texts) {
-      print(f.key);
-    }
-
     final selectedElement = texts.firstWhereOrNull((element) => element.id == uuid);
 
     if (selectedElement == null) return;
 
-    //
-    final selectedElementKey = selectedElement.key;
+    final selectedElementSize = _currentDraggedElementSize;
 
-    if (selectedElementKey == null && selectedElementKey is GlobalKey) return;
-
-    final elementSize = (selectedElementKey as GlobalKey).currentContext?.size;
-    final selectedElementSize = elementSize;
-    //
+    print('selectedElementSize= $selectedElementSize');
 
     if (selectedElementSize == null) return;
 
@@ -116,6 +129,8 @@ class _MyHomePageState extends State<MyHomePage> {
       childSize: selectedElementSize,
     );
 
+    _currentDraggedElementSize = null;
+
     if (!isElementDraggedInBottomSection && isElementDraggedInStack) {
       final updatedText = texts[selectedWidgetIndex].copyWith(
         top: details.offset.dy - stackOffset.dy,
@@ -135,7 +150,24 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
-  void onElementDragStarted() {
+  void onElementDragStarted({
+    required String uuid,
+  }) {
+    FocusScope.of(context).unfocus();
+    final selectedElement = texts.firstWhereOrNull((element) => element.id == uuid);
+
+    if (selectedElement == null) return;
+
+    final selectedElementKey = selectedElement.key;
+
+    if (selectedElementKey == null && selectedElementKey is GlobalKey) return;
+
+    final elementSize = (selectedElementKey as GlobalKey).currentContext?.size;
+
+    _currentDraggedElementSize = elementSize;
+
+    
+
     setState(() => isDragging = true);
   }
 
@@ -219,9 +251,13 @@ class _MyHomePageState extends State<MyHomePage> {
           selectUnselectWidget(id: uuid, isSelected: false);
         }
       },
-      onDragStarted: onElementDragStarted,
+      onDragStarted: () {
+        onElementDragStarted(uuid: uuid);
+      },
       onDragEnd: (details) {
+        // WidgetsBinding.instance.addPostFrameCallback((_) {
         _onDragEnd(details: details, uuid: uuid);
+        // });
       },
       top: top ?? null,
       left: left ?? null,
@@ -253,7 +289,9 @@ class _MyHomePageState extends State<MyHomePage> {
           selectUnselectWidget(id: uuid, isSelected: false);
         }
       },
-      onDragStarted: onElementDragStarted,
+      onDragStarted: () {
+        onElementDragStarted(uuid: uuid);
+      },
       onDragEnd: (details) {
         _onDragEnd(details: details, uuid: uuid);
       },
@@ -271,153 +309,181 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: AppBar(
         title: Text(widget.title),
       ),
-      body: Padding(
-        padding: const EdgeInsets.only(top: 32),
-        child: Column(
-          children: [
-            //
-            Expanded(
-              child: LayoutBuilder(builder: (context, constraints) {
-                initExpandedHeight ??= constraints.maxHeight;
-                return OverflowBox(
-                  alignment: Alignment.topCenter,
-                  maxHeight: double.infinity,
-                  minHeight: 0,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      image: DecorationImage(
-                          image: NetworkImage('https://pbs.twimg.com/media/FKNlhKZUcAEd7FY?format=jpg&name=4096x4096'),
-                          fit: BoxFit.fitHeight),
-                      color: Colors.grey[200],
-                    ),
-                    child: ConstrainedBox(
-                      constraints: BoxConstraints(maxHeight: initExpandedHeight!),
-                      // height: initExpandedHeight,
-                      child: Stack(
-                        key: _stackKey,
-                        alignment: Alignment.center,
-                        children: <Widget>[
-                          ...texts,
-                          // if (isDragging)
-                          Align(
-                            alignment: Alignment.bottomCenter,
-                            child: Padding(
-                              padding: const EdgeInsets.only(bottom: 16.0),
-                              child: DragTarget<String>(
-                                onWillAccept: (id) {
-                                  return texts.firstWhereOrNull(
-                                        (widget) {
-                                          final isEqual = widget.id == id;
-                                          return isEqual;
-                                        },
-                                      ) !=
-                                      null;
-                                },
-                                onAccept: (id) {
-                                  setState(() {
-                                    texts.removeWhere((element) => element.id == id);
-                                  });
-                                },
-                                onLeave: (data) {
-                                  print('onLeave');
-                                },
-                                builder: (context, candidates, rejects) {
-                                  final hasCandidates = candidates.isNotEmpty;
+      body: Column(
+        children: [
+          //
+          Expanded(
+            child: LayoutBuilder(builder: (context, constraints) {
+              initExpandedHeight ??= constraints.maxHeight;
+              return OverflowBox(
+                alignment: Alignment.topCenter,
+                maxHeight: double.infinity,
+                minHeight: 0,
+                child: Container(
+                  decoration: BoxDecoration(
+                    image: DecorationImage(
+                        image: NetworkImage('https://pbs.twimg.com/media/FKNlhKZUcAEd7FY?format=jpg&name=4096x4096'),
+                        fit: BoxFit.fitHeight),
+                    color: Colors.grey[200],
+                  ),
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(maxHeight: initExpandedHeight!),
+                    // height: initExpandedHeight,
+                    child: Stack(
+                      key: _stackKey,
+                      alignment: Alignment.center,
+                      children: <Widget>[
+                        ...texts,
+                        // if (isDragging)
+                        Align(
+                          alignment: Alignment.bottomCenter,
+                          child: Padding(
+                            padding: const EdgeInsets.only(bottom: 16.0),
+                            child: DragTarget<String>(
+                              onWillAccept: (id) {
+                                return texts.firstWhereOrNull(
+                                      (widget) {
+                                        final isEqual = widget.id == id;
+                                        return isEqual;
+                                      },
+                                    ) !=
+                                    null;
+                              },
+                              onAccept: (id) {
+                                setState(() {
+                                  texts.removeWhere((element) => element.id == id);
+                                });
+                              },
+                              onLeave: (data) {
+                                print('onLeave');
+                              },
+                              builder: (context, candidates, rejects) {
+                                final hasCandidates = candidates.isNotEmpty;
 
-                                  return CircleAvatar(
-                                    backgroundColor: hasCandidates ? Colors.red : Colors.blue,
-                                    radius: 20,
-                                    child: Icon(
-                                      Icons.delete,
-                                      color: Colors.white,
-                                    ),
-                                  );
-                                },
-                              ),
+                                return CircleAvatar(
+                                  backgroundColor: hasCandidates ? Colors.red : Colors.blue,
+                                  radius: 20,
+                                  child: Icon(
+                                    Icons.delete,
+                                    color: Colors.white,
+                                  ),
+                                );
+                              },
                             ),
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
                   ),
-                );
-              }),
-            ),
-            //
+                ),
+              );
+            }),
+          ),
+          Column(
+            key: _bottomSectionKey,
+            children: [
+              Container(
+                color: Colors.green,
+                child: texts.isTextSelected
+                    ? SafeArea(
+                        child: Column(
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: TextField(
+                                controller: textEditingController,
+                                maxLines: null,
+                                onTap: () {
+                                  print('onTextFieldTap');
+                                },
+                                onChanged: (text) {
+                                  final updatedTexts = texts;
+                                  final selectedWidgetIndex = texts.indexWhere((element) => element.isSelected);
 
-            const SizedBox(height: 16),
-            Column(
-              key: _bottomSectionKey,
-              children: [
-                Container(
-                  color: Colors.green,
-                  child: texts.isTextSelected
-                      ? SafeArea(
-                          child: Column(
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: TextField(
-                                  controller: textEditingController,
-                                  maxLines: null,
-                                  onTap: () {
-                                    print('onTextFieldTap');
-                                  },
-                                  onChanged: (text) {
-                                    final updatedTexts = texts;
-                                    final selectedWidgetIndex = texts.indexWhere((element) => element.isSelected);
+                                  if (selectedWidgetIndex == -1) return;
 
-                                    if (selectedWidgetIndex == -1) return;
+                                  final updatedText = texts[selectedWidgetIndex].copyWith(
+                                    title: Optional.of(text),
+                                    key: Optional.of(GlobalKey()),
+                                  );
+                                  updatedTexts[selectedWidgetIndex] = updatedText;
 
-                                    final updatedText = texts[selectedWidgetIndex].copyWith(title: text);
-                                    updatedTexts[selectedWidgetIndex] = updatedText;
-
-                                    setState(() => texts = updatedTexts);
-                                  },
-                                  decoration: InputDecoration(
-                                    hintText: 'Your name',
-                                    suffixIcon: IconButton(
-                                      onPressed: () {
-                                        unselectedCurrentSelectedWidget();
-                                      },
-                                      icon: Icon(Icons.check),
+                                  setState(() => texts = updatedTexts);
+                                },
+                                decoration: InputDecoration(
+                                  hintText: 'Your name',
+                                  suffixIcon: IconButton(
+                                    onPressed: () {
+                                      unselectedCurrentSelectedWidget();
+                                    },
+                                    icon: Icon(Icons.check),
+                                    color: Colors.black,
+                                  ),
+                                  fillColor: Colors.grey[200],
+                                  filled: true,
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                    borderSide: BorderSide(
+                                      style: BorderStyle.solid,
                                       color: Colors.black,
+                                      width: 2,
                                     ),
-                                    fillColor: Colors.grey[200],
-                                    filled: true,
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(12),
-                                      borderSide: BorderSide(
-                                        style: BorderStyle.solid,
-                                        color: Colors.black,
-                                        width: 2,
-                                      ),
-                                    ),
-                                    focusedBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(12),
-                                      borderSide: BorderSide(
-                                        style: BorderStyle.solid,
-                                        color: Colors.black,
-                                        width: 2,
-                                      ),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                    borderSide: BorderSide(
+                                      style: BorderStyle.solid,
+                                      color: Colors.black,
+                                      width: 2,
                                     ),
                                   ),
                                 ),
                               ),
-                              if (MediaQuery.of(context).viewInsets.bottom == 0)
-                                Container(
-                                  color: Colors.amber,
-                                  height: 200,
-                                )
+                            ),
+                            if (MediaQuery.of(context).viewInsets.bottom == 0) ...[
+                              Container(
+                                color: Colors.amber,
+                                child: Column(
+                                  children: [
+                                    Wrap(
+                                      children: [16, 32, 64]
+                                          .map((e) => TextButton(
+                                              onPressed: () {
+                                                changeTextStyle(fontSize: e.toDouble());
+
+                                              },
+                                              child: Text(e.toString())))
+                                          .toList(),
+                                    ),
+                                    Wrap(
+                                      children: [Colors.red, Colors.green, Colors.blue]
+                                          .map((e) => TextButton(
+                                              onPressed: () {
+                                                changeTextStyle(fontColor: e);
+                                              },
+                                              child: Container(
+                                                height: 20,
+                                                width: 20,
+                                                color: e,
+                                              )))
+                                          .toList(),
+                                    ),
+                                  ],
+                                ),
+                              ),
                             ],
-                          ),
-                        )
-                      : const SizedBox.shrink(),
-                ),
-                if (MediaQuery.of(context).viewInsets.bottom == 0)
-                  SafeArea(
-                    child: ElevatedButton(
-                      onPressed: () {
+                          ],
+                        ),
+                      )
+                    : const SizedBox.shrink(),
+              ),
+              if (MediaQuery.of(context).viewInsets.bottom == 0 && !texts.isTextSelected)
+                Container(
+                  color: Colors.black,
+                  padding: const EdgeInsets.all(32),
+                  child: Center(
+                    child: GestureDetector(
+                      onTap: () {
                         textEditingController.value = TextEditingValue(
                           text: '',
                           selection: TextSelection(baseOffset: 0, extentOffset: 0),
@@ -430,14 +496,19 @@ class _MyHomePageState extends State<MyHomePage> {
                           );
                         });
                       },
-                      child: const Text('Add Text'),
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: const Text(
+                          'Text',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ),
                     ),
                   ),
-              ],
-            ),
-            // if (texts.hasTextSelected)
-          ],
-        ),
+                )
+            ],
+          ),
+        ],
       ),
     );
   }
