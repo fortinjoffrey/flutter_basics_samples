@@ -51,6 +51,7 @@ class SelectableDraggableWidget extends StatelessWidget {
     required this.child,
     required this.onTapOutside,
     required this.type,
+    this.isDragged = false,
   });
 
   String? get title {
@@ -60,11 +61,12 @@ class SelectableDraggableWidget extends StatelessWidget {
 
   SelectableDraggableWidget copyWith({
     Optional<Key?>? key,
-    double? top,
-    double? left,
+    Optional<double?>? top,
+    Optional<double?>? left,
     Optional<double?>? fontSize,
     Optional<Color?>? fontColor,
     bool? isSelected,
+    bool? isDragged,
     Optional<String>? title,
   }) {
     final getChild = () {
@@ -85,9 +87,10 @@ class SelectableDraggableWidget extends StatelessWidget {
       onTap: onTap,
       onDragEnd: onDragEnd,
       onDragStarted: onDragStarted,
-      top: top ?? this.top,
-      left: left ?? this.left,
+      top: top != null ? top.orNull : this.top,
+      left: left != null ? left.orNull : this.left,
       isSelected: isSelected ?? this.isSelected,
+      isDragged: isDragged ?? false,
       child: getChild(),
       onTapOutside: onTapOutside,
       type: type,
@@ -105,6 +108,7 @@ class SelectableDraggableWidget extends StatelessWidget {
     required this.left,
     required this.isSelected,
     required this.onTapOutside,
+    this.isDragged = false,
   })  : child = _SelectableDraggableText(title: title),
         type = SelectableDraggableWidgetType.text;
 
@@ -119,6 +123,7 @@ class SelectableDraggableWidget extends StatelessWidget {
     required this.left,
     required this.isSelected,
     required this.onTapOutside,
+    this.isDragged = false,
   })  : child = Icon(iconData, color: Colors.red),
         type = SelectableDraggableWidgetType.icon;
 
@@ -130,11 +135,13 @@ class SelectableDraggableWidget extends StatelessWidget {
   final double? top;
   final double? left;
   final bool isSelected;
+  final bool isDragged;
   final Widget child;
   final SelectableDraggableWidgetType type;
 
   @override
   Widget build(BuildContext context) {
+    print('isSelected: $isSelected');
     final Widget wrappedChild = Container(
       decoration: BoxDecoration(
         border: Border.all(
@@ -148,9 +155,13 @@ class SelectableDraggableWidget extends StatelessWidget {
       ),
     );
 
-    return Positioned(
+    print('isDraged: $isDragged');
+
+    return AnimatedPositioned(
       top: top,
+      curve: Curves.easeInOut,
       left: left,
+      duration: Duration(milliseconds: !isDragged ? 500 : 0),
       child: GestureDetector(
         onTap: () {
           if (isSelected) return;

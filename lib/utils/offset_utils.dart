@@ -10,7 +10,7 @@ abstract class OffsetUtils {
         (elementPosition.dy <= tapPosition.dy && tapPosition.dy <= (elementPosition.dy + elementSize.height));
   }
 
-  static bool isElementDraggedInsideParent({
+  static bool isElementHasAtLeastOnePointInsideParent({
     required Offset parentOffset,
     required Size parentSize,
     required Offset childOffset,

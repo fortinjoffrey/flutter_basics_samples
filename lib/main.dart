@@ -2,7 +2,6 @@ import 'package:basics_samples/components/draggable_text.dart';
 import 'package:basics_samples/utils/offset_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:quiver/core.dart';
-import 'package:quiver/pattern.dart';
 import 'package:uuid/uuid.dart';
 import 'package:collection/collection.dart';
 
@@ -40,6 +39,7 @@ class _MyHomePageState extends State<MyHomePage> {
   double? initExpandedHeight;
   final _bottomSectionKey = GlobalKey();
   Size? _currentDraggedElementSize;
+  Offset? _lastSelectedElementPosition;
 
   @override
   void initState() {
@@ -59,8 +59,54 @@ class _MyHomePageState extends State<MyHomePage> {
         fontSize: fontSize != null ? Optional.fromNullable(fontSize) : null,
         fontColor: fontColor != null ? Optional.fromNullable(fontColor) : null,
       );
+      setState(() => texts = updatedTexts);
     }
-    setState(() => texts = updatedTexts);
+  }
+
+  bool isElementInStack({
+    required Offset elementOffset,
+    required Size elementSize,
+  }) {
+    final stackOffset = getOffsetFromKey(_stackKey);
+    final stackSize = getSizeFromKey(_stackKey);
+
+    if (stackOffset == null || stackSize == null) return false;
+
+    return OffsetUtils.isElementHasAtLeastOnePointInsideParent(
+      parentOffset: stackOffset,
+      parentSize: stackSize,
+      childOffset: elementOffset,
+      childSize: elementSize,
+    );
+  }
+
+  Offset? getOffsetFromKey(GlobalKey key) {
+    final keyContext = key.currentContext;
+    final stackSize = keyContext?.size;
+    if (keyContext == null || stackSize == null) return null;
+
+    final stackRenderBox = keyContext.findRenderObject() as RenderBox;
+    return stackRenderBox.localToGlobal(Offset.zero);
+  }
+
+  Offset? getLocalOffsetFromParent(GlobalKey childKey, GlobalKey parentKey) {
+    final childKeyContext = childKey.currentContext;
+    final childSize = childKeyContext?.size;
+    if (childKeyContext == null || childSize == null) return null;
+
+    final childRenderBox = childKeyContext.findRenderObject() as RenderBox;
+    final childLocalToGlobal = childRenderBox.localToGlobal(Offset.zero);
+
+    final parentKeyContext = parentKey.currentContext;
+    final parentSize = parentKeyContext?.size;
+    if (parentKeyContext == null || parentSize == null) return null;
+
+    final parentRenderBox = parentKeyContext.findRenderObject() as RenderBox;
+    return parentRenderBox.globalToLocal(childLocalToGlobal);
+  }
+
+  Size? getSizeFromKey(GlobalKey key) {
+    return key.currentContext?.size;
   }
 
   void unselectedCurrentSelectedWidget({bool performSetState = true}) {
@@ -72,7 +118,44 @@ class _MyHomePageState extends State<MyHomePage> {
       if (selectedWidget.isText && selectedWidget.title?.isEmpty == true) {
         updatedTexts.removeAt(selectedWidgetIndex);
       } else {
-        updatedTexts[selectedWidgetIndex] = selectedWidget.copyWith(isSelected: false);
+        if (_lastSelectedElementPosition == null) {
+          updatedTexts[selectedWidgetIndex] = selectedWidget.copyWith(
+            isSelected: false,
+          );
+        } else {
+          // check if the element will be out of stack when replacing with new style
+          // final selectedElementKey = texts[selectedWidgetIndex].key;
+
+          // if (selectedElementKey == null || !(selectedElementKey is GlobalKey)) return;
+
+          // final elementOffset = getOffsetFromKey(selectedElementKey);
+          // final elementSize = getSizeFromKey(selectedElementKey);
+
+          // if (elementOffset == null || elementSize == null) return;
+          // final willBeInStack =
+          //     isElementInStack(elementOffset: _lastSelectedElementPosition!, elementSize: elementSize);
+
+          // if (!willBeInStack) {
+          //   setState(() {
+          //     texts.removeAt(selectedWidgetIndex);
+          //   });
+          // } else {
+          //   updatedTexts[selectedWidgetIndex] = selectedWidget.copyWith(
+          //     isSelected: false,
+          //     top:
+          //         _lastSelectedElementPosition != null ? Optional.fromNullable(_lastSelectedElementPosition?.dy) : null,
+          //     left:
+          //         _lastSelectedElementPosition != null ? Optional.fromNullable(_lastSelectedElementPosition?.dx) : null,
+          //   );
+          // }
+
+          updatedTexts[selectedWidgetIndex] = selectedWidget.copyWith(
+            isSelected: false,
+            top: _lastSelectedElementPosition != null ? Optional.fromNullable(_lastSelectedElementPosition?.dy) : null,
+            left: _lastSelectedElementPosition != null ? Optional.fromNullable(_lastSelectedElementPosition?.dx) : null,
+          );
+          _lastSelectedElementPosition = null;
+        }
       }
     }
     if (performSetState) setState(() => texts = updatedTexts);
@@ -104,6 +187,7 @@ class _MyHomePageState extends State<MyHomePage> {
     if (bottomSectionContext == null || bottomSectionSize == null) return;
 
     final bottomSectionRenderBox = bottomSectionContext.findRenderObject() as RenderBox;
+    // ignore: unused_local_variable
     final bottomSectionOffset = bottomSectionRenderBox.localToGlobal(Offset.zero);
 
     final updatedTexts = texts;
@@ -115,26 +199,27 @@ class _MyHomePageState extends State<MyHomePage> {
     // if so then replace it back to its original position
     // else move it
 
-    final isElementDraggedInStack = OffsetUtils.isElementDraggedInsideParent(
+    final isElementDraggedInStack = OffsetUtils.isElementHasAtLeastOnePointInsideParent(
       parentOffset: stackOffset,
       parentSize: stackSize,
       childOffset: details.offset,
       childSize: selectedElementSize,
     );
 
-    final isElementDraggedInBottomSection = OffsetUtils.isElementDraggedInsideParent(
-      parentOffset: bottomSectionOffset,
-      parentSize: bottomSectionSize,
-      childOffset: details.offset,
-      childSize: selectedElementSize,
-    );
+    // final isElementDraggedInBottomSection = OffsetUtils.isElementHasAtLeastOnePointInsideParent(
+    //   parentOffset: bottomSectionOffset,
+    //   parentSize: bottomSectionSize,
+    //   childOffset: details.offset,
+    //   childSize: selectedElementSize,
+    // );
 
     _currentDraggedElementSize = null;
 
-    if (!isElementDraggedInBottomSection && isElementDraggedInStack) {
+    if (isElementDraggedInStack) {
+      // if (!isElementDraggedInBottomSection && isElementDraggedInStack) {
       final updatedText = texts[selectedWidgetIndex].copyWith(
-        top: details.offset.dy - stackOffset.dy,
-        left: details.offset.dx - stackOffset.dx,
+        top: Optional.fromNullable(details.offset.dy - stackOffset.dy),
+        left: Optional.fromNullable(details.offset.dx - stackOffset.dx),
       );
       updatedTexts.removeAt(selectedWidgetIndex);
       updatedTexts.add(updatedText);
@@ -160,13 +245,39 @@ class _MyHomePageState extends State<MyHomePage> {
 
     final selectedElementKey = selectedElement.key;
 
-    if (selectedElementKey == null && selectedElementKey is GlobalKey) return;
+    if (selectedElementKey == null || !(selectedElementKey is GlobalKey)) return;
 
-    final elementSize = (selectedElementKey as GlobalKey).currentContext?.size;
+    final elementSize = selectedElementKey.currentContext?.size;
 
     _currentDraggedElementSize = elementSize;
+    unselectedCurrentSelectedWidget(performSetState: false);
 
-    
+    //
+    var updatedTexts = texts;
+    final widgetToUpdateIndex = updatedTexts.indexWhere((widget) => widget.id == uuid);
+    if (widgetToUpdateIndex != -1) {
+      final selectedElementKey = updatedTexts[widgetToUpdateIndex].key;
+
+      if (selectedElementKey == null || !(selectedElementKey is GlobalKey)) return;
+
+      final elementSize = getSizeFromKey(selectedElementKey);
+
+      if (elementSize == null) return;
+
+      final updatedText = updatedTexts[widgetToUpdateIndex].copyWith(
+        isDragged: true,
+      );
+
+      updatedTexts.removeAt(widgetToUpdateIndex);
+      updatedTexts.add(updatedText);
+      // updatedTexts.add(updatedText);
+
+      setState(() {
+        isDragging = false;
+        texts = updatedTexts;
+      });
+    }
+    //
 
     setState(() => isDragging = true);
   }
@@ -181,19 +292,26 @@ class _MyHomePageState extends State<MyHomePage> {
     if (isSelected) {
       final widgetToUpdateIndex = updatedTexts.indexWhere((widget) => widget.id == id);
       if (widgetToUpdateIndex != -1) {
+        final selectedElementKey = updatedTexts[widgetToUpdateIndex].key;
+
+        if (selectedElementKey == null || !(selectedElementKey is GlobalKey)) return;
+
+        final elementSize = getSizeFromKey(selectedElementKey);
+        final stackSize = getSizeFromKey(_stackKey);
+
+        if (elementSize == null || stackSize == null) return;
+
+        // avant de déplacer garder en mémoire la dernière position du widget
+        // _lastSelectedElementPosition = getOffsetFromKey(selectedElementKey);
+        _lastSelectedElementPosition = getLocalOffsetFromParent(selectedElementKey, _stackKey);
+
         final updatedText = updatedTexts[widgetToUpdateIndex].copyWith(
           isSelected: true,
+          top: Optional.fromNullable(150),
+          left: Optional.fromNullable((stackSize.width / 2) - (elementSize.width / 2)),
         );
 
-        updatedTexts.removeAt(widgetToUpdateIndex);
-        updatedTexts.add(updatedText);
-
-        setState(() {
-          isDragging = false;
-          texts = updatedTexts;
-        });
-
-        if (updatedTexts.isTextSelected) {
+        if (updatedText.isText) {
           final title = updatedTexts[widgetToUpdateIndex].title;
           if (title != null) {
             textEditingController.value = TextEditingValue(
@@ -202,6 +320,14 @@ class _MyHomePageState extends State<MyHomePage> {
             );
           }
         }
+
+        updatedTexts.removeAt(widgetToUpdateIndex);
+        updatedTexts.add(updatedText);
+
+        setState(() {
+          isDragging = false;
+          texts = updatedTexts;
+        });
       }
     }
 
@@ -328,13 +454,24 @@ class _MyHomePageState extends State<MyHomePage> {
                   ),
                   child: ConstrainedBox(
                     constraints: BoxConstraints(maxHeight: initExpandedHeight!),
-                    // height: initExpandedHeight,
                     child: Stack(
                       key: _stackKey,
                       alignment: Alignment.center,
                       children: <Widget>[
+                        // if (texts.length > 1) ...texts.getRange(0, texts.length - 1),
+                        // Positioned.fill(
+                        //     child: AnimatedOpacity(
+                        //         opacity: texts.hasWidgetSelected ? .9 : 0,
+                        //         duration: const Duration(seconds: 1),
+                        //         child: Container(color: Colors.black))),
+                        // texts.last,
                         ...texts,
-                        // if (isDragging)
+                        // if (texts.hasWidgetSelected) ...[
+                        //   ...texts.getRange(0, texts.length - 1),
+                        //   Positioned.fill(child: AnimatedOpacity(opacity: .9, duration: const Duration(seconds: 1),
+                        //   child: Container(color: Colors.black))),
+                        //   texts.last,
+                        // ] else ...texts,
                         Align(
                           alignment: Alignment.bottomCenter,
                           child: Padding(
@@ -384,7 +521,7 @@ class _MyHomePageState extends State<MyHomePage> {
             children: [
               Container(
                 color: Colors.green,
-                child: texts.isTextSelected
+                child: texts.isTextSelected && !isDragging
                     ? SafeArea(
                         child: Column(
                           children: [
@@ -450,7 +587,6 @@ class _MyHomePageState extends State<MyHomePage> {
                                           .map((e) => TextButton(
                                               onPressed: () {
                                                 changeTextStyle(fontSize: e.toDouble());
-
                                               },
                                               child: Text(e.toString())))
                                           .toList(),
