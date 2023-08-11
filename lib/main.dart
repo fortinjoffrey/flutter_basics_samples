@@ -40,6 +40,8 @@ class _MyHomePageState extends State<MyHomePage> {
   final _bottomSectionKey = GlobalKey();
   Size? _currentDraggedElementSize;
   Offset? _lastSelectedElementPosition;
+  static const double _initialTopPosition = 150;
+  final _textFieldFocusNode = FocusNode();
 
   @override
   void initState() {
@@ -123,32 +125,6 @@ class _MyHomePageState extends State<MyHomePage> {
             isSelected: false,
           );
         } else {
-          // check if the element will be out of stack when replacing with new style
-          // final selectedElementKey = texts[selectedWidgetIndex].key;
-
-          // if (selectedElementKey == null || !(selectedElementKey is GlobalKey)) return;
-
-          // final elementOffset = getOffsetFromKey(selectedElementKey);
-          // final elementSize = getSizeFromKey(selectedElementKey);
-
-          // if (elementOffset == null || elementSize == null) return;
-          // final willBeInStack =
-          //     isElementInStack(elementOffset: _lastSelectedElementPosition!, elementSize: elementSize);
-
-          // if (!willBeInStack) {
-          //   setState(() {
-          //     texts.removeAt(selectedWidgetIndex);
-          //   });
-          // } else {
-          //   updatedTexts[selectedWidgetIndex] = selectedWidget.copyWith(
-          //     isSelected: false,
-          //     top:
-          //         _lastSelectedElementPosition != null ? Optional.fromNullable(_lastSelectedElementPosition?.dy) : null,
-          //     left:
-          //         _lastSelectedElementPosition != null ? Optional.fromNullable(_lastSelectedElementPosition?.dx) : null,
-          //   );
-          // }
-
           updatedTexts[selectedWidgetIndex] = selectedWidget.copyWith(
             isSelected: false,
             top: _lastSelectedElementPosition != null ? Optional.fromNullable(_lastSelectedElementPosition?.dy) : null,
@@ -167,11 +143,15 @@ class _MyHomePageState extends State<MyHomePage> {
   }) {
     final selectedElement = texts.firstWhereOrNull((element) => element.id == uuid);
 
-    if (selectedElement == null) return;
+    if (selectedElement == null) {
+      _currentDraggedElementSize = null;
+      if (isDragging) {
+        setState(() => isDragging = false);
+      }
+      return;
+    }
 
     final selectedElementSize = _currentDraggedElementSize;
-
-    print('selectedElementSize= $selectedElementSize');
 
     if (selectedElementSize == null) return;
 
@@ -186,18 +166,10 @@ class _MyHomePageState extends State<MyHomePage> {
     final bottomSectionSize = bottomSectionContext?.size;
     if (bottomSectionContext == null || bottomSectionSize == null) return;
 
-    final bottomSectionRenderBox = bottomSectionContext.findRenderObject() as RenderBox;
-    // ignore: unused_local_variable
-    final bottomSectionOffset = bottomSectionRenderBox.localToGlobal(Offset.zero);
-
     final updatedTexts = texts;
     final selectedWidgetIndex = texts.indexWhere((element) => element.id == uuid);
 
     if (selectedWidgetIndex == -1) return;
-
-    // check if the text has been dragged outside of the stack
-    // if so then replace it back to its original position
-    // else move it
 
     final isElementDraggedInStack = OffsetUtils.isElementHasAtLeastOnePointInsideParent(
       parentOffset: stackOffset,
@@ -205,15 +177,6 @@ class _MyHomePageState extends State<MyHomePage> {
       childOffset: details.offset,
       childSize: selectedElementSize,
     );
-
-    // final isElementDraggedInBottomSection = OffsetUtils.isElementHasAtLeastOnePointInsideParent(
-    //   parentOffset: bottomSectionOffset,
-    //   parentSize: bottomSectionSize,
-    //   childOffset: details.offset,
-    //   childSize: selectedElementSize,
-    // );
-
-    _currentDraggedElementSize = null;
 
     if (isElementDraggedInStack) {
       // if (!isElementDraggedInBottomSection && isElementDraggedInStack) {
@@ -229,9 +192,7 @@ class _MyHomePageState extends State<MyHomePage> {
         texts = updatedTexts;
       });
     } else {
-      setState(() {
-        isDragging = false;
-      });
+      setState(() => isDragging = false);
     }
   }
 
@@ -252,7 +213,6 @@ class _MyHomePageState extends State<MyHomePage> {
     _currentDraggedElementSize = elementSize;
     unselectedCurrentSelectedWidget(performSetState: false);
 
-    //
     var updatedTexts = texts;
     final widgetToUpdateIndex = updatedTexts.indexWhere((widget) => widget.id == uuid);
     if (widgetToUpdateIndex != -1) {
@@ -270,16 +230,12 @@ class _MyHomePageState extends State<MyHomePage> {
 
       updatedTexts.removeAt(widgetToUpdateIndex);
       updatedTexts.add(updatedText);
-      // updatedTexts.add(updatedText);
 
       setState(() {
-        isDragging = false;
         texts = updatedTexts;
+        isDragging = true;
       });
     }
-    //
-
-    setState(() => isDragging = true);
   }
 
   void selectUnselectWidget({
@@ -307,31 +263,39 @@ class _MyHomePageState extends State<MyHomePage> {
 
         final updatedText = updatedTexts[widgetToUpdateIndex].copyWith(
           isSelected: true,
-          top: Optional.fromNullable(150),
+          top: Optional.fromNullable(_initialTopPosition),
           left: Optional.fromNullable((stackSize.width / 2) - (elementSize.width / 2)),
         );
 
         if (updatedText.isText) {
-          final title = updatedTexts[widgetToUpdateIndex].title;
-          if (title != null) {
-            textEditingController.value = TextEditingValue(
-              text: updatedTexts[widgetToUpdateIndex].title ?? '',
-              selection: TextSelection(baseOffset: title.length, extentOffset: title.length),
-            );
-          }
+          _fillTextFieldWithTitle(updatedText);
+          // final title = updatedTexts[widgetToUpdateIndex].title;
+          // if (title != null) {
+          //   textEditingController.value = TextEditingValue(
+          //     text: updatedTexts[widgetToUpdateIndex].title ?? '',
+          //     selection: TextSelection(baseOffset: title.length, extentOffset: title.length),
+          //   );
+          // }
         }
 
         updatedTexts.removeAt(widgetToUpdateIndex);
         updatedTexts.add(updatedText);
 
-        setState(() {
-          isDragging = false;
-          texts = updatedTexts;
-        });
+        setState(() => texts = updatedTexts);
       }
     }
 
     setState(() => texts = updatedTexts);
+  }
+
+  void _fillTextFieldWithTitle(SelectableDraggableWidget element) {
+    final title = element.title;
+    if (title != null) {
+      textEditingController.value = TextEditingValue(
+        text: element.title ?? '',
+        selection: TextSelection(baseOffset: title.length, extentOffset: title.length),
+      );
+    }
   }
 
   void _createDraggableText({
@@ -381,9 +345,7 @@ class _MyHomePageState extends State<MyHomePage> {
         onElementDragStarted(uuid: uuid);
       },
       onDragEnd: (details) {
-        // WidgetsBinding.instance.addPostFrameCallback((_) {
         _onDragEnd(details: details, uuid: uuid);
-        // });
       },
       top: top ?? null,
       left: left ?? null,
@@ -430,14 +392,11 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
+    print('isDragging = $isDragging');
     return Scaffold(
-      // resizeToAvoidBottomInset: true,
-      appBar: AppBar(
-        title: Text(widget.title),
-      ),
+      appBar: AppBar(title: Text(widget.title)),
       body: Column(
         children: [
-          //
           Expanded(
             child: LayoutBuilder(builder: (context, constraints) {
               initExpandedHeight ??= constraints.maxHeight;
@@ -458,57 +417,35 @@ class _MyHomePageState extends State<MyHomePage> {
                       key: _stackKey,
                       alignment: Alignment.center,
                       children: <Widget>[
-                        // if (texts.length > 1) ...texts.getRange(0, texts.length - 1),
-                        // Positioned.fill(
-                        //     child: AnimatedOpacity(
-                        //         opacity: texts.hasWidgetSelected ? .9 : 0,
-                        //         duration: const Duration(seconds: 1),
-                        //         child: Container(color: Colors.black))),
-                        // texts.last,
-                        ...texts,
-                        // if (texts.hasWidgetSelected) ...[
-                        //   ...texts.getRange(0, texts.length - 1),
-                        //   Positioned.fill(child: AnimatedOpacity(opacity: .9, duration: const Duration(seconds: 1),
-                        //   child: Container(color: Colors.black))),
-                        //   texts.last,
-                        // ] else ...texts,
-                        Align(
-                          alignment: Alignment.bottomCenter,
-                          child: Padding(
-                            padding: const EdgeInsets.only(bottom: 16.0),
-                            child: DragTarget<String>(
-                              onWillAccept: (id) {
-                                return texts.firstWhereOrNull(
-                                      (widget) {
-                                        final isEqual = widget.id == id;
-                                        return isEqual;
-                                      },
-                                    ) !=
-                                    null;
-                              },
-                              onAccept: (id) {
-                                setState(() {
-                                  texts.removeWhere((element) => element.id == id);
-                                });
-                              },
-                              onLeave: (data) {
-                                print('onLeave');
-                              },
-                              builder: (context, candidates, rejects) {
-                                final hasCandidates = candidates.isNotEmpty;
+                        ...getChildrenWithOpacity(texts),
+                        if (isDragging)
+                          Align(
+                            alignment: Alignment.bottomCenter,
+                            child: Padding(
+                              padding: const EdgeInsets.only(bottom: 16.0),
+                              child: DragTarget<String>(
+                                onWillAccept: (id) {
+                                  // Faire un retour haptic ici
+                                  return texts.firstWhereOrNull((widget) => widget.id == id) != null;
+                                },
+                                onAccept: (id) {
+                                  setState(() => texts.removeWhere((element) => element.id == id));
+                                },
+                                onLeave: (data) {
+                                  print('onLeave');
+                                },
+                                builder: (context, candidates, rejects) {
+                                  final hasCandidates = candidates.isNotEmpty;
 
-                                return CircleAvatar(
-                                  backgroundColor: hasCandidates ? Colors.red : Colors.blue,
-                                  radius: 20,
-                                  child: Icon(
-                                    Icons.delete,
-                                    color: Colors.white,
-                                  ),
-                                );
-                              },
+                                  return CircleAvatar(
+                                    backgroundColor: hasCandidates ? Colors.red : Colors.white,
+                                    radius: hasCandidates ? 25 : 20,
+                                    child: Icon(Icons.delete, color: hasCandidates ? Colors.white : Colors.black),
+                                  );
+                                },
+                              ),
                             ),
                           ),
-                        ),
                       ],
                     ),
                   ),
@@ -528,11 +465,9 @@ class _MyHomePageState extends State<MyHomePage> {
                             Padding(
                               padding: const EdgeInsets.all(8.0),
                               child: TextField(
+                                focusNode: _textFieldFocusNode,
                                 controller: textEditingController,
-                                maxLines: null,
-                                onTap: () {
-                                  print('onTextFieldTap');
-                                },
+                                maxLines: 1,
                                 onChanged: (text) {
                                   final updatedTexts = texts;
                                   final selectedWidgetIndex = texts.indexWhere((element) => element.isSelected);
@@ -548,7 +483,6 @@ class _MyHomePageState extends State<MyHomePage> {
                                   setState(() => texts = updatedTexts);
                                 },
                                 decoration: InputDecoration(
-                                  hintText: 'Your name',
                                   suffixIcon: IconButton(
                                     onPressed: () {
                                       unselectedCurrentSelectedWidget();
@@ -583,25 +517,17 @@ class _MyHomePageState extends State<MyHomePage> {
                                 child: Column(
                                   children: [
                                     Wrap(
-                                      children: [16, 32, 64]
+                                      children: [8, 16, 32, 64, 128]
                                           .map((e) => TextButton(
-                                              onPressed: () {
-                                                changeTextStyle(fontSize: e.toDouble());
-                                              },
+                                              onPressed: () => changeTextStyle(fontSize: e.toDouble()),
                                               child: Text(e.toString())))
                                           .toList(),
                                     ),
                                     Wrap(
-                                      children: [Colors.red, Colors.green, Colors.blue]
+                                      children: [Colors.red, Colors.green, Colors.blue, Colors.white, Colors.black]
                                           .map((e) => TextButton(
-                                              onPressed: () {
-                                                changeTextStyle(fontColor: e);
-                                              },
-                                              child: Container(
-                                                height: 20,
-                                                width: 20,
-                                                color: e,
-                                              )))
+                                              onPressed: () => changeTextStyle(fontColor: e),
+                                              child: Container(height: 20, width: 20, color: e)))
                                           .toList(),
                                     ),
                                   ],
@@ -624,9 +550,11 @@ class _MyHomePageState extends State<MyHomePage> {
                           text: '',
                           selection: TextSelection(baseOffset: 0, extentOffset: 0),
                         );
+                        _textFieldFocusNode.requestFocus();
                         unselectedCurrentSelectedWidget(performSetState: false);
                         setState(() {
                           _createDraggableText(
+                            top: _initialTopPosition,
                             isSelected: true,
                             title: '',
                           );
@@ -647,5 +575,19 @@ class _MyHomePageState extends State<MyHomePage> {
         ],
       ),
     );
+  }
+}
+
+List<Widget> getChildrenWithOpacity(List<SelectableDraggableWidget> texts) {
+  if (texts.hasWidgetSelected) {
+    return [
+      if (texts.length > 1) ...texts.getRange(0, texts.length - 1),
+      Positioned.fill(
+          child: AnimatedOpacity(
+              opacity: .4, duration: const Duration(seconds: 1), child: Container(color: Colors.black))),
+      texts.last,
+    ];
+  } else {
+    return texts;
   }
 }

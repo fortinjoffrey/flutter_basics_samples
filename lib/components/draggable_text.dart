@@ -151,7 +151,11 @@ class SelectableDraggableWidget extends StatelessWidget {
       ),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 2.0),
-        child: child,
+        child: ConstrainedBox(
+            constraints: BoxConstraints(
+              maxWidth: MediaQuery.of(context).size.width - 64,
+            ),
+            child: child),
       ),
     );
 
