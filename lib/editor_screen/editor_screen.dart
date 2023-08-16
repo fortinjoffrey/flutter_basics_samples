@@ -1,12 +1,35 @@
 import 'package:basics_samples/components/draggable_text.dart';
+import 'package:basics_samples/deconstruct_widgets/deconstruct_widgets_utils.dart';
+import 'package:basics_samples/editor_screen/editor_utils.dart';
+import 'package:basics_samples/reconstruct_widgets/models.dart';
+import 'package:basics_samples/reconstruct_widgets/reconstruct_widgets_utils.dart';
 import 'package:basics_samples/utils/offset_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:quiver/core.dart';
 import 'package:uuid/uuid.dart';
 import 'package:collection/collection.dart';
 
+// class EditorScreenWithImportedInfo extends StatelessWidget {
+//   const EditorScreenWithImportedInfo({super.key, required this.json});
+
+//   final Map<String, dynamic> json;
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return BlocProvider<ReconstructWidgetCubit>(
+//       create: (context) => ReconstructWidgetCubit(json)..init(),
+//       child: EditorScreen(),
+//     );
+//   }
+// }
+
 class EditorScreen extends StatefulWidget {
-  EditorScreen({Key? key}) : super(key: key);
+  EditorScreen({
+    Key? key,
+    required this.importInformation,
+  }) : super(key: key);
+
+  final PositionInformation importInformation;
 
   @override
   _EditorScreenState createState() => _EditorScreenState();
@@ -18,6 +41,7 @@ class _EditorScreenState extends State<EditorScreen> {
   final _stackKey = GlobalKey();
   final textEditingController = TextEditingController();
   double? initExpandedHeight;
+  double? initExpandedWidth;
   final _bottomSectionKey = GlobalKey();
   Size? _currentDraggedElementSize;
   Offset? _lastSelectedElementPosition;
@@ -27,8 +51,280 @@ class _EditorScreenState extends State<EditorScreen> {
   @override
   void initState() {
     super.initState();
-    _createDraggableText(top: 200, title: 'Drag me too');
-    _createDraggableIcon(top: 50);
+    // Why is this done in the next frame
+    // We need to have the true max height and width available to position our elements
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (widget.importInformation.textInformations.isNotEmpty) {
+        for (final info in widget.importInformation.textInformations) {
+          final widgetPosition = getOffsetFromTextInformation(
+            textInformation: info,
+            containerInformation: widget.importInformation.containerInformation,
+            containerHeight: initExpandedHeight!,
+            containerWidth: initExpandedWidth!,
+            context: context,
+          );
+
+          _createDraggableText(
+            top: widgetPosition.dy,
+            left: widgetPosition.dx,
+            title: info.text,
+            fontSize: info.fontSize,
+            color: info.color,
+          );
+          // _createDraggableText(
+          //   top: 138.5,
+          //   left: 23,
+          //   title: info.text,
+          //   fontSize: info.fontSize,
+          //   color: info.color,
+          // );
+        }
+        setState(() {});
+
+        // créer la liste des texts à partir
+      }
+      // _createDraggableText(top: 200, title: 'Drag 1');
+      // _createDraggableText(top: 100, title: 'Drag 2');
+      // _createDraggableText(top: 50, title: 'Drag 3');
+    });
+
+    // _createDraggableIcon(top: 50);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.black,
+      appBar: AppBar(
+        title: Text('Editor Screen'),
+        actions: [
+          if (!texts.hasWidgetSelected)
+            ElevatedButton(
+              onPressed: () {
+                final widgetInfos = texts.map((e) => WidgetInfoForExport.fromSelectableDraggableWidget(e)).toList();
+
+                final Map<String, dynamic> r = exportWidgetsInformation(
+                  containerKey: _stackKey,
+                  //TODO: balancer les vraies info du container ici
+                  containerAspectRatio: widget.importInformation.containerInformation.aspectRatio,
+                  containerWidthProportion: widget.importInformation.containerInformation.widthProportion,
+                  widgetInfos: widgetInfos,
+                );
+
+                print(r);
+
+                final i = PositionInformation.fromMap(r);
+
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) {
+                      return EditorScreen(importInformation: i);
+                    },
+                  ),
+                );
+
+                print(i);
+              },
+              child: const Text('Export'),
+            ),
+        ],
+      ),
+      body: Column(
+        children: [
+          Expanded(
+            child: LayoutBuilder(builder: (context, constraints) {
+              double width =
+                  MediaQuery.of(context).size.width * widget.importInformation.containerInformation.widthProportion;
+
+              double height = width / widget.importInformation.containerInformation.aspectRatio;
+
+              if (height > constraints.maxHeight) {
+                height = constraints.maxHeight;
+                width = height * widget.importInformation.containerInformation.aspectRatio;
+              }
+
+              initExpandedHeight ??= height;
+              initExpandedWidth ??= width;
+
+              return OverflowBox(
+                alignment: Alignment.topCenter,
+                maxHeight: initExpandedHeight,
+                maxWidth: initExpandedWidth,
+                minHeight: 0,
+                child: Container(
+                  decoration: BoxDecoration(
+                    image: DecorationImage(
+                        image: NetworkImage('https://pbs.twimg.com/media/FKNlhKZUcAEd7FY?format=jpg&name=4096x4096'),
+                        fit: BoxFit.fitHeight),
+                    color: Colors.grey[200],
+                  ),
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(
+                      maxHeight: initExpandedHeight!,
+                      maxWidth: initExpandedWidth!,
+                    ),
+                    child: Stack(
+                      key: _stackKey,
+                      alignment: Alignment.center,
+                      children: <Widget>[
+                        ...getChildrenWithOpacity(texts),
+                        if (isDragging)
+                          Align(
+                            alignment: Alignment.bottomCenter,
+                            child: Padding(
+                              padding: const EdgeInsets.only(bottom: 16.0),
+                              child: DragTarget<String>(
+                                onWillAccept: (id) {
+                                  // Faire un retour haptic ici
+                                  return texts.firstWhereOrNull((widget) => widget.id == id) != null;
+                                },
+                                onAccept: (id) {
+                                  setState(() => texts.removeWhere((element) => element.id == id));
+                                },
+                                onLeave: (data) {
+                                  print('onLeave');
+                                },
+                                builder: (context, candidates, rejects) {
+                                  final hasCandidates = candidates.isNotEmpty;
+
+                                  return CircleAvatar(
+                                    backgroundColor: hasCandidates ? Colors.red : Colors.white,
+                                    radius: hasCandidates ? 25 : 20,
+                                    child: Icon(Icons.delete, color: hasCandidates ? Colors.white : Colors.black),
+                                  );
+                                },
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            }),
+          ),
+          Column(
+            key: _bottomSectionKey,
+            children: [
+              Container(
+                color: Colors.green,
+                child: texts.isTextSelected && !isDragging
+                    ? SafeArea(
+                        child: Column(
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: TextField(
+                                focusNode: _textFieldFocusNode,
+                                controller: textEditingController,
+                                maxLines: 1,
+                                onChanged: (text) {
+                                  final updatedTexts = texts;
+                                  final selectedWidgetIndex = texts.indexWhere((element) => element.isSelected);
+
+                                  if (selectedWidgetIndex == -1) return;
+
+                                  final updatedText = texts[selectedWidgetIndex].copyWith(
+                                    title: Optional.of(text),
+                                    key: Optional.of(GlobalKey()),
+                                  );
+                                  updatedTexts[selectedWidgetIndex] = updatedText;
+
+                                  setState(() => texts = updatedTexts);
+                                },
+                                decoration: InputDecoration(
+                                  suffixIcon: IconButton(
+                                    onPressed: () {
+                                      FocusScope.of(context).unfocus();
+                                    },
+                                    icon: Icon(Icons.check),
+                                    color: Colors.black,
+                                  ),
+                                  fillColor: Colors.grey[200],
+                                  filled: true,
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                    borderSide: BorderSide(
+                                      style: BorderStyle.solid,
+                                      color: Colors.black,
+                                      width: 2,
+                                    ),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                    borderSide: BorderSide(
+                                      style: BorderStyle.solid,
+                                      color: Colors.black,
+                                      width: 2,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            if (MediaQuery.of(context).viewInsets.bottom == 0) ...[
+                              Container(
+                                color: Colors.amber,
+                                child: Column(
+                                  children: [
+                                    Wrap(
+                                      children: [8, 16, 32, 64, 128]
+                                          .map((e) => TextButton(
+                                              onPressed: () => changeTextStyle(fontSize: e.toDouble()),
+                                              child: Text(e.toString())))
+                                          .toList(),
+                                    ),
+                                    Wrap(
+                                      children: [Colors.red, Colors.green, Colors.blue, Colors.white, Colors.black]
+                                          .map((e) => TextButton(
+                                              onPressed: () => changeTextStyle(fontColor: e),
+                                              child: Container(height: 20, width: 20, color: e)))
+                                          .toList(),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ],
+                        ),
+                      )
+                    : const SizedBox.shrink(),
+              ),
+              if (MediaQuery.of(context).viewInsets.bottom == 0 && !texts.isTextSelected)
+                Container(
+                  color: Colors.black,
+                  // height: 350,
+                  padding: const EdgeInsets.all(32),
+                  child: Center(
+                    child: GestureDetector(
+                      onTap: () {
+                        textEditingController.value = TextEditingValue(
+                          text: '',
+                          selection: TextSelection(baseOffset: 0, extentOffset: 0),
+                        );
+                        unselectedCurrentSelectedWidget(performSetState: false);
+                        setState(() {
+                          _createDraggableText(
+                            top: _initialTopPosition,
+                            isSelected: true,
+                            title: '',
+                          );
+                        });
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: const Text(
+                          'Text',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ),
+                    ),
+                  ),
+                )
+            ],
+          ),
+        ],
+      ),
+    );
   }
 
   void changeTextStyle({
@@ -61,35 +357,6 @@ class _EditorScreenState extends State<EditorScreen> {
       childOffset: elementOffset,
       childSize: elementSize,
     );
-  }
-
-  Offset? getOffsetFromKey(GlobalKey key) {
-    final keyContext = key.currentContext;
-    final stackSize = keyContext?.size;
-    if (keyContext == null || stackSize == null) return null;
-
-    final stackRenderBox = keyContext.findRenderObject() as RenderBox;
-    return stackRenderBox.localToGlobal(Offset.zero);
-  }
-
-  Offset? getLocalOffsetFromParent(GlobalKey childKey, GlobalKey parentKey) {
-    final childKeyContext = childKey.currentContext;
-    final childSize = childKeyContext?.size;
-    if (childKeyContext == null || childSize == null) return null;
-
-    final childRenderBox = childKeyContext.findRenderObject() as RenderBox;
-    final childLocalToGlobal = childRenderBox.localToGlobal(Offset.zero);
-
-    final parentKeyContext = parentKey.currentContext;
-    final parentSize = parentKeyContext?.size;
-    if (parentKeyContext == null || parentSize == null) return null;
-
-    final parentRenderBox = parentKeyContext.findRenderObject() as RenderBox;
-    return parentRenderBox.globalToLocal(childLocalToGlobal);
-  }
-
-  Size? getSizeFromKey(GlobalKey key) {
-    return key.currentContext?.size;
   }
 
   void unselectedCurrentSelectedWidget({bool performSetState = true}) {
@@ -275,12 +542,16 @@ class _EditorScreenState extends State<EditorScreen> {
     double? top,
     double? left,
     required String title,
+    double? fontSize,
+    Color? color,
     bool isSelected = false,
   }) {
     final String uuid = Uuid().v1();
     texts.add(SelectableDraggableWidget.text(
       key: GlobalKey(),
       title: title,
+      fontSize: fontSize,
+      color: color,
       id: uuid,
       onTap: () => selectUnselectWidget(id: uuid, isSelected: true),
       onTapOutside: (tapPosition) {
@@ -323,9 +594,11 @@ class _EditorScreenState extends State<EditorScreen> {
       top: top ?? null,
       left: left ?? null,
       isSelected: isSelected,
+      maxWidth: initExpandedWidth ?? MediaQuery.of(context).size.width,
     ));
   }
 
+  // ignore: unused_element
   void _createDraggableIcon({
     double? top,
     double? left,
@@ -360,194 +633,8 @@ class _EditorScreenState extends State<EditorScreen> {
       left: left ?? null,
       isSelected: isSelected,
       iconData: Icons.hardware,
+      maxWidth: initExpandedWidth ?? MediaQuery.of(context).size.width,
     ));
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    print('isDragging = $isDragging');
-    return Scaffold(
-      appBar: AppBar(title: Text('Editor Screen')),
-      body: Column(
-        children: [
-          Expanded(
-            child: LayoutBuilder(builder: (context, constraints) {
-              initExpandedHeight ??= constraints.maxHeight;
-              return OverflowBox(
-                alignment: Alignment.topCenter,
-                maxHeight: double.infinity,
-                minHeight: 0,
-                child: Container(
-                  decoration: BoxDecoration(
-                    image: DecorationImage(
-                        image: NetworkImage('https://pbs.twimg.com/media/FKNlhKZUcAEd7FY?format=jpg&name=4096x4096'),
-                        fit: BoxFit.fitHeight),
-                    color: Colors.grey[200],
-                  ),
-                  child: ConstrainedBox(
-                    constraints: BoxConstraints(maxHeight: initExpandedHeight!),
-                    child: Stack(
-                      key: _stackKey,
-                      alignment: Alignment.center,
-                      children: <Widget>[
-                        ...getChildrenWithOpacity(texts),
-                        if (isDragging)
-                          Align(
-                            alignment: Alignment.bottomCenter,
-                            child: Padding(
-                              padding: const EdgeInsets.only(bottom: 16.0),
-                              child: DragTarget<String>(
-                                onWillAccept: (id) {
-                                  // Faire un retour haptic ici
-                                  return texts.firstWhereOrNull((widget) => widget.id == id) != null;
-                                },
-                                onAccept: (id) {
-                                  setState(() => texts.removeWhere((element) => element.id == id));
-                                },
-                                onLeave: (data) {
-                                  print('onLeave');
-                                },
-                                builder: (context, candidates, rejects) {
-                                  final hasCandidates = candidates.isNotEmpty;
-
-                                  return CircleAvatar(
-                                    backgroundColor: hasCandidates ? Colors.red : Colors.white,
-                                    radius: hasCandidates ? 25 : 20,
-                                    child: Icon(Icons.delete, color: hasCandidates ? Colors.white : Colors.black),
-                                  );
-                                },
-                              ),
-                            ),
-                          ),
-                      ],
-                    ),
-                  ),
-                ),
-              );
-            }),
-          ),
-          Column(
-            key: _bottomSectionKey,
-            children: [
-              Container(
-                color: Colors.green,
-                child: texts.isTextSelected && !isDragging
-                    ? SafeArea(
-                        child: Column(
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: TextField(
-                                focusNode: _textFieldFocusNode,
-                                controller: textEditingController,
-                                maxLines: 1,
-                                onChanged: (text) {
-                                  final updatedTexts = texts;
-                                  final selectedWidgetIndex = texts.indexWhere((element) => element.isSelected);
-
-                                  if (selectedWidgetIndex == -1) return;
-
-                                  final updatedText = texts[selectedWidgetIndex].copyWith(
-                                    title: Optional.of(text),
-                                    key: Optional.of(GlobalKey()),
-                                  );
-                                  updatedTexts[selectedWidgetIndex] = updatedText;
-
-                                  setState(() => texts = updatedTexts);
-                                },
-                                decoration: InputDecoration(
-                                  suffixIcon: IconButton(
-                                    onPressed: () {
-                                      unselectedCurrentSelectedWidget();
-                                    },
-                                    icon: Icon(Icons.check),
-                                    color: Colors.black,
-                                  ),
-                                  fillColor: Colors.grey[200],
-                                  filled: true,
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                    borderSide: BorderSide(
-                                      style: BorderStyle.solid,
-                                      color: Colors.black,
-                                      width: 2,
-                                    ),
-                                  ),
-                                  focusedBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                    borderSide: BorderSide(
-                                      style: BorderStyle.solid,
-                                      color: Colors.black,
-                                      width: 2,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            if (MediaQuery.of(context).viewInsets.bottom == 0) ...[
-                              Container(
-                                color: Colors.amber,
-                                child: Column(
-                                  children: [
-                                    Wrap(
-                                      children: [8, 16, 32, 64, 128]
-                                          .map((e) => TextButton(
-                                              onPressed: () => changeTextStyle(fontSize: e.toDouble()),
-                                              child: Text(e.toString())))
-                                          .toList(),
-                                    ),
-                                    Wrap(
-                                      children: [Colors.red, Colors.green, Colors.blue, Colors.white, Colors.black]
-                                          .map((e) => TextButton(
-                                              onPressed: () => changeTextStyle(fontColor: e),
-                                              child: Container(height: 20, width: 20, color: e)))
-                                          .toList(),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ],
-                        ),
-                      )
-                    : const SizedBox.shrink(),
-              ),
-              if (MediaQuery.of(context).viewInsets.bottom == 0 && !texts.isTextSelected)
-                Container(
-                  color: Colors.black,
-                  padding: const EdgeInsets.all(32),
-                  child: Center(
-                    child: GestureDetector(
-                      onTap: () {
-                        textEditingController.value = TextEditingValue(
-                          text: '',
-                          selection: TextSelection(baseOffset: 0, extentOffset: 0),
-                        );
-                        _textFieldFocusNode.requestFocus();
-                        unselectedCurrentSelectedWidget(performSetState: false);
-                        setState(() {
-                          _createDraggableText(
-                            top: _initialTopPosition,
-                            isSelected: true,
-                            title: '',
-                          );
-                        });
-                      },
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: const Text(
-                          'Text',
-                          style: TextStyle(color: Colors.white),
-                        ),
-                      ),
-                    ),
-                  ),
-                )
-            ],
-          ),
-        ],
-      ),
-    );
   }
 }
 
@@ -564,6 +651,6 @@ List<Widget> getChildrenWithOpacity(List<SelectableDraggableWidget> texts) {
         ),
       ),
     ),
-    texts.last,
+    if (texts.length >= 1) texts.last,
   ];
 }

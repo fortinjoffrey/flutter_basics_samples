@@ -6,8 +6,8 @@ enum SelectableDraggableWidgetType { text, icon }
 class _SelectableDraggableText extends StatelessWidget {
   const _SelectableDraggableText({
     required this.title,
-    this.fontSize,
-    this.color,
+    this.fontSize = 24,
+    this.color = Colors.black,
   });
 
   final String title;
@@ -16,11 +16,14 @@ class _SelectableDraggableText extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Text(
-      title,
-      style: TextStyle(
-        fontSize: fontSize,
-        color: color,
+    return MediaQuery(
+      data: MediaQueryData(devicePixelRatio: 1),
+      child: Text(
+        title,
+        style: TextStyle(
+          fontSize: fontSize,
+          color: color,
+        ),
       ),
     );
   }
@@ -39,7 +42,7 @@ class _SelectableDraggableText extends StatelessWidget {
 }
 
 class SelectableDraggableWidget extends StatelessWidget {
-  const SelectableDraggableWidget({
+  const SelectableDraggableWidget._({
     super.key,
     required this.id,
     required this.onTap,
@@ -51,12 +54,28 @@ class SelectableDraggableWidget extends StatelessWidget {
     required this.child,
     required this.onTapOutside,
     required this.type,
+    required this.maxWidth,
     this.isDragged = false,
   });
+
+  static const double widthGap = 64;
+  static const double horizontalPadding = 8;
+  static const double verticalPadding = 2;
+  static const double borderWidth = 1;
 
   String? get title {
     final child = this.child;
     return child is _SelectableDraggableText ? child.title : null;
+  }
+
+  double? get fontSize {
+    final child = this.child;
+    return child is _SelectableDraggableText ? child.fontSize : null;
+  }
+
+  Color? get color {
+    final child = this.child;
+    return child is _SelectableDraggableText ? child.color : null;
   }
 
   SelectableDraggableWidget copyWith({
@@ -81,12 +100,13 @@ class SelectableDraggableWidget extends StatelessWidget {
       return child;
     };
 
-    return SelectableDraggableWidget(
+    return SelectableDraggableWidget._(
       key: key != null ? key.orNull : this.key,
       id: id,
       onTap: onTap,
       onDragEnd: onDragEnd,
       onDragStarted: onDragStarted,
+      maxWidth: maxWidth,
       top: top != null ? top.orNull : this.top,
       left: left != null ? left.orNull : this.left,
       isSelected: isSelected ?? this.isSelected,
@@ -100,6 +120,8 @@ class SelectableDraggableWidget extends StatelessWidget {
   SelectableDraggableWidget.text({
     super.key,
     required String title,
+    double? fontSize,
+    Color? color,
     required this.id,
     required this.onTap,
     required this.onDragEnd,
@@ -108,8 +130,13 @@ class SelectableDraggableWidget extends StatelessWidget {
     required this.left,
     required this.isSelected,
     required this.onTapOutside,
+    required this.maxWidth,
     this.isDragged = false,
-  })  : child = _SelectableDraggableText(title: title),
+  })  : child = _SelectableDraggableText(
+          title: title,
+          fontSize: fontSize,
+          color: color,
+        ),
         type = SelectableDraggableWidgetType.text;
 
   SelectableDraggableWidget.icon({
@@ -123,6 +150,7 @@ class SelectableDraggableWidget extends StatelessWidget {
     required this.left,
     required this.isSelected,
     required this.onTapOutside,
+    required this.maxWidth,
     this.isDragged = false,
   })  : child = Icon(iconData, color: Colors.red),
         type = SelectableDraggableWidgetType.icon;
@@ -137,29 +165,29 @@ class SelectableDraggableWidget extends StatelessWidget {
   final bool isSelected;
   final bool isDragged;
   final Widget child;
+  final double maxWidth;
   final SelectableDraggableWidgetType type;
 
   @override
   Widget build(BuildContext context) {
-    print('isSelected: $isSelected');
-    final Widget wrappedChild = Container(
-      decoration: BoxDecoration(
-        border: Border.all(
-          color: isSelected ? Colors.blue : Colors.transparent,
-        ),
-        borderRadius: BorderRadius.circular(4),
+    final Widget wrappedChild = ConstrainedBox(
+      constraints: BoxConstraints(
+        maxWidth: maxWidth - widthGap,
       ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 2.0),
-        child: ConstrainedBox(
-            constraints: BoxConstraints(
-              maxWidth: MediaQuery.of(context).size.width - 64,
-            ),
-            child: child),
+      child: Container(
+        decoration: BoxDecoration(
+          border: Border.all(
+            width: borderWidth,
+            color: isSelected ? Colors.blue : Colors.transparent,
+          ),
+          borderRadius: BorderRadius.circular(4),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: horizontalPadding, vertical: verticalPadding),
+          child: child,
+        ),
       ),
     );
-
-    print('isDraged: $isDragged');
 
     return AnimatedPositioned(
       top: top,
