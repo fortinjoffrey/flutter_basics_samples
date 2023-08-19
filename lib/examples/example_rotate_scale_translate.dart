@@ -32,6 +32,7 @@ class _ExampleRotateScaleTranslateState extends State<ExampleRotateScaleTranslat
               previousScale = scaleX;
             },
             onScaleUpdate: (details) {
+              print(details.focalPoint.dx);
               setState(() {
                 rotation = previousRotation + details.rotation;
                 scaleX = previousScale * details.scale;
