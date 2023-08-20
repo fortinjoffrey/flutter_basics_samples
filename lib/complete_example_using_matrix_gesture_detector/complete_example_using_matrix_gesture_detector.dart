@@ -1,5 +1,5 @@
 import 'package:basics_samples/complete_example_using_matrix_gesture_detector/overlay_widget.dart';
-import 'package:basics_samples/complete_example_using_matrix_gesture_detector/utils.dart';
+import 'package:basics_samples/utils/offset_utils.dart';
 import 'package:flutter/material.dart';
 
 class CompleteExampleUsingMatrixGestureDetector extends StatefulWidget {
@@ -82,7 +82,7 @@ class _CompleteExampleUsingMatrixGestureDetectorState extends State<CompleteExam
   }
 
   bool isOffsetOnDeleteIcon(Offset offset) {
-    final deleteIconPosition = getOffsetFromKey(deleteIconKey);
+    final deleteIconPosition = getGlobalOffset(key: deleteIconKey);
     final deleteIconSize = getSizeFromKey(deleteIconKey);
 
     if (deleteIconPosition == null || deleteIconSize == null) return false;
