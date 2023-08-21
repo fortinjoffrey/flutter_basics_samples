@@ -2,14 +2,17 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 
-class ChangePositionOnPanRotateScaleWithComponentStateful extends StatefulWidget {
+class ChangePositionOnPanStatelessRotateScaleStateful extends StatefulWidget {
   @override
   _ChangePositionOnPanRotateScaleWithComponentStatefulState createState() =>
       _ChangePositionOnPanRotateScaleWithComponentStatefulState();
 }
 
 class _ChangePositionOnPanRotateScaleWithComponentStatefulState
-    extends State<ChangePositionOnPanRotateScaleWithComponentStateful> {
+    extends State<ChangePositionOnPanStatelessRotateScaleStateful> {
+  double positionedWidgetTop = 100;
+  double positionedWidgetLeft = 100;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -20,20 +23,28 @@ class _ChangePositionOnPanRotateScaleWithComponentStatefulState
         child: Column(
           children: [
             Expanded(
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  Container(
-                    width: MediaQuery.of(context).size.width,
-                    color: Colors.green,
-                  ),
-                  MovablePositioned(
-                    top: 100,
-                    left: 100,
-                    rotation: pi/4,
-                    scaleX: .5,
-                  ),
-                ],
+              child: ClipRRect(
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    Container(
+                      width: MediaQuery.of(context).size.width,
+                      color: Colors.green,
+                    ),
+                    MovablePositioned(
+                      top: positionedWidgetTop,
+                      left: positionedWidgetLeft,
+                      onPositionChanged: (double left, double top) {
+                        setState(() {
+                          positionedWidgetLeft = left;
+                          positionedWidgetTop = top;
+                        });
+                      },
+                      rotation: pi / 4,
+                      scaleX: .5,
+                    ),
+                  ],
+                ),
               ),
             ),
           ],
@@ -43,6 +54,8 @@ class _ChangePositionOnPanRotateScaleWithComponentStatefulState
   }
 }
 
+typedef OnPositionChanged = void Function(double left, double top);
+
 class MovablePositioned extends StatefulWidget {
   const MovablePositioned({
     super.key,
@@ -50,12 +63,14 @@ class MovablePositioned extends StatefulWidget {
     required this.left,
     this.rotation = 0,
     this.scaleX = 1,
+    required this.onPositionChanged,
   });
 
   final double top;
   final double left;
   final double rotation;
   final double scaleX;
+  final OnPositionChanged onPositionChanged;
 
   @override
   State<MovablePositioned> createState() => MovablePositionedState();
@@ -68,6 +83,19 @@ class MovablePositionedState extends State<MovablePositioned> {
   late double previousRotation = widget.rotation;
   late double scaleX = widget.scaleX;
   late double previousScale = widget.scaleX;
+
+  @override
+  void didUpdateWidget(covariant MovablePositioned oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    // Parent wants to override this widget position
+    if (widget.top != top || widget.left != left) {
+      setState(() {
+        left = widget.left;
+        top = widget.top;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -83,13 +111,11 @@ class MovablePositionedState extends State<MovablePositioned> {
         onScaleUpdate: (details) {
           setState(() {
             rotation = previousRotation + details.rotation;
-            final deg = rotation * 180 / pi;
-            print('rotation:$deg');
             scaleX = previousScale * details.scale;
-            print('scaleX:$scaleX');
-            top = top + details.focalPointDelta.dy;
-            left = left + details.focalPointDelta.dx;
           });
+          final top = widget.top + details.focalPointDelta.dy;
+          final left = widget.left + details.focalPointDelta.dx;
+          widget.onPositionChanged(left, top);
         },
         child: Transform(
           transform: Matrix4.identity()

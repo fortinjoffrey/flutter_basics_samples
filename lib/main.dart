@@ -6,11 +6,13 @@ import 'package:basics_samples/examples/example_scale_onScale.dart';
 import 'package:basics_samples/examples/example_translate_onPan.dart';
 import 'package:basics_samples/examples/example_rotate_and_scale.dart';
 import 'package:basics_samples/examples/example_rotate_scale_translate.dart';
+import 'package:basics_samples/examples_with_position/change_position_onPan_stateless_rotate_scale_stateful.dart';
 import 'package:basics_samples/examples_with_position/change_position_onPan_with_component_stateful.dart';
 import 'package:basics_samples/examples_with_position/change_position_onPan_with_component_stateless.dart';
 import 'package:flutter/material.dart';
 
 import 'examples_with_position/change_position_onPan_rotate_scale_with_component_stateful .dart';
+import 'examples_with_position/complete_example_change_position_onPan_rotate_scale_stateful.dart';
 import 'examples_with_position/complete_example_change_position_onPan_with_component_stateful.dart';
 
 void main() {
@@ -40,8 +42,8 @@ class HomePage extends StatelessWidget {
         appBar: AppBar(
           title: Text('Transform examples'),
         ),
-        body: Center(
-          child: SingleChildScrollView(
+        body: SingleChildScrollView(
+          child: SafeArea(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -117,9 +119,19 @@ class HomePage extends StatelessWidget {
                   text: 'Change position onPan Rotate Scale component stateful',
                 ),
                 _NavigationButton(
+                  backgroundColor: Colors.purpleAccent,
+                  destinationPage: ChangePositionOnPanStatelessRotateScaleStateful(),
+                  text: 'Change position onPan Stateless Rotate Scale Stateful',
+                ),
+                _NavigationButton(
                   backgroundColor: Colors.black,
-                  destinationPage: ExampleChangePositionOnPan(),
-                  text: 'Change position onPan COMPLETE',
+                  destinationPage: CompleteChangePositionOnPanStateful(),
+                  text: 'Complete Change position onPan ',
+                ),
+                _NavigationButton(
+                  backgroundColor: Colors.red,
+                  destinationPage: CompleteChangePositionOnPanRotateScaleStateful(),
+                  text: 'Complete Change position onPan rotation scale',
                 ),
               ],
             ),

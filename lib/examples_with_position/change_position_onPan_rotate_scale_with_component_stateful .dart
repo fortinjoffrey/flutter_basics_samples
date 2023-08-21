@@ -20,20 +20,22 @@ class _ChangePositionOnPanRotateScaleWithComponentStatefulState
         child: Column(
           children: [
             Expanded(
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  Container(
-                    width: MediaQuery.of(context).size.width,
-                    color: Colors.green,
-                  ),
-                  MovablePositioned(
-                    top: 100,
-                    left: 100,
-                    rotation: pi/4,
-                    scaleX: .5,
-                  ),
-                ],
+              child: ClipRRect(
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    Container(
+                      width: MediaQuery.of(context).size.width,
+                      color: Colors.green,
+                    ),
+                    MovablePositioned(
+                      top: 100,
+                      left: 100,
+                      rotation: pi / 4,
+                      scaleX: .5,
+                    ),
+                  ],
+                ),
               ),
             ),
           ],

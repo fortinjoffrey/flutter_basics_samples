@@ -1,12 +1,12 @@
 import 'package:basics_samples/utils/offset_utils.dart';
 import 'package:flutter/material.dart';
 
-class ExampleChangePositionOnPan extends StatefulWidget {
+class CompleteChangePositionOnPanStateful extends StatefulWidget {
   @override
-  _ExampleChangePositionOnPanState createState() => _ExampleChangePositionOnPanState();
+  _CompleteChangePositionOnPanStatefulState createState() => _CompleteChangePositionOnPanStatefulState();
 }
 
-class _ExampleChangePositionOnPanState extends State<ExampleChangePositionOnPan> {
+class _CompleteChangePositionOnPanStatefulState extends State<CompleteChangePositionOnPanStateful> {
   final widgetKey = GlobalKey();
   final stackKey = GlobalKey();
   static const double initialTop = 100;
