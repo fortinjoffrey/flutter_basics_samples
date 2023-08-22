@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:basics_samples/utils/offset_utils.dart';
 import 'package:flutter/material.dart';
 
@@ -175,6 +177,17 @@ class MovablePositionedState extends State<MovablePositioned> {
   late double previousRotation = widget.rotation;
   late double scale = widget.scale;
   late double previousScale = widget.scale;
+  late double leadingCoefficient;
+  late double originCoordinate;
+  GlobalKey _key = GlobalKey();
+  Size? _lastSize;
+
+  @override
+  void initState() {
+    super.initState();
+    // calculer la coordonnées à l'origine
+    // originCoordinate = top - left * leadingCoefficient;
+  }
 
   @override
   void didUpdateWidget(covariant MovablePositioned oldWidget) {
@@ -192,6 +205,8 @@ class MovablePositionedState extends State<MovablePositioned> {
     if (widget.top != top || widget.left != left) {
       left = widget.left * scale;
       top = widget.top * scale;
+
+      // originCoordinate = top - (left * leadingCoefficient);
     }
 
     if (widget.rotation != rotation) {
@@ -205,15 +220,33 @@ class MovablePositionedState extends State<MovablePositioned> {
 
   @override
   Widget build(BuildContext context) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final size = getSizeFromKey(_key);
+      if (size == null) return;
+      _lastSize = size;
+      // leadingCoefficient = -(size.width/2);
+      // originCoordinate = this.top - (this.left * leadingCoefficient);
+      print('size=$size');
+      // print('leadingCoefficient=$leadingCoefficient');
+      // print('originCoordinate=$originCoordinate');
+      final newWidth = size.width * scale;
+      final top = this.top - ((newWidth - size.width) / 2);
+      final left = this.left - ((newWidth - size.width) / 2);
+      // setState(() {
+      //   this.top = top;
+      //   this.left = left;
+      // });
+      print('top:$top');
+      print('left:$left');
+    });
     print('top:${top.round()} / left:${left.round()} / animates:$animates / rotation:$rotation / scale:$scale');
     return AnimatedPositioned(
       top: top,
       left: left,
       duration: Duration(milliseconds: animates ? animationDurationMs : 0),
       child: Transform(
-        transform: Matrix4.identity()
-          ..rotateZ(rotation)
-          ..scale(scale),
+        key: _key,
+        transform: Matrix4.identity()..rotateZ(rotation),
         alignment: FractionalOffset.center,
         child: GestureDetector(
           onScaleStart: (details) {
@@ -221,18 +254,65 @@ class MovablePositionedState extends State<MovablePositioned> {
             previousScale = scale;
           },
           onScaleUpdate: (details) {
-            setState(() {
-              rotation = previousRotation + details.rotation;
-              scale = previousScale * details.scale;
-              top = top + details.focalPointDelta.dy * scale;
-              left = left + details.focalPointDelta.dx * scale;
-              widget.onPositionChanged?.call(left, top);
-            });
+            // if (previousScale != details.scale) {
+            //   //
+            //   top = (top * details.scale);
+            //   left = (left * details.scale);
+            // } else {
+            //   top = top + details.focalPointDelta.dy;
+            //   left = left + details.focalPointDelta.dx;
+            // }
+
+            // print()
+
+            // top = top + (details.focalPointDelta.dy * sin( pi/2 - rotation));
+            // left = left + (details.focalPointDelta.dx * cos(rotation));
+            if (details.scale != scale || details.rotation != rotation) {
+              final size = getSizeFromKey(_key);
+              if (size == null) return;
+
+              if (_lastSize != size) {
+                print('D1 size=$size');
+                final newWidth = size.width * details.scale;
+                print('D1 newWidth=$newWidth');
+                final top = this.top - ((newWidth - size.width) / 10);
+                final left = this.left - ((newWidth - size.width) / 10);
+                // final top = this.top - ((newWidth - size.width) / 2);
+                // final left = this.left - ((newWidth - size.width) / 2);
+                setState(() {
+                  rotation = previousRotation + details.rotation;
+                  scale = previousScale * details.scale;
+                  this.top = top;
+                  this.left = left;
+                });
+              }
+            }
+            // } else {
+            //   setState(() {
+            //     top = top + details.focalPointDelta.dy;
+            //     left = left + details.focalPointDelta.dx;
+            //   });
+            //   widget.onPositionChanged?.call(left, top);
+            // }
+
+            // BEFORE
+            // setState(() {
+            //   rotation = previousRotation + details.rotation;
+            //   scale = previousScale * details.scale;
+            //   top = top + details.focalPointDelta.dy;
+            //   left = left + details.focalPointDelta.dx;
+
+            //   print('rotation: $rotation');
+            //   print('details.focalPointDelta.dy:${details.focalPointDelta.dy}');
+            //   print('details.focalPointDelta.dx:${details.focalPointDelta.dx}');
+
+            //   widget.onPositionChanged?.call(left, top);
+            // });
           },
           child: Container(
             color: Colors.black,
-            height: 200.0,
-            width: 200.0,
+            height: 200.0 * scale,
+            width: 200.0 * scale,
             child: Center(child: Text('👍', style: TextStyle(fontSize: 64))),
           ),
         ),
@@ -240,6 +320,8 @@ class MovablePositionedState extends State<MovablePositioned> {
     );
   }
 }
+
+// En scalant déplacer en même
 
 // Mettre un GestureDectector -> Transform 
 //   si scale 1 = 200px/200px (h/w) Le GestureDector fera 200x200
