@@ -177,17 +177,6 @@ class MovablePositionedState extends State<MovablePositioned> {
   late double previousRotation = widget.rotation;
   late double scale = widget.scale;
   late double previousScale = widget.scale;
-  late double leadingCoefficient;
-  late double originCoordinate;
-  GlobalKey _key = GlobalKey();
-  Size? _lastSize;
-
-  @override
-  void initState() {
-    super.initState();
-    // calculer la coordonnées à l'origine
-    // originCoordinate = top - left * leadingCoefficient;
-  }
 
   @override
   void didUpdateWidget(covariant MovablePositioned oldWidget) {
@@ -205,8 +194,6 @@ class MovablePositionedState extends State<MovablePositioned> {
     if (widget.top != top || widget.left != left) {
       left = widget.left * scale;
       top = widget.top * scale;
-
-      // originCoordinate = top - (left * leadingCoefficient);
     }
 
     if (widget.rotation != rotation) {
@@ -220,124 +207,54 @@ class MovablePositionedState extends State<MovablePositioned> {
 
   @override
   Widget build(BuildContext context) {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final size = getSizeFromKey(_key);
-      if (size == null) return;
-      _lastSize = size;
-      // leadingCoefficient = -(size.width/2);
-      // originCoordinate = this.top - (this.left * leadingCoefficient);
-      print('size=$size');
-      // print('leadingCoefficient=$leadingCoefficient');
-      // print('originCoordinate=$originCoordinate');
-      final newWidth = size.width * scale;
-      final top = this.top - ((newWidth - size.width) / 2);
-      final left = this.left - ((newWidth - size.width) / 2);
-      // setState(() {
-      //   this.top = top;
-      //   this.left = left;
-      // });
-      print('top:$top');
-      print('left:$left');
-    });
     print('top:${top.round()} / left:${left.round()} / animates:$animates / rotation:$rotation / scale:$scale');
     return AnimatedPositioned(
       top: top,
       left: left,
       duration: Duration(milliseconds: animates ? animationDurationMs : 0),
       child: Transform(
-        key: _key,
-        transform: Matrix4.identity()..rotateZ(rotation),
+        transform: Matrix4.identity()
+          ..rotateZ(rotation)
+          ..scale(scale),
         alignment: FractionalOffset.center,
-        child: GestureDetector(
-          onScaleStart: (details) {
-            previousRotation = rotation;
-            previousScale = scale;
-          },
-          onScaleUpdate: (details) {
-            // if (previousScale != details.scale) {
-            //   //
-            //   top = (top * details.scale);
-            //   left = (left * details.scale);
-            // } else {
-            //   top = top + details.focalPointDelta.dy;
-            //   left = left + details.focalPointDelta.dx;
-            // }
+        child: Builder(builder: (context) {
+          return GestureDetector(
+            onScaleStart: (details) {
+              previousRotation = rotation;
+              previousScale = scale;
+            },
+            onScaleUpdate: (details) {
+              setState(() {
+                rotation = previousRotation + details.rotation;
+                scale = previousScale * details.scale;
 
-            // print()
+                // Calculer le déplacement ajusté en fonction de la rotation et de l'échelle
+                final adjustedDx = details.focalPointDelta.dx * scale;
+                final adjustedDy = details.focalPointDelta.dy * scale;
 
-            // top = top + (details.focalPointDelta.dy * sin( pi/2 - rotation));
-            // left = left + (details.focalPointDelta.dx * cos(rotation));
-            if (details.scale != scale || details.rotation != rotation) {
-              final size = getSizeFromKey(_key);
-              if (size == null) return;
+                // Appliquer la rotation au déplacement ajusté
+                final rotatedDx = adjustedDx * cos(rotation) - adjustedDy * sin(rotation);
+                final rotatedDy = adjustedDy * cos(rotation) + adjustedDx * sin(rotation);
 
-              if (_lastSize != size) {
-                print('D1 size=$size');
-                final newWidth = size.width * details.scale;
-                print('D1 newWidth=$newWidth');
-                final top = this.top - ((newWidth - size.width) / 10);
-                final left = this.left - ((newWidth - size.width) / 10);
-                // final top = this.top - ((newWidth - size.width) / 2);
-                // final left = this.left - ((newWidth - size.width) / 2);
-                setState(() {
-                  rotation = previousRotation + details.rotation;
-                  scale = previousScale * details.scale;
-                  this.top = top;
-                  this.left = left;
-                });
-              }
-            }
-            // } else {
-            //   setState(() {
-            //     top = top + details.focalPointDelta.dy;
-            //     left = left + details.focalPointDelta.dx;
-            //   });
-            //   widget.onPositionChanged?.call(left, top);
-            // }
+                top = top + rotatedDy;
+                left = left + rotatedDx;
 
-            // BEFORE
-            // setState(() {
-            //   rotation = previousRotation + details.rotation;
-            //   scale = previousScale * details.scale;
-            //   top = top + details.focalPointDelta.dy;
-            //   left = left + details.focalPointDelta.dx;
+                widget.onPositionChanged?.call(left, top);
 
-            //   print('rotation: $rotation');
-            //   print('details.focalPointDelta.dy:${details.focalPointDelta.dy}');
-            //   print('details.focalPointDelta.dx:${details.focalPointDelta.dx}');
-
-            //   widget.onPositionChanged?.call(left, top);
-            // });
-          },
-          child: Container(
-            color: Colors.black,
-            height: 200.0 * scale,
-            width: 200.0 * scale,
-            child: Center(child: Text('👍', style: TextStyle(fontSize: 64))),
-          ),
-        ),
+                print('rotation: $rotation');
+                print('details.focalPointDelta.dy:${details.focalPointDelta.dy}');
+                print('details.focalPointDelta.dx:${details.focalPointDelta.dx}');
+              });
+            },
+            child: Container(
+              color: Colors.black,
+              height: 200.0,
+              width: 200.0,
+              child: Center(child: Text('👍', style: TextStyle(fontSize: 64))),
+            ),
+          );
+        }),
       ),
     );
   }
 }
-
-// En scalant déplacer en même
-
-// Mettre un GestureDectector -> Transform 
-//   si scale 1 = 200px/200px (h/w) Le GestureDector fera 200x200
-//   si scale 2 = 400px/400px (h/w) Le GestureDector fera toujours 200x200
-// PB de détection uniquement dans les dimensions initiales
-
-// Mettre Transform -> GetureDetector
-//   si scale 1 = 200px/200px (h/w) Le GestureDector fera 200x200
-//   si scale 2 = 400px/400px (h/w) Le GestureDector fera 400x400
-// PB lorsqu'on déplace le widgte vu que le GestureDector est "tordu" en cas de rotation 
-//   alors on le déplace de façon tordu également 
-// Hypothèse de solution:
-//   quand on déplace en x, il faut déplacer en x et y en fonction de 
-//      la rotation et du scale !
-//   le plus dur: trouver la formule mathématique
-
-// 
-
-

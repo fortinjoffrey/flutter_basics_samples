@@ -13,6 +13,7 @@ import 'package:flutter/material.dart';
 
 import 'examples_with_position/change_position_onPan_rotate_scale_with_component_stateful .dart';
 import 'examples_with_position/complete_example_change_position_onPan_rotate_scale_stateful.dart';
+import 'examples_with_position/complete_example_change_position_onPan_rotate_scale_stateless.dart';
 import 'examples_with_position/complete_example_change_position_onPan_with_component_stateful.dart';
 
 void main() {
@@ -28,7 +29,6 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
       ),
       home: HomePage(),
-      // home: ZoomPage(),
     );
   }
 }
@@ -131,7 +131,12 @@ class HomePage extends StatelessWidget {
                 _NavigationButton(
                   backgroundColor: Colors.red,
                   destinationPage: CompleteChangePositionOnPanRotateScaleStateful(),
-                  text: 'Complete Change position onPan rotation scale',
+                  text: 'Complete Change position onPan rotation scale Stateful',
+                ),
+                _NavigationButton(
+                  backgroundColor: Colors.purple,
+                  destinationPage: CompleteChangePositionOnPanRotateScaleStateless(),
+                  text: 'Complete Change position onPan rotation scale Stateless',
                 ),
               ],
             ),
