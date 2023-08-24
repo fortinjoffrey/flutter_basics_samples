@@ -23,14 +23,18 @@ class CompleteChangePositionOnPanRotateScaleStateful extends StatefulWidget {
 }
 
 class _ExampleChangePositionOnPanState extends State<CompleteChangePositionOnPanRotateScaleStateful> {
-  static const double initialTop = 200;
-  static const double initialScale = 1;
-  static const double initialRotation = 0;
+  static const double initialTop = 290;
+  static const double initialScale = 0.898;
+  static const double initialRotation = -19.6;
+  final double? initialLeft = 164;
+  // static const double initialTop = 200;
+  // static const double initialScale = 1;
+  // static const double initialRotation = 0;
 
   final widgetKey = GlobalKey();
   final stackKey = GlobalKey();
 
-  late Offset widgetLocalOffset = Offset(0, initialTop);
+  late Offset widgetLocalOffset = Offset(initialLeft ?? 0, initialTop);
   late double widgetRotation = initialRotation;
   late double widgetScale = initialScale;
 
@@ -41,9 +45,10 @@ class _ExampleChangePositionOnPanState extends State<CompleteChangePositionOnPan
   void initState() {
     super.initState();
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _repositionWidget(withAnimation: false);
-    });
+    if (initialLeft == null)
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _repositionWidget(withAnimation: false);
+      });
   }
 
   void _repositionWidget({bool withAnimation = true}) {
@@ -90,52 +95,57 @@ class _ExampleChangePositionOnPanState extends State<CompleteChangePositionOnPan
                       rotation: widgetRotation,
                       scale: widgetScale,
                       animates: animatesWidget,
-                      onPositionChanged: (left, top) {
+                      onUpdate: (double left, double top, double rotation, double scale) {
+                        // no need to setState
                         widgetLocalOffset = Offset(left, top);
+                        widgetRotation = rotation;
+                        widgetScale = scale;
                       },
                     ),
                   ],
                 ),
               ),
             ),
-            ElevatedButton(
-              onPressed: _repositionWidget,
-              child: const Text('Reset position'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                final left = (widgetKey.currentState as MovablePositionedState).left;
-                final top = (widgetKey.currentState as MovablePositionedState).top;
-                final rotation = (widgetKey.currentState as MovablePositionedState).rotation;
-                final scale = (widgetKey.currentState as MovablePositionedState).scale;
-                final widgetSize = getSizeFromKey(widgetKey);
+            SizedBox(
+              height: 180,
+              width: double.infinity,
+              child: SingleChildScrollView(
+                child: Center(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      ElevatedButton(
+                        onPressed: _repositionWidget,
+                        child: const Text('Reset position'),
+                      ),
+                      ElevatedButton(
+                        onPressed: () {
+                          final widgetSize = getSizeFromKey(widgetKey);
 
-                if (widgetSize == null) return;
+                          if (widgetSize == null) return;
 
-                final widgetInfo = WidgetInformation(
-                  size: widgetSize,
-                  position: Offset(left, top),
-                  rotation: rotation,
-                  scale: scale,
-                );
+                          final widgetInfo = WidgetInformation(
+                            size: widgetSize,
+                            position: widgetLocalOffset,
+                            rotation: widgetRotation,
+                            scale: widgetScale,
+                          );
 
-                setState(() => this.widgetInfo = widgetInfo);
-              },
-              child: const Text('Get widget position and size'),
-            ),
-            if (widgetInfo != null)
-              Text(
-                '''Widget position top:${widgetInfo.position.dy.round()}
-                Widget position left:${widgetInfo.position.dx.round()}
-                Widget width: ${widgetInfo.size.width}/ height: ${widgetInfo.size.height}
-                Widget rotation:${widgetInfo.rotation}
-                Widget scale:${widgetInfo.scale}
-              ''',
-              )
-            else
-              Text('No widget info requested'),
-            Text(
-              'Widget position top: ${widgetLocalOffset.dy.round()}/ left: ${widgetLocalOffset.dx.round()}',
+                          setState(() => this.widgetInfo = widgetInfo);
+                        },
+                        child: const Text('Get widget position and size'),
+                      ),
+                      if (widgetInfo != null) ...[
+                        Text('top:${widgetInfo.position.dy.round()} / left:${widgetInfo.position.dx.round()} '),
+                        Text('width: ${widgetInfo.size.width.round()} / height: ${widgetInfo.size.height.round()}'),
+                        Text('rotation:${widgetInfo.rotation}'),
+                        Text('scale:${widgetInfo.scale}'),
+                      ] else
+                        Text('No widget info requested'),
+                    ],
+                  ),
+                ),
+              ),
             ),
           ],
         ),
@@ -145,23 +155,24 @@ class _ExampleChangePositionOnPanState extends State<CompleteChangePositionOnPan
 }
 
 typedef OnPositionChanged = void Function(double left, double top);
+typedef OnUpdate = void Function(double left, double top, double rotation, double scale);
 
 class MovablePositioned extends StatefulWidget {
   const MovablePositioned({
     super.key,
     required this.top,
     required this.left,
-    this.onPositionChanged,
     required this.animates,
     this.rotation = 0,
     this.scale = 1,
+    required this.onUpdate,
   });
 
   final double top;
   final double left;
   final double rotation;
+  final OnUpdate onUpdate;
   final double scale;
-  final OnPositionChanged? onPositionChanged;
   final bool animates;
 
   @override
@@ -192,8 +203,8 @@ class MovablePositionedState extends State<MovablePositioned> {
 
     // Parent wants to override this widget position
     if (widget.top != top || widget.left != left) {
-      left = widget.left * scale;
-      top = widget.top * scale;
+      left = widget.left;
+      top = widget.top;
     }
 
     if (widget.rotation != rotation) {
@@ -207,7 +218,7 @@ class MovablePositionedState extends State<MovablePositioned> {
 
   @override
   Widget build(BuildContext context) {
-    print('top:${top.round()} / left:${left.round()} / animates:$animates / rotation:$rotation / scale:$scale');
+    print('S1 top:${top.round()} / left:${left.round()} / animates:$animates / rotation:$rotation / scale:$scale');
     return AnimatedPositioned(
       top: top,
       left: left,
@@ -239,11 +250,7 @@ class MovablePositionedState extends State<MovablePositioned> {
                 top = top + rotatedDy;
                 left = left + rotatedDx;
 
-                widget.onPositionChanged?.call(left, top);
-
-                print('rotation: $rotation');
-                print('details.focalPointDelta.dy:${details.focalPointDelta.dy}');
-                print('details.focalPointDelta.dx:${details.focalPointDelta.dx}');
+                widget.onUpdate(left, top, rotation, scale);
               });
             },
             child: Container(
