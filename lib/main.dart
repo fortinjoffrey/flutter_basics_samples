@@ -1,4 +1,5 @@
 import 'package:basics_samples/complete_example_using_matrix_gesture_detector/complete_example_using_matrix_gesture_detector.dart';
+import 'package:basics_samples/complete_example_with_gesture_detector/mutiple_movable_cubit/multiple_movable_cubit.dart';
 import 'package:basics_samples/examples/example_rotate_onPan.dart';
 import 'package:basics_samples/examples/example_rotate_onScale.dart';
 import 'package:basics_samples/examples/example_scale_onPan.dart';
@@ -9,11 +10,13 @@ import 'package:basics_samples/examples/example_rotate_scale_translate.dart';
 import 'package:basics_samples/examples_with_position/change_position_onPan_stateless_rotate_scale_stateful.dart';
 import 'package:basics_samples/examples_with_position/change_position_onPan_with_component_stateful.dart';
 import 'package:basics_samples/examples_with_position/change_position_onPan_with_component_stateless.dart';
+import 'package:basics_samples/complete_example_with_gesture_detector/complete_example_change_position_multiple_onPan_rotate_scale_stateless.dart';
+import 'package:basics_samples/examples_with_position/complete_example_change_position_onPan_rotate_scale_stateless.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'examples_with_position/change_position_onPan_rotate_scale_with_component_stateful .dart';
 import 'examples_with_position/complete_example_change_position_onPan_rotate_scale_stateful.dart';
-import 'examples_with_position/complete_example_change_position_onPan_rotate_scale_stateless.dart';
 import 'examples_with_position/complete_example_change_position_onPan_with_component_stateful.dart';
 
 void main() {
@@ -134,9 +137,17 @@ class HomePage extends StatelessWidget {
                   text: 'Complete Change position onPan rotation scale Stateful',
                 ),
                 _NavigationButton(
-                  backgroundColor: Colors.purple,
+                  backgroundColor: Colors.pink,
                   destinationPage: CompleteChangePositionOnPanRotateScaleStateless(),
                   text: 'Complete Change position onPan rotation scale Stateless',
+                ),
+                _NavigationButton(
+                  backgroundColor: Colors.blue,
+                  destinationPage: BlocProvider(
+                    create: (context) => MultipleMovableCubit(),
+                    child: CompleteChangePositionMultipleOnPanRotateScaleStateless(),
+                  ),
+                  text: 'Complete Change position multiple onPan rotation scale Stateless',
                 ),
               ],
             ),

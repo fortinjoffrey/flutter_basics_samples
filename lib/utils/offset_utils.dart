@@ -1,40 +1,25 @@
 import 'package:flutter/material.dart';
 
 Size? getSizeFromKey(GlobalKey key) {
-  return key.currentContext?.size;
+  final RenderBox? renderBox = key.currentContext?.findRenderObject() as RenderBox?;
+  return renderBox?.size;
 }
 
 Offset? getGlobalOffset({required GlobalKey key}) {
-  final keyContext = key.currentContext;
-  final size = keyContext?.size;
-  if (keyContext == null || size == null) return null;
-
-  final renderBox = keyContext.findRenderObject() as RenderBox;
-
-  final globalOffset = renderBox.localToGlobal(Offset.zero);
-
-  return globalOffset;
+  final RenderBox? renderBox = key.currentContext?.findRenderObject() as RenderBox?;
+  return renderBox?.localToGlobal(Offset.zero);
 }
 
 Offset? getLocalOffsetInAncestor({
   required GlobalKey childKey,
   required GlobalKey ancestorKey,
 }) {
-  final keyContext = childKey.currentContext;
-  final size = keyContext?.size;
-  if (keyContext == null || size == null) return null;
+  final RenderBox? childRenderBox = childKey.currentContext?.findRenderObject() as RenderBox?;
+  final RenderBox? ancestorRenderBox = ancestorKey.currentContext?.findRenderObject() as RenderBox?;
 
-  final renderBox = keyContext.findRenderObject() as RenderBox;
+  if (childRenderBox == null || ancestorRenderBox == null) return null;
 
-  final parentContext = ancestorKey.currentContext;
-  final parentSize = parentContext?.size;
-  if (parentContext == null || parentSize == null) return null;
-
-  final parentRenderBox = parentContext.findRenderObject() as RenderBox;
-
-  final childGlobalOffset = renderBox.localToGlobal(Offset.zero);
-  final childLocalOffset = parentRenderBox.globalToLocal(childGlobalOffset);
-  return childLocalOffset;
+  return childRenderBox.localToGlobal(Offset.zero, ancestor: ancestorRenderBox);
 }
 
 bool isOffsetOnElement({
@@ -43,9 +28,10 @@ bool isOffsetOnElement({
   required Offset elementPosition,
   double tolerance = 0,
 }) {
-  final isXIn =
-      elementPosition.dx - tolerance <= offset.dx && offset.dx <= elementPosition.dx + elementSize.width + tolerance;
-  final isYIn =
-      elementPosition.dy - tolerance <= offset.dy && offset.dy <= elementPosition.dy + elementSize.height + tolerance;
-  return isXIn && isYIn;
+  final left = elementPosition.dx - tolerance;
+  final right = elementPosition.dx + elementSize.width + tolerance;
+  final top = elementPosition.dy - tolerance;
+  final bottom = elementPosition.dy + elementSize.height + tolerance;
+
+  return offset.dx >= left && offset.dx <= right && offset.dy >= top && offset.dy <= bottom;
 }
