@@ -4,10 +4,8 @@ import 'package:flutter/material.dart';
 
 Offset getOffsetFromTextInformation({
   required TextInformation textInformation,
-  required ContainerInformation containerInformation,
   required double containerHeight,
   required double containerWidth,
-  required BuildContext context,
 }) {
   final textPainter = TextPainter(
     text: TextSpan(

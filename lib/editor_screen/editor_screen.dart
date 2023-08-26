@@ -55,13 +55,11 @@ class _EditorScreenState extends State<EditorScreen> {
     // We need to have the true max height and width available to position our elements
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (widget.importInformation.textInformations.isNotEmpty) {
-        for (final info in widget.importInformation.textInformations) {
+        for (final TextInformation info in widget.importInformation.textInformations) {
           final widgetPosition = getOffsetFromTextInformation(
             textInformation: info,
-            containerInformation: widget.importInformation.containerInformation,
             containerHeight: initExpandedHeight!,
             containerWidth: initExpandedWidth!,
-            context: context,
           );
 
           _createDraggableText(
@@ -591,8 +589,8 @@ class _EditorScreenState extends State<EditorScreen> {
       onDragEnd: (details) {
         _onDragEnd(details: details, uuid: uuid);
       },
-      top: top ?? null,
-      left: left ?? null,
+      top: top,
+      left: left,
       isSelected: isSelected,
       maxWidth: initExpandedWidth ?? MediaQuery.of(context).size.width,
     ));
