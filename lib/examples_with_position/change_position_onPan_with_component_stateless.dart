@@ -5,12 +5,17 @@ class ChangePositionOnPanWithComponentStateless extends StatefulWidget {
   _ChangePositionOnPanWithComponentStatelessState createState() => _ChangePositionOnPanWithComponentStatelessState();
 }
 
+int counter = 0;
+int counter2 = 0;
+
 class _ChangePositionOnPanWithComponentStatelessState extends State<ChangePositionOnPanWithComponentStateless> {
   double positionedWidgetTop = 100;
   double positionedWidgetLeft = 100;
 
   @override
   Widget build(BuildContext context) {
+    counter++;
+    print('counter: $counter');
     return Scaffold(
       appBar: AppBar(
         title: Text('Update Position onPan Component Stateless'),
@@ -62,6 +67,10 @@ class MovablePositioned extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
+    counter2++;
+    print('counter2 $counter2');
+    print('top: $top');
     return Positioned(
       top: top,
       left: left,

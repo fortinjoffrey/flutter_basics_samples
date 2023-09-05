@@ -51,12 +51,17 @@ class MovablePositioned extends StatefulWidget {
   State<MovablePositioned> createState() => MovablePositionedState();
 }
 
+int counter = 0;
+
 class MovablePositionedState extends State<MovablePositioned> {
   late double left = widget.left;
   late double top = widget.top;
 
   @override
   Widget build(BuildContext context) {
+    counter++;
+    print('counter: $counter');
+    print('top: $top');
     return Positioned(
       top: top,
       left: left,
@@ -67,6 +72,12 @@ class MovablePositionedState extends State<MovablePositioned> {
             left = left + details.delta.dx;
           });
         },
+        // onPanUpdate: (details) {
+        //   setState(() {
+        //     top = top + details.delta.dy;
+        //     left = left + details.delta.dx;
+        //   });
+        // },
         child: Container(
           color: Colors.black,
           height: 200.0,
