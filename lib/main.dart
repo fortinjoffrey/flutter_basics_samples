@@ -1,34 +1,33 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_basics_samples/router.dart';
+// ignore_for_file: unused_import
+
+import 'package:flutter_basics_samples/examples/async_redirection.dart';
+import 'package:flutter_basics_samples/examples/custom_stateful_shell_route.dart';
+import 'package:flutter_basics_samples/examples/exception_handling.dart';
+import 'package:flutter_basics_samples/examples/extra_param.dart';
+import 'package:flutter_basics_samples/examples/init_location.dart';
+import 'package:flutter_basics_samples/examples/named_routes.dart';
+import 'package:flutter_basics_samples/examples/nav_observer.dart';
+import 'package:flutter_basics_samples/examples/path_and_query_parameters.dart';
+import 'package:flutter_basics_samples/examples/redirection.dart';
+import 'package:flutter_basics_samples/examples/shell_route.dart';
+import 'package:flutter_basics_samples/examples/stateful_shell_route.dart';
+import 'package:flutter_basics_samples/examples/transition_animations.dart';
+import 'package:flutter_basics_samples/examples/transitions.dart';
+import 'package:flutter_basics_samples/examples/types_safe_routes.dart/types_safe_routes.dart';
 
 void main() {
-  WidgetsFlutterBinding.ensureInitialized();
-  runApp(const MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp.router(
-      routerConfig: router,
-      theme: ThemeData(
-        primarySwatch: Colors.amber,
-      ),
-    );
-  }
-}
-
-class CenteredText extends StatelessWidget {
-  const CenteredText(this.text, {Key? key}) : super(key: key);
-  final String text;
-  @override
-  Widget build(BuildContext context) {
-    return Text(
-      text,
-      style: const TextStyle(fontSize: 30),
-      textAlign: TextAlign.center,
-    );
-  }
+  // mainAsyncRedirection();
+  // mainExceptionHandling();
+  mainNamedRoutes();
+  // mainPathAndQueryParameters();
+  // mainRedirection();
+  // mainShellRoute();
+  // mainStatefulShellRoute();
+  // mainTransitionAnimations();
+  // mainExtraParam();
+  // mainInitLocation();
+  // mainCustomStatefulShellRoute();
+  // mainNavObserver();
+  // mainTransitions();
+  // mainTypesSafeRoutes();
 }
