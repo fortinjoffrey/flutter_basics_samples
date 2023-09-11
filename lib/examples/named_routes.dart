@@ -54,7 +54,10 @@ const Map<String, Family> _families = <String, Family>{
   ),
 };
 
-void mainNamedRoutes() => runApp(App());
+void mainNamedRoutes() {
+  GoRouter.optionURLReflectsImperativeAPIs = true;
+  runApp(App());
+}
 
 /// The main app.
 class App extends StatelessWidget {
@@ -73,6 +76,7 @@ class App extends StatelessWidget {
 
   late final GoRouter _router = GoRouter(
     debugLogDiagnostics: true,
+    initialLocation: '/home',
     routes: <GoRoute>[
       GoRoute(
         path: '/otot',
@@ -84,21 +88,29 @@ class App extends StatelessWidget {
       ),
       GoRoute(
         name: 'home',
-        path: '/',
+        path: '/home',
         builder: (BuildContext context, GoRouterState state) => const HomeScreen(),
-        routes:  <GoRoute>[
+        routes: <GoRoute>[
           GoRoute(
             name: 'family',
             path: 'family/:fid',
             builder: (BuildContext context, GoRouterState state) => FamilyScreen(fid: state.pathParameters['fid']!),
             routes: <GoRoute>[
               GoRoute(
-                name: 'person',
-                path: 'person/:pid',
-                builder: (BuildContext context, GoRouterState state) {
-                  return PersonScreen(fid: state.pathParameters['fid']!, pid: state.pathParameters['pid']!);
-                },
-              ),
+                  name: 'person',
+                  path: 'person/:pid',
+                  builder: (BuildContext context, GoRouterState state) {
+                    return PersonScreen(fid: state.pathParameters['fid']!, pid: state.pathParameters['pid']!);
+                  },
+                  routes: [
+                    GoRoute(
+                      name: 'name',
+                      path: 'name',
+                      builder: (BuildContext context, GoRouterState state) {
+                        return const NameScreen();
+                      },
+                    ),
+                  ]),
             ],
           ),
         ],
@@ -106,7 +118,14 @@ class App extends StatelessWidget {
       GoRoute(
         // name: 'login',
         path: '/login',
-        builder: (context, state) => const HomeScreen(),
+        builder: (context, state) => const LoginScreen(),
+        routes: <GoRoute>[
+          GoRoute(
+            name: 'login-family',
+            path: 'family/:fid',
+            builder: (BuildContext context, GoRouterState state) => FamilyScreen(fid: state.pathParameters['fid']!),
+          ),
+        ],
       ),
     ],
   );
@@ -129,8 +148,8 @@ class HomeScreen extends StatelessWidget {
             ListTile(
               title: Text(entry.value.name),
               onTap: () {
-
-                
+                // context.push('/family/${entry.key}');
+                // context.pushNamed('family', pathParameters: <String, String>{'fid': entry.key});
                 context.go(context.namedLocation('family', pathParameters: <String, String>{'fid': entry.key}));
               },
             )
@@ -140,8 +159,34 @@ class HomeScreen extends StatelessWidget {
   }
 }
 
+/// The home screen that shows a list of families.
+class LoginScreen extends StatelessWidget {
+  /// Creates a [LoginScreen].
+  const LoginScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text(App.title),
+      ),
+      body: ListView(
+        children: <Widget>[
+          for (final MapEntry<String, Family> entry in _families.entries)
+            ListTile(
+              title: Text(entry.value.name),
+              onTap: () {
+                context.go(context.namedLocation('login-family', pathParameters: <String, String>{'fid': entry.key}));
+              },
+            )
+        ],
+      ),
+    );
+  }
+}
+
 /// The screen that shows a list of persons in a family.
-class FamilyScreen extends StatelessWidget {
+class FamilyScreen extends StatefulWidget {
   /// Creates a [FamilyScreen].
   const FamilyScreen({required this.fid, super.key});
 
@@ -149,21 +194,39 @@ class FamilyScreen extends StatelessWidget {
   final String fid;
 
   @override
+  State<FamilyScreen> createState() => _FamilyScreenState();
+}
+
+class _FamilyScreenState extends State<FamilyScreen> {
+  @override
   Widget build(BuildContext context) {
-    final Map<String, Person> people = _families[fid]!.people;
+    final Map<String, Person> people = _families[widget.fid]!.people;
     return Scaffold(
-      appBar: AppBar(title: Text(_families[fid]!.name)),
-      body: ListView(
-        children: <Widget>[
-          for (final MapEntry<String, Person> entry in people.entries)
-            ListTile(
-              title: Text(entry.value.name),
-              onTap: () => context.go(context.namedLocation(
-                'person',
-                pathParameters: <String, String>{'fid': fid, 'pid': entry.key},
-                queryParameters: <String, String>{'qid': 'quid'},
-              )),
+      appBar: AppBar(title: Text(_families[widget.fid]!.name)),
+      body: Column(
+        children: [
+          TextButton(
+              onPressed: () {
+                // context.pop();
+                Navigator.of(context).pop();
+              },
+              child: const Text('pop')),
+          Expanded(
+            child: ListView(
+              children: <Widget>[
+                TextFormField(),
+                for (final MapEntry<String, Person> entry in people.entries)
+                  ListTile(
+                    title: Text(entry.value.name),
+                    onTap: () => context.go(context.namedLocation(
+                      'person',
+                      pathParameters: <String, String>{'fid': widget.fid, 'pid': entry.key},
+                      queryParameters: <String, String>{'qid': 'quid'},
+                    )),
+                  ),
+              ],
             ),
+          ),
         ],
       ),
     );
@@ -187,7 +250,44 @@ class PersonScreen extends StatelessWidget {
     final Person person = family.people[pid]!;
     return Scaffold(
       appBar: AppBar(title: Text(person.name)),
-      body: Text('${person.name} ${family.name} is ${person.age} years old'),
+      body: Column(
+        children: [
+          TextButton(
+              onPressed: () {
+                context.go(context.namedLocation('family', pathParameters: <String, String>{'fid': 'f1'}));
+              },
+              child: const Text('go family')),
+          TextButton(
+              onPressed: () {
+                context.go(context.namedLocation('name', pathParameters: <String, String>{'fid': 'f1', 'pid': 'p1'}));
+              },
+              child: const Text('go person name')),
+          Text('${person.name} ${family.name} is ${person.age} years old'),
+        ],
+      ),
+    );
+  }
+}
+
+/// The person screen.
+class NameScreen extends StatelessWidget {
+  /// Creates a [NameScreen].
+  const NameScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('person.name')),
+      body: Column(
+        children: [
+          TextButton(
+              onPressed: () {
+                context.go(context.namedLocation('person', pathParameters: <String, String>{'pid': 'p1', 'fid': 'f1'}));
+              },
+              child: const Text('go person')),
+          // Text('${person.name} ${family.name} is ${person.age} years old'),
+        ],
+      ),
     );
   }
 }

@@ -20,14 +20,15 @@ import 'package:flutter_basics_samples/examples/use_same_routes.dart';
 void main() {
   // mainAsyncRedirection();
   // mainExceptionHandling();
-  // mainNamedRoutes();
-  mainUseSameRoutes();
+  mainNamedRoutes();
+  // mainUseSameRoutes();
   // mainPathAndQueryParameters();
   // mainRedirection();
   // mainShellRoute();
   // mainStatefulShellRoute();
   // mainTransitionAnimations();
   // mainExtraParam();
+  // mainPathAndQueryParameters();
   // mainInitLocation();
   // mainCustomStatefulShellRoute();
   // mainNavObserver();

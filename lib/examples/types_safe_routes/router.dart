@@ -18,6 +18,7 @@ part 'router.g.dart'; // name of generated file
   ],
 )
 
+
 @immutable
 class HomeScreenRoute extends GoRouteData {
   @override

@@ -36,6 +36,7 @@ class App extends StatelessWidget {
       );
 
   late final GoRouter _router = GoRouter(
+
     routes: <GoRoute>[
       GoRoute(
         path: '/',

@@ -6,7 +6,7 @@ import 'package:go_router/go_router.dart';
 part 'router.g.dart'; // name of generated file
 
 @TypedGoRoute<HomeRoute>(
-  path: '/',
+  path: '/home',
   routes: <TypedGoRoute<GoRouteData>>[
     TypedGoRoute<FamilyRoute>(
       path: 'family/:fid',
@@ -19,7 +19,7 @@ part 'router.g.dart'; // name of generated file
         ),
       ],
     ),
-    TypedGoRoute<FamilyCountRoute>(path: 'family-count/:count'),
+    TypedGoRoute<FamilyCountRoute>(path: 'family-count/:count',name: 'family-count'),
   ],
 )
 class HomeRoute extends GoRouteData {
@@ -30,7 +30,7 @@ class HomeRoute extends GoRouteData {
 }
 
 @TypedGoRoute<LoginRoute>(path: '/login', routes: [
-  // TypedGoRoute<FamilyCountRoute>(path: 'family-count/:count'),
+  TypedGoRoute<FamilyCountRoute>(path: 'family-count/:count', name: 'login-family-count'),
 ])
 
 class LoginRoute extends GoRouteData {
