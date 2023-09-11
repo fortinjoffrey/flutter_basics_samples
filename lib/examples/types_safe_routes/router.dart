@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_basics_samples/examples/types_safe_routes.dart/types_safe_routes.dart';
+import 'package:flutter_basics_samples/examples/types_safe_routes/types_safe_routes.dart';
 import 'package:go_router/go_router.dart';
 
 part 'router.g.dart'; // name of generated file

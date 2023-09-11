@@ -3,15 +3,12 @@
 // found in the LICENSE file.
 
 import 'package:flutter/material.dart';
-import 'package:flutter_basics_samples/examples/types_safe_routes.dart/router.dart';
+import 'package:flutter_basics_samples/examples/types_safe_routes/router.dart';
 import 'package:go_router/go_router.dart';
 
 void mainTypesSafeRoutes() => runApp(const App());
 
 final _router = GoRouter(
-  redirect: (context, state) {
-    
-  },
   routes: $appRoutes,
   initialLocation: HomeScreenRoute().location,
 );

@@ -13,12 +13,15 @@ import 'package:flutter_basics_samples/examples/shell_route.dart';
 import 'package:flutter_basics_samples/examples/stateful_shell_route.dart';
 import 'package:flutter_basics_samples/examples/transition_animations.dart';
 import 'package:flutter_basics_samples/examples/transitions.dart';
-import 'package:flutter_basics_samples/examples/types_safe_routes.dart/types_safe_routes.dart';
+import 'package:flutter_basics_samples/examples/types_safe_routes/types_safe_routes.dart';
+import 'package:flutter_basics_samples/examples/types_safe_routes_2/types_safe_routes_2.dart';
+import 'package:flutter_basics_samples/examples/use_same_routes.dart';
 
 void main() {
   // mainAsyncRedirection();
   // mainExceptionHandling();
-  mainNamedRoutes();
+  // mainNamedRoutes();
+  mainUseSameRoutes();
   // mainPathAndQueryParameters();
   // mainRedirection();
   // mainShellRoute();
@@ -30,4 +33,5 @@ void main() {
   // mainNavObserver();
   // mainTransitions();
   // mainTypesSafeRoutes();
+  // mainTypesSafeRoutes2();
 }
