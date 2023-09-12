@@ -1,68 +1,85 @@
+import 'dart:async';
+import 'dart:io';
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_basics_samples/file_utils.dart';
+import 'package:photofilters/photofilters.dart';
+// ignore: depend_on_referenced_packages
+import 'package:image/image.dart' as imageLib;
 
-void main() {
-  runApp(const MyApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  final file = await saveImageFromUrlToFile('https://pbs.twimg.com/media/FKNlhKZUcAEd7FY?format=jpg&name=4096x4096');
+
+  runApp(MaterialApp(
+      home: MyApp(
+    imageFile: file,
+  )));
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class MyApp extends StatefulWidget {
+  final File imageFile;
+
+  const MyApp({super.key, required this.imageFile});
+  @override
+  // ignore: library_private_types_in_public_api
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  List<Filter> filters = presetFiltersList;
+ File? filteredFile;
+  late Uint8List bytes;
 
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
+  void initState() {
+    super.initState();
+    bytes = widget.imageFile.readAsBytesSync();
+  }
+
+  Future getImage(context) async {
+    final image = imageLib.decodeImage(bytes);
+    Map? imagefile = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => PhotoFilterSelector(
+          title: const Text("Photo Filter Example"),
+          image: image!,
+          filters: presetFiltersList,
+          filename: 'toto.jpg',
+          loader: const Center(child: CircularProgressIndicator()),
+          fit: BoxFit.contain,
+        ),
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
     );
-  }
-}
-
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
-
-  final String title;
-
-  @override
-  State<MyHomePage> createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-
-  void _incrementCounter() {
-    setState(() {
-      _counter++;
-    });
+    if (imagefile != null && imagefile.containsKey('image_filtered')) {
+      setState(() {
+        filteredFile = imagefile['image_filtered'];
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    // File to Image
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Text(widget.title),
+        title: const Text('Photo Filter Example'),
       ),
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text(
-              'You have pushed the button this many times:',
-            ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
-          ],
+        child: Container(
+          child: filteredFile == null
+              ? const Center(
+                  child: Text('No image selected.'),
+                )
+              : Image.file(filteredFile!),
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
+        onPressed: () => getImage(context),
+        tooltip: 'Pick Image',
+        child: const Icon(Icons.add_a_photo),
       ),
     );
   }
