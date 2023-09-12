@@ -19,7 +19,7 @@ part 'router.g.dart'; // name of generated file
         ),
       ],
     ),
-    TypedGoRoute<FamilyCountRoute>(path: 'family-count/:count',name: 'family-count'),
+    TypedGoRoute<FamilyCountRoute>(path: 'family-count/:count', name: 'family-count'),
   ],
 )
 class HomeRoute extends GoRouteData {
@@ -30,9 +30,8 @@ class HomeRoute extends GoRouteData {
 }
 
 @TypedGoRoute<LoginRoute>(path: '/login', routes: [
-  TypedGoRoute<FamilyCountRoute>(path: 'family-count/:count', name: 'login-family-count'),
+  // TypedGoRoute<FamilyCountRoute>(path: 'family-count/:count', name: 'login-family-count'),
 ])
-
 class LoginRoute extends GoRouteData {
   const LoginRoute({this.fromPage});
 

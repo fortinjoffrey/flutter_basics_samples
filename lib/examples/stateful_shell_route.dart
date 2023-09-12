@@ -5,10 +5,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-final GlobalKey<NavigatorState> _rootNavigatorKey =
-    GlobalKey<NavigatorState>(debugLabel: 'root');
-final GlobalKey<NavigatorState> _sectionANavigatorKey =
-    GlobalKey<NavigatorState>(debugLabel: 'sectionANav');
+final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'root');
+final GlobalKey<NavigatorState> _sectionANavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'sectionANav');
 
 // This example demonstrates how to setup nested navigation using a
 // BottomNavigationBar, where each bar item uses its own persistent navigator,
@@ -26,19 +24,14 @@ class NestedTabNavigationExampleApp extends StatelessWidget {
 
   final GoRouter _router = GoRouter(
     navigatorKey: _rootNavigatorKey,
-    initialLocation: '/a',
+    initialLocation: '/b/details/1/2',
+    // initialLocation: '/a',
     routes: <RouteBase>[
       StatefulShellRoute.indexedStack(
-        builder: (BuildContext context, GoRouterState state,
-            StatefulNavigationShell navigationShell) {
-          // Return the widget that implements the custom shell (in this case
-          // using a BottomNavigationBar). The StatefulNavigationShell is passed
-          // to be able access the state of the shell and to navigate to other
-          // branches in a stateful way.
+        builder: (BuildContext context, GoRouterState state, StatefulNavigationShell navigationShell) {
           return ScaffoldWithNavBar(navigationShell: navigationShell);
         },
         branches: <StatefulShellBranch>[
-          // The route branch for the first tab of the bottom navigation bar.
           StatefulShellBranch(
             navigatorKey: _sectionANavigatorKey,
             routes: <RouteBase>[
@@ -49,42 +42,41 @@ class NestedTabNavigationExampleApp extends StatelessWidget {
                 builder: (BuildContext context, GoRouterState state) =>
                     const RootScreen(label: 'A', detailsPath: '/a/details'),
                 routes: <RouteBase>[
-                  // The details screen to display stacked on navigator of the
-                  // first tab. This will cover screen A but not the application
-                  // shell (bottom navigation bar).
                   GoRoute(
                     path: 'details',
-                    builder: (BuildContext context, GoRouterState state) =>
-                        const DetailsScreen(label: 'A'),
+                    builder: (BuildContext context, GoRouterState state) => DetailsScreen(
+                      label: 'A',
+                      model: state.extra as DetailsModel,
+                    ),
                   ),
                 ],
               ),
             ],
           ),
-
-          // The route branch for the second tab of the bottom navigation bar.
           StatefulShellBranch(
-            // It's not necessary to provide a navigatorKey if it isn't also
-            // needed elsewhere. If not provided, a default key will be used.
             routes: <RouteBase>[
               GoRoute(
-                // The screen to display as the root in the second tab of the
-                // bottom navigation bar.
                 path: '/b',
-                builder: (BuildContext context, GoRouterState state) =>
-                    const RootScreen(
+                builder: (BuildContext context, GoRouterState state) {
+                  return const RootScreen(
                   label: 'B',
-                  detailsPath: '/b/details/1',
+                  detailsPath: '/b/details/1/2',
                   secondDetailsPath: '/b/details/2',
-                ),
+                );
+                },
                 routes: <RouteBase>[
                   GoRoute(
-                    path: 'details/:param',
-                    builder: (BuildContext context, GoRouterState state) =>
-                        DetailsScreen(
-                      label: 'B',
-                      param: state.pathParameters['param'],
-                    ),
+                    path: 'details/:param/:id',
+                    parentNavigatorKey: _rootNavigatorKey,
+                    builder: (BuildContext context, GoRouterState state) {
+                      final pathParams = state.pathParameters;
+
+                      return DetailsScreen(
+                        label: 'B',
+                        param: state.pathParameters['param'],
+                        model: state.extra as DetailsModel,
+                      );
+                    },
                   ),
                 ],
               ),
@@ -98,18 +90,17 @@ class NestedTabNavigationExampleApp extends StatelessWidget {
                 // The screen to display as the root in the third tab of the
                 // bottom navigation bar.
                 path: '/c',
-                builder: (BuildContext context, GoRouterState state) =>
-                    const RootScreen(
+                builder: (BuildContext context, GoRouterState state) => const RootScreen(
                   label: 'C',
                   detailsPath: '/c/details',
                 ),
                 routes: <RouteBase>[
                   GoRoute(
                     path: 'details',
-                    builder: (BuildContext context, GoRouterState state) =>
-                        DetailsScreen(
+                    builder: (BuildContext context, GoRouterState state) => DetailsScreen(
                       label: 'C',
                       extra: state.extra,
+                      model: state.extra as DetailsModel,
                     ),
                   ),
                 ],
@@ -149,19 +140,31 @@ class ScaffoldWithNavBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       body: navigationShell,
-      bottomNavigationBar: BottomNavigationBar(
+      bottomNavigationBar: NavigationBar(
         // Here, the items of BottomNavigationBar are hard coded. In a real
         // world scenario, the items would most likely be generated from the
         // branches of the shell route, which can be fetched using
         // `navigationShell.route.branches`.
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Section A'),
-          BottomNavigationBarItem(icon: Icon(Icons.work), label: 'Section B'),
-          BottomNavigationBarItem(icon: Icon(Icons.tab), label: 'Section C'),
+        selectedIndex: navigationShell.currentIndex,
+        destinations: const [
+          NavigationDestination(label: 'Section A', icon: Icon(Icons.home)),
+          NavigationDestination(label: 'Section B', icon: Icon(Icons.settings)),
         ],
-        currentIndex: navigationShell.currentIndex,
-        onTap: (int index) => _onTap(context, index),
+        onDestinationSelected: (int index) => _onTap(context, index),
       ),
+      // bottomNavigationBar: BottomNavigationBar(
+      //   // Here, the items of BottomNavigationBar are hard coded. In a real
+      //   // world scenario, the items would most likely be generated from the
+      //   // branches of the shell route, which can be fetched using
+      //   // `navigationShell.route.branches`.
+      //   items: const <BottomNavigationBarItem>[
+      //     BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Section A'),
+      //     BottomNavigationBarItem(icon: Icon(Icons.work), label: 'Section B'),
+      //     BottomNavigationBarItem(icon: Icon(Icons.tab), label: 'Section C'),
+      //   ],
+      //   currentIndex: navigationShell.currentIndex,
+      //   onTap: (int index) => _onTap(context, index),
+      // ),
     );
   }
 
@@ -211,12 +214,12 @@ class RootScreen extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
-            Text('Screen $label',
-                style: Theme.of(context).textTheme.titleLarge),
+            Text('Screen $label', style: Theme.of(context).textTheme.titleLarge),
             const Padding(padding: EdgeInsets.all(4)),
             TextButton(
               onPressed: () {
-                GoRouter.of(context).go(detailsPath, extra: '$label-XYZ');
+                GoRouter.of(context).go(detailsPath, extra: DetailsModel('XGS'));
+                // GoRouter.of(context).go(detailsPath, extra: '$label-XYZ');
               },
               child: const Text('View details'),
             ),
@@ -235,6 +238,12 @@ class RootScreen extends StatelessWidget {
   }
 }
 
+class DetailsModel {
+  final String name;
+
+  DetailsModel(this.name);
+}
+
 /// The details screen for either the A or B screen.
 class DetailsScreen extends StatefulWidget {
   /// Constructs a [DetailsScreen].
@@ -244,6 +253,7 @@ class DetailsScreen extends StatefulWidget {
     this.extra,
     this.withScaffold = true,
     super.key,
+    required this.model,
   });
 
   /// The label to display in the center of the screen.
@@ -257,6 +267,8 @@ class DetailsScreen extends StatefulWidget {
 
   /// Wrap in scaffold
   final bool withScaffold;
+
+  final DetailsModel model;
 
   @override
   State<StatefulWidget> createState() => DetailsScreenState();
@@ -288,8 +300,8 @@ class DetailsScreenState extends State<DetailsScreen> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
-          Text('Details for ${widget.label} - Counter: $_counter',
-              style: Theme.of(context).textTheme.titleLarge),
+          Text('model name ${widget.model.name}', style: Theme.of(context).textTheme.titleLarge),
+          Text('Details for ${widget.label} - Counter: $_counter', style: Theme.of(context).textTheme.titleLarge),
           const Padding(padding: EdgeInsets.all(4)),
           TextButton(
             onPressed: () {
@@ -300,21 +312,16 @@ class DetailsScreenState extends State<DetailsScreen> {
             child: const Text('Increment counter'),
           ),
           const Padding(padding: EdgeInsets.all(8)),
-          if (widget.param != null)
-            Text('Parameter: ${widget.param!}',
-                style: Theme.of(context).textTheme.titleMedium),
+          if (widget.param != null) Text('Parameter: ${widget.param!}', style: Theme.of(context).textTheme.titleMedium),
           const Padding(padding: EdgeInsets.all(8)),
-          if (widget.extra != null)
-            Text('Extra: ${widget.extra!}',
-                style: Theme.of(context).textTheme.titleMedium),
+          if (widget.extra != null) Text('Extra: ${widget.extra!}', style: Theme.of(context).textTheme.titleMedium),
           if (!widget.withScaffold) ...<Widget>[
             const Padding(padding: EdgeInsets.all(16)),
             TextButton(
               onPressed: () {
                 GoRouter.of(context).pop();
               },
-              child: const Text('< Back',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+              child: const Text('< Back', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
             ),
           ]
         ],
