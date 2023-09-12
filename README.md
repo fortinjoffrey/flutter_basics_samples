@@ -1,16 +1,8 @@
-# flutter_basics_samples
+# Flutter magnetism demo 
 
-A new Flutter project.
+Widget snaps into vertical/horizontal center lines
 
-## Getting Started
+## Demo
 
-This project is a starting point for a Flutter application.
+https://github.com/fortinjoffrey/flutter_basics_samples/assets/36731875/7e9d6f44-86ca-4b8d-9cdd-c04fc59a1c50
 
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
