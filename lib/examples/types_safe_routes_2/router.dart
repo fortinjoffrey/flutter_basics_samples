@@ -22,6 +22,8 @@ part 'router.g.dart'; // name of generated file
     TypedGoRoute<FamilyCountRoute>(path: 'family-count/:count', name: 'family-count'),
   ],
 )
+
+
 class HomeRoute extends GoRouteData {
   const HomeRoute();
 
