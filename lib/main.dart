@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_basics_samples/file_utils.dart';
 import 'package:photofilters/photofilters.dart';
@@ -29,17 +30,87 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   List<Filter> filters = presetFiltersList;
- File? filteredFile;
+  File? filteredFile;
   late Uint8List bytes;
+  late imageLib.Image? image;
+  final filtersCustom = [
+    NoFilter(),
+    AddictiveBlueFilter(),
+    AddictiveRedFilter(),
+    AdenFilter(),
+    AmaroFilter(),
+    AshbyFilter(),
+    BrannanFilter(),
+    BrooklynFilter(),
+    CharmesFilter(),
+    CremaFilter(),
+    DogpatchFilter(),
+    EarlybirdFilter(),
+    F1977Filter(),
+    GinghamFilter(),
+    GinzaFilter(),
+    HefeFilter(),
+    HelenaFilter(),
+    HudsonFilter(),
+  ];
+  late Future<List<int>> filterBytes;
 
   @override
   void initState() {
     super.initState();
     bytes = widget.imageFile.readAsBytesSync();
+    image = imageLib.decodeImage(bytes);
+
+    filterBytes = compute(applyFilter, <String, dynamic>{
+      "filter": filtersCustom[0],
+      "image": image,
+      "filename": 'toto.jpg',
+    });
   }
 
-  Future getImage(context) async {
-    final image = imageLib.decodeImage(bytes);
+  Future getImageFromPhotoFilter(context) async {
+    // final image = imageLib.decodeImage(bytes);
+    Map? imagefile = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) {
+          return Scaffold(
+              appBar: AppBar(
+                title: const Text('Photo Filter Example'),
+              ),
+              body: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    ...filtersCustom
+                        .map((f) => Column(
+                              children: [
+                                PhotoFilter(
+                                  filename: 'titi.jpg',
+                                  filter: f,
+                                  image: image!,
+                                ),
+                                Text(f.name)
+                              ],
+                            ))
+                        .toList()
+                  ],
+                ),
+              ));
+        },
+        // builder: (context) => PhotoFilterSelector(
+        //   title: const Text("Photo Filter Example"),
+        //   image: image!,
+        //   filters: presetFiltersList,
+        //   filename: 'toto.jpg',
+        //   loader: const Center(child: CircularProgressIndicator()),
+        //   fit: BoxFit.contain,
+        // ),
+      ),
+    );
+  }
+
+  Future getImageFromPhotoFilterSelector(context) async {
+    // final image = imageLib.decodeImage(bytes);
     Map? imagefile = await Navigator.push(
       context,
       MaterialPageRoute(
@@ -70,16 +141,26 @@ class _MyAppState extends State<MyApp> {
       body: Center(
         child: Container(
           child: filteredFile == null
-              ? const Center(
-                  child: Text('No image selected.'),
+              ? Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      TextButton(
+                          onPressed: () {
+                            getImageFromPhotoFilter(context);
+                          },
+                          child: const Text('PhotoFilter usage')),
+                      TextButton(
+                          onPressed: () {
+                            getImageFromPhotoFilterSelector(context);
+                          },
+                          child: const Text('PhotoFilter usage')),
+                      const Text('No image selected.'),
+                    ],
+                  ),
                 )
               : Image.file(filteredFile!),
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => getImage(context),
-        tooltip: 'Pick Image',
-        child: const Icon(Icons.add_a_photo),
       ),
     );
   }
