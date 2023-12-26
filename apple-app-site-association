@@ -1,0 +1,33 @@
+{
+  "applinks":{
+    "apps":[
+       
+    ],
+    "details":[
+      {
+        "appIDs":[
+          "QD5843FU5C.com.example.flutterbasicssamples"
+        ],
+        "components":[
+          {
+            "/":"/login",
+            "comment":"Matches URL with a path /login"
+          },
+          {
+            "/":"/landing",
+            "comment":"Matches URL with a path /landing"
+          },
+          {
+            "/":"/product/*",
+            "comment":"Matches any URL with a path that starts with /product/."
+          },
+          {
+            "/":"/secret",
+            "exclude":true,
+            "comment":"Matches URL with a path /secret and instructs the system not to open it as a universal link."
+          }
+        ]
+      }
+    ]
+  }
+}
