@@ -17,6 +17,8 @@ final _privateConstructorUsedError = UnsupportedError(
 /// @nodoc
 mixin _$FeedMapState {
   MapMode get mode => throw _privateConstructorUsedError;
+  PermissionStatus? get permissionStatus => throw _privateConstructorUsedError;
+  LatLng? get userLocation => throw _privateConstructorUsedError;
 
   @JsonKey(ignore: true)
   $FeedMapStateCopyWith<FeedMapState> get copyWith =>
@@ -29,7 +31,8 @@ abstract class $FeedMapStateCopyWith<$Res> {
           FeedMapState value, $Res Function(FeedMapState) then) =
       _$FeedMapStateCopyWithImpl<$Res, FeedMapState>;
   @useResult
-  $Res call({MapMode mode});
+  $Res call(
+      {MapMode mode, PermissionStatus? permissionStatus, LatLng? userLocation});
 }
 
 /// @nodoc
@@ -46,12 +49,22 @@ class _$FeedMapStateCopyWithImpl<$Res, $Val extends FeedMapState>
   @override
   $Res call({
     Object? mode = null,
+    Object? permissionStatus = freezed,
+    Object? userLocation = freezed,
   }) {
     return _then(_value.copyWith(
       mode: null == mode
           ? _value.mode
           : mode // ignore: cast_nullable_to_non_nullable
               as MapMode,
+      permissionStatus: freezed == permissionStatus
+          ? _value.permissionStatus
+          : permissionStatus // ignore: cast_nullable_to_non_nullable
+              as PermissionStatus?,
+      userLocation: freezed == userLocation
+          ? _value.userLocation
+          : userLocation // ignore: cast_nullable_to_non_nullable
+              as LatLng?,
     ) as $Val);
   }
 }
@@ -64,7 +77,8 @@ abstract class _$$FeedMapStateImplCopyWith<$Res>
       __$$FeedMapStateImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({MapMode mode});
+  $Res call(
+      {MapMode mode, PermissionStatus? permissionStatus, LatLng? userLocation});
 }
 
 /// @nodoc
@@ -79,12 +93,22 @@ class __$$FeedMapStateImplCopyWithImpl<$Res>
   @override
   $Res call({
     Object? mode = null,
+    Object? permissionStatus = freezed,
+    Object? userLocation = freezed,
   }) {
     return _then(_$FeedMapStateImpl(
       mode: null == mode
           ? _value.mode
           : mode // ignore: cast_nullable_to_non_nullable
               as MapMode,
+      permissionStatus: freezed == permissionStatus
+          ? _value.permissionStatus
+          : permissionStatus // ignore: cast_nullable_to_non_nullable
+              as PermissionStatus?,
+      userLocation: freezed == userLocation
+          ? _value.userLocation
+          : userLocation // ignore: cast_nullable_to_non_nullable
+              as LatLng?,
     ));
   }
 }
@@ -92,15 +116,22 @@ class __$$FeedMapStateImplCopyWithImpl<$Res>
 /// @nodoc
 
 class _$FeedMapStateImpl implements _FeedMapState {
-  const _$FeedMapStateImpl({this.mode = const FreeMoveMapMode()});
+  const _$FeedMapStateImpl(
+      {this.mode = const FreeMoveMapMode(),
+      this.permissionStatus,
+      this.userLocation});
 
   @override
   @JsonKey()
   final MapMode mode;
+  @override
+  final PermissionStatus? permissionStatus;
+  @override
+  final LatLng? userLocation;
 
   @override
   String toString() {
-    return 'FeedMapState(mode: $mode)';
+    return 'FeedMapState(mode: $mode, permissionStatus: $permissionStatus, userLocation: $userLocation)';
   }
 
   @override
@@ -108,11 +139,16 @@ class _$FeedMapStateImpl implements _FeedMapState {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$FeedMapStateImpl &&
-            (identical(other.mode, mode) || other.mode == mode));
+            (identical(other.mode, mode) || other.mode == mode) &&
+            (identical(other.permissionStatus, permissionStatus) ||
+                other.permissionStatus == permissionStatus) &&
+            (identical(other.userLocation, userLocation) ||
+                other.userLocation == userLocation));
   }
 
   @override
-  int get hashCode => Object.hash(runtimeType, mode);
+  int get hashCode =>
+      Object.hash(runtimeType, mode, permissionStatus, userLocation);
 
   @JsonKey(ignore: true)
   @override
@@ -122,10 +158,17 @@ class _$FeedMapStateImpl implements _FeedMapState {
 }
 
 abstract class _FeedMapState implements FeedMapState {
-  const factory _FeedMapState({final MapMode mode}) = _$FeedMapStateImpl;
+  const factory _FeedMapState(
+      {final MapMode mode,
+      final PermissionStatus? permissionStatus,
+      final LatLng? userLocation}) = _$FeedMapStateImpl;
 
   @override
   MapMode get mode;
+  @override
+  PermissionStatus? get permissionStatus;
+  @override
+  LatLng? get userLocation;
   @override
   @JsonKey(ignore: true)
   _$$FeedMapStateImplCopyWith<_$FeedMapStateImpl> get copyWith =>

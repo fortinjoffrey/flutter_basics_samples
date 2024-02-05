@@ -8,6 +8,5 @@ part 'feed_bloc_state.freezed.dart';
 class FeedBlocState with _$FeedBlocState {
   const factory FeedBlocState({
     @Default(FeedMapDisplayMode()) FeedDisplayMode displayMode,
-    PermissionStatus? permissionStatus,
   }) = _FeedBlocState;
 }

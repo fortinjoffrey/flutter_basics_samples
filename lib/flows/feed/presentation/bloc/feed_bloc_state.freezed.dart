@@ -17,7 +17,6 @@ final _privateConstructorUsedError = UnsupportedError(
 /// @nodoc
 mixin _$FeedBlocState {
   FeedDisplayMode get displayMode => throw _privateConstructorUsedError;
-  PermissionStatus? get permissionStatus => throw _privateConstructorUsedError;
 
   @JsonKey(ignore: true)
   $FeedBlocStateCopyWith<FeedBlocState> get copyWith =>
@@ -30,7 +29,7 @@ abstract class $FeedBlocStateCopyWith<$Res> {
           FeedBlocState value, $Res Function(FeedBlocState) then) =
       _$FeedBlocStateCopyWithImpl<$Res, FeedBlocState>;
   @useResult
-  $Res call({FeedDisplayMode displayMode, PermissionStatus? permissionStatus});
+  $Res call({FeedDisplayMode displayMode});
 }
 
 /// @nodoc
@@ -47,17 +46,12 @@ class _$FeedBlocStateCopyWithImpl<$Res, $Val extends FeedBlocState>
   @override
   $Res call({
     Object? displayMode = null,
-    Object? permissionStatus = freezed,
   }) {
     return _then(_value.copyWith(
       displayMode: null == displayMode
           ? _value.displayMode
           : displayMode // ignore: cast_nullable_to_non_nullable
               as FeedDisplayMode,
-      permissionStatus: freezed == permissionStatus
-          ? _value.permissionStatus
-          : permissionStatus // ignore: cast_nullable_to_non_nullable
-              as PermissionStatus?,
     ) as $Val);
   }
 }
@@ -70,7 +64,7 @@ abstract class _$$FeedBlocStateImplCopyWith<$Res>
       __$$FeedBlocStateImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({FeedDisplayMode displayMode, PermissionStatus? permissionStatus});
+  $Res call({FeedDisplayMode displayMode});
 }
 
 /// @nodoc
@@ -85,17 +79,12 @@ class __$$FeedBlocStateImplCopyWithImpl<$Res>
   @override
   $Res call({
     Object? displayMode = null,
-    Object? permissionStatus = freezed,
   }) {
     return _then(_$FeedBlocStateImpl(
       displayMode: null == displayMode
           ? _value.displayMode
           : displayMode // ignore: cast_nullable_to_non_nullable
               as FeedDisplayMode,
-      permissionStatus: freezed == permissionStatus
-          ? _value.permissionStatus
-          : permissionStatus // ignore: cast_nullable_to_non_nullable
-              as PermissionStatus?,
     ));
   }
 }
@@ -103,18 +92,15 @@ class __$$FeedBlocStateImplCopyWithImpl<$Res>
 /// @nodoc
 
 class _$FeedBlocStateImpl implements _FeedBlocState {
-  const _$FeedBlocStateImpl(
-      {this.displayMode = const FeedMapDisplayMode(), this.permissionStatus});
+  const _$FeedBlocStateImpl({this.displayMode = const FeedMapDisplayMode()});
 
   @override
   @JsonKey()
   final FeedDisplayMode displayMode;
-  @override
-  final PermissionStatus? permissionStatus;
 
   @override
   String toString() {
-    return 'FeedBlocState(displayMode: $displayMode, permissionStatus: $permissionStatus)';
+    return 'FeedBlocState(displayMode: $displayMode)';
   }
 
   @override
@@ -123,13 +109,11 @@ class _$FeedBlocStateImpl implements _FeedBlocState {
         (other.runtimeType == runtimeType &&
             other is _$FeedBlocStateImpl &&
             (identical(other.displayMode, displayMode) ||
-                other.displayMode == displayMode) &&
-            (identical(other.permissionStatus, permissionStatus) ||
-                other.permissionStatus == permissionStatus));
+                other.displayMode == displayMode));
   }
 
   @override
-  int get hashCode => Object.hash(runtimeType, displayMode, permissionStatus);
+  int get hashCode => Object.hash(runtimeType, displayMode);
 
   @JsonKey(ignore: true)
   @override
@@ -139,14 +123,11 @@ class _$FeedBlocStateImpl implements _FeedBlocState {
 }
 
 abstract class _FeedBlocState implements FeedBlocState {
-  const factory _FeedBlocState(
-      {final FeedDisplayMode displayMode,
-      final PermissionStatus? permissionStatus}) = _$FeedBlocStateImpl;
+  const factory _FeedBlocState({final FeedDisplayMode displayMode}) =
+      _$FeedBlocStateImpl;
 
   @override
   FeedDisplayMode get displayMode;
-  @override
-  PermissionStatus? get permissionStatus;
   @override
   @JsonKey(ignore: true)
   _$$FeedBlocStateImplCopyWith<_$FeedBlocStateImpl> get copyWith =>
