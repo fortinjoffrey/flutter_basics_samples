@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_basics_samples/dependy_injector.dart';
+import 'package:flutter_basics_samples/dependencies_injector.dart';
 import 'package:flutter_basics_samples/env_util.dart';
+import 'package:flutter_basics_samples/flows/feed/parts/list/presentation/bloc/feed_list_bloc.dart';
 import 'package:flutter_basics_samples/flows/feed/parts/map/presentation/bloc/feed_map_bloc.dart';
 import 'package:flutter_basics_samples/flows/feed/presentation/bloc/feed_bloc.dart';
 import 'package:flutter_basics_samples/flows/feed/presentation/screens/feed_screen.dart';
@@ -12,7 +13,7 @@ Future<void> main() async {
 
   // ignore: avoid_print
   print(googleMapsApiKey);
-  await DepencyInjector.init();
+  await DependenciesInjector.init();
 
   runApp(const MyApp());
 }
@@ -35,6 +36,9 @@ class MyApp extends StatelessWidget {
           ),
           BlocProvider<FeedMapBloc>(
             create: (context) => FeedMapBloc(),
+          ),
+          BlocProvider<FeedListBloc>(
+            create: (context) => FeedListBloc(),
           ),
         ],
         child: const FeedScreen(),

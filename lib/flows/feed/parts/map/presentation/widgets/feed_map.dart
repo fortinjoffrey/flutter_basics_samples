@@ -24,11 +24,19 @@ class _FeedMapState extends State<_FeedMap> with WidgetsBindingObserver {
       tilt: 59.440717697143555,
       zoom: 19.151926040649414);
 
+  BitmapDescriptor? _myPositionIconDescription;
+  Uint8List? _myPositionIconBytes;
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     context.read<FeedMapBloc>().add(const InitEvent());
+
+    getBytesFromAsset('assets/icons/my_position.png', 3, 96).then((value) {
+      _myPositionIconBytes = value;
+    });
+
   }
 
   @override
@@ -68,6 +76,8 @@ class _FeedMapState extends State<_FeedMap> with WidgetsBindingObserver {
               Expanded(
                 child: BlocListener<FeedMapBloc, FeedMapState>(
                   listener: (context, state) async {
+                    if (state.mode is! CenterOnUserLocationMapMode) return;
+
                     final userLocation = state.userLocation;
 
                     if (userLocation != null) {
@@ -79,39 +89,64 @@ class _FeedMapState extends State<_FeedMap> with WidgetsBindingObserver {
                     builder: (context, state) {
                       final userLocation = state.userLocation;
 
-                      return GoogleMap(
-                        markers: {
-                          if (userLocation != null)
-                            Marker(
-                              markerId: MarkerId('my_location'),
-                              position: userLocation,
-                              icon: BitmapDescriptor.defaultMarker,
-                              infoWindow: InfoWindow(title: 'Google'),
+                      return Stack(
+                        children: [
+                          GoogleMap(
+                            markers: {
+                              if (userLocation != null && _myPositionIconBytes != null)
+                                Marker(
+                                  markerId: const MarkerId('my_location'),
+                                  position: userLocation,
+                                  anchor:const Offset(0.5, 0.5) ,
+                                  icon: BitmapDescriptor.fromBytes(_myPositionIconBytes!),
+                                  infoWindow: const InfoWindow(title: 'Google'),
+                                ),
+                              const Marker(
+                                markerId: MarkerId('1'),
+                                position: _googlePlex,
+                                icon: BitmapDescriptor.defaultMarker,
+                                infoWindow: InfoWindow(title: 'Google'),
+                              ),
+                              const Marker(
+                                markerId: MarkerId('2'),
+                                position: _applePark,
+                                infoWindow: InfoWindow(title: 'Apple'),
+                              ),
+                            },
+                            zoomControlsEnabled: false,
+                            zoomGesturesEnabled: true,
+                            myLocationButtonEnabled: false,
+                            compassEnabled: true,
+                            buildingsEnabled: false,
+                            initialCameraPosition: _kGooglePlex,
+                            onMapCreated: (GoogleMapController controller) {
+                              _mapController.complete(controller);
+                            },
+                            onCameraMove: (position) {
+                              // TODO: (JFO) reset to free mode if lock on me mode
+                            },
+                          ),
+                          Positioned(
+                            right: 16,
+                            bottom: 100,
+                            child: IconButton(
+                              onPressed: () {
+                                context.read<FeedMapBloc>().add(const LockOnMeEvent());
+                              },
+                              icon: Icon(Icons.my_location),
                             ),
-                          const Marker(
-                            markerId: MarkerId('1'),
-                            position: _googlePlex,
-                            icon: BitmapDescriptor.defaultMarker,
-                            infoWindow: InfoWindow(title: 'Google'),
                           ),
-                          const Marker(
-                            markerId: MarkerId('2'),
-                            position: _applePark,
-                            infoWindow: InfoWindow(title: 'Apple'),
+                          Positioned(
+                            right: 16,
+                            bottom: 130,
+                            child: IconButton(
+                              onPressed: () {
+                                context.read<FeedMapBloc>().add(const FreeModeEvent());
+                              },
+                              icon: Icon(Icons.wifi_calling),
+                            ),
                           ),
-                        },
-                        zoomControlsEnabled: false,
-                        zoomGesturesEnabled: true,
-                        myLocationButtonEnabled: false,
-                        compassEnabled: true,
-                        buildingsEnabled: false,
-                        initialCameraPosition: _kGooglePlex,
-                        onMapCreated: (GoogleMapController controller) {
-                          _mapController.complete(controller);
-                        },
-                        onCameraMove: (position) {
-                          // TODO: (JFO) reset to free mode if lock on me mode
-                        },
+                        ],
                       );
                     },
                   ),
@@ -135,4 +170,11 @@ class _FeedMapState extends State<_FeedMap> with WidgetsBindingObserver {
     final GoogleMapController controller = await _mapController.future;
     await controller.animateCamera(CameraUpdate.newCameraPosition(_kLake));
   }
+}
+
+Future<Uint8List?> getBytesFromAsset(String path, double devicePixelRatio, int width) async {
+  ByteData data = await rootBundle.load(path);
+  Codec codec = await instantiateImageCodec(data.buffer.asUint8List(), targetWidth: (devicePixelRatio * width).round());
+  FrameInfo fi = await codec.getNextFrame();
+  return (await fi.image.toByteData(format: ImageByteFormat.png))?.buffer.asUint8List();
 }

@@ -1,7 +1,7 @@
 import 'package:location/location.dart';
 
 final class LocationSdk {
-  final Location location = Location();
+  final Location location = Location.instance..changeSettings(interval: 0);
 
   Stream<LocationData> get onLocationChanged => location.onLocationChanged;
 

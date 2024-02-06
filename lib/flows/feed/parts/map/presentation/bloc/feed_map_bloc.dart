@@ -1,7 +1,11 @@
+import 'dart:async';
+import 'dart:developer';
+
 import 'package:bloc/bloc.dart';
 import 'package:flutter_basics_samples/flows/feed/parts/map/presentation/bloc/feed_map_event.dart';
 import 'package:flutter_basics_samples/flows/feed/parts/map/presentation/bloc/feed_map_state.dart';
-import 'package:flutter_basics_samples/dependy_injector.dart';
+import 'package:flutter_basics_samples/dependencies_injector.dart';
+import 'package:flutter_basics_samples/flows/location/domain/models/location_model.dart';
 import 'package:flutter_basics_samples/flows/location/domain/usecases/is_location_service_enabled.dart';
 import 'package:flutter_basics_samples/flows/location/domain/usecases/listen_for_location_updates.dart';
 import 'package:flutter_basics_samples/flows/permission/domain/usecases/get_foreground_location_permission_status.dart';
@@ -30,12 +34,46 @@ class FeedMapBloc extends Bloc<FeedMapEvent, FeedMapState> {
           break;
         case FeedAppResumedEvent():
           await _onFeedAppResumedEvent(emit);
+          break;
         case SwitchMapModeEvent():
           emit(state.copyWith(mode: event.mode));
+          break;
         case LocationUpdateEvent():
           _onLocationUpdateEvent(event, emit);
+          break;
+        case OnWillDisappear():
+          _locationStreamSubscription?.cancel();
+          break;
+        case OnWillAppearEvent():
+          if (_locationStreamSubscription != null) {
+            final locationStream = await _listenForLocationUpdates();
+            _locationStreamSubscription = locationStream.listen((LocationModel locationModel) {
+              print(locationModel);
+              final latitude = locationModel.latitude;
+              final longitude = locationModel.longitude;
+
+              if (latitude == null || longitude == null) {
+                return;
+              }
+
+              add(LocationUpdateEvent(LatLng(latitude, longitude)));
+            });
+          }
+        case LockOnMeEvent():
+          emit(state.copyWith(mode: const CenterOnUserLocationMapMode()));
+        case FreeModeEvent():
+          emit(state.copyWith(mode: const FreeMoveMapMode()));
       }
     });
+  }
+
+  StreamSubscription<LocationModel>? _locationStreamSubscription;
+
+  @override
+  void onTransition(Transition<FeedMapEvent, FeedMapState> transition) {
+    log('Event: ${transition.event}', name: 'FeedMapBloc');
+    log('State: ${transition.nextState}', name: 'FeedMapBloc');
+    super.onTransition(transition);
   }
 
   final IsLocationServiceEnabled _isLocationServiceEnabled;
@@ -74,14 +112,30 @@ class FeedMapBloc extends Bloc<FeedMapEvent, FeedMapState> {
 
     final locationStream = await _listenForLocationUpdates();
 
-    locationStream.listen((LocationData locationData) {
-      print(locationData);
-      final latitude = locationData.latitude;
-      final longitude = locationData.longitude;
+    // TODO: (JFO) to remove
+    // while (true) {
+    //   final r = await Location().getLocation();
+    //   add(LocationUpdateEvent(LatLng(r.latitude!, r.longitude!)));
+    //   await Future.delayed(const Duration(milliseconds: 100));
+    // }
+    // end toto
+
+    int last = DateTime.now().millisecondsSinceEpoch;
+
+
+    _locationStreamSubscription = locationStream.listen((LocationModel locationModel) {
+      print(locationModel);
+      final latitude = locationModel.latitude;
+      final longitude = locationModel.longitude;
 
       if (latitude == null || longitude == null) {
         return;
       }
+      int cur = DateTime.now().millisecondsSinceEpoch;
+      int ellapsedTime = last - cur;
+      last = cur;
+      log('ellapsedTime: $ellapsedTime', name: 'Time');
+      
 
       add(LocationUpdateEvent(LatLng(latitude, longitude)));
     });
