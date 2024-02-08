@@ -11,7 +11,6 @@ import 'package:flutter_basics_samples/flows/location/domain/usecases/listen_for
 import 'package:flutter_basics_samples/flows/permission/domain/usecases/get_foreground_location_permission_status.dart';
 import 'package:flutter_basics_samples/flows/permission/domain/usecases/request_foreground_location_permission.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:location/location.dart' hide PermissionStatus;
 import 'package:permission_handler/permission_handler.dart';
 
 class FeedMapBloc extends Bloc<FeedMapEvent, FeedMapState> {
@@ -85,8 +84,11 @@ class FeedMapBloc extends Bloc<FeedMapEvent, FeedMapState> {
     await _checkLocationServiceAndPermissionStatus(emit);
   }
 
-  Future<void> _onFeedAppResumedEvent(Emitter<FeedMapState> emit) async {
-    await _checkLocationServiceAndPermissionStatus(emit);
+    Future<void> _onFeedAppResumedEvent(Emitter<FeedMapState> emit) async {
+    PermissionStatus permissionStatus = await _getForegroundLocationPermissionStatus.call();
+
+    emit(state.copyWith(permissionStatus: permissionStatus));
+    // if (granted) => start location updates
   }
 
   Future<void> _checkLocationServiceAndPermissionStatus(Emitter<FeedMapState> emit) async {
@@ -112,16 +114,7 @@ class FeedMapBloc extends Bloc<FeedMapEvent, FeedMapState> {
 
     final locationStream = await _listenForLocationUpdates();
 
-    // TODO: (JFO) to remove
-    // while (true) {
-    //   final r = await Location().getLocation();
-    //   add(LocationUpdateEvent(LatLng(r.latitude!, r.longitude!)));
-    //   await Future.delayed(const Duration(milliseconds: 100));
-    // }
-    // end toto
-
     int last = DateTime.now().millisecondsSinceEpoch;
-
 
     _locationStreamSubscription = locationStream.listen((LocationModel locationModel) {
       print(locationModel);
@@ -135,7 +128,6 @@ class FeedMapBloc extends Bloc<FeedMapEvent, FeedMapState> {
       int ellapsedTime = last - cur;
       last = cur;
       log('ellapsedTime: $ellapsedTime', name: 'Time');
-      
 
       add(LocationUpdateEvent(LatLng(latitude, longitude)));
     });
