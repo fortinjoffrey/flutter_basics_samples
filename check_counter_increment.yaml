@@ -1,0 +1,8 @@
+appId: com.example.flutterBasicsSamples
+---
+- clearState
+- launchApp
+- tapOn: "Increment"
+- clearState
+- launchApp
+- tapOn: "Increment"
