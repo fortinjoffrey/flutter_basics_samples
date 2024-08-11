@@ -20,7 +20,7 @@ class _ListViewAutoScrollPageState extends State<ListViewAutoScrollPage> {
       child: Scaffold(
         resizeToAvoidBottomInset: true,
         appBar: AppBar(
-          title: const Text('ListView with TextField'),
+          title: const Text('Auto scroll'),
         ),
         body: SafeArea(
           child: Padding(

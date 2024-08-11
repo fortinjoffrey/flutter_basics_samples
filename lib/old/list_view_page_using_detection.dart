@@ -106,7 +106,7 @@ class _ListViewPageUsingDetectionState extends State<ListViewPageUsingDetection>
       child: Scaffold(
         resizeToAvoidBottomInset: true,
         appBar: AppBar(
-          title: const Text('ListView with TextField'),
+          title: const Text('Auto scroll'),
         ),
         floatingActionButton: FloatingActionButton(
           onPressed: () async {

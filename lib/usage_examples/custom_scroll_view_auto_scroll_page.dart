@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_basics_samples/old/generic_widget_try_reverse.dart';
+import 'package:flutter_basics_samples/widgets/auto_scroll_widget.dart';
 
 class CustomScrollViewAutoScrollPage extends StatefulWidget {
   const CustomScrollViewAutoScrollPage({super.key});
@@ -15,12 +15,12 @@ class _CustomScrollViewAutoScrollPageState extends State<CustomScrollViewAutoScr
   Widget build(BuildContext context) {
     final items = List<String>.generate(200, (i) => "Item $i");
 
-    return GenericWidgetTryReverse(
+    return AutoScrollWidget(
       scrollController: scrollController,
       child: Scaffold(
         resizeToAvoidBottomInset: true,
         appBar: AppBar(
-          title: const Text('ListView with TextField'),
+          title: const Text('Auto scroll'),
         ),
         body: SafeArea(
           child: Padding(

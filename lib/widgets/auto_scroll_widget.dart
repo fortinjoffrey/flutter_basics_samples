@@ -36,6 +36,7 @@ class _AutoScrollWidgetState extends State<AutoScrollWidget> with WidgetsBinding
           if (_userHasScrolledWithKeyboardVisible) {
             _userHasScrolledWithKeyboardVisible = false;
             final safeAreaHeight = MediaQuery.of(context).viewPadding.bottom;
+            print('safeAreaHeight: $safeAreaHeight');
             _currentPosition = _currentPosition - _maxBottomInset + safeAreaHeight;
             _maxBottomInset = 0;
           }
