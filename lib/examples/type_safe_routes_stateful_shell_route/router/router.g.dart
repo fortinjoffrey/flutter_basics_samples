@@ -14,7 +14,6 @@ RouteBase get $homeStatefulShellRoute => StatefulShellRouteData.$route(
       factory: $HomeStatefulShellRouteExtension._fromState,
       branches: [
         StatefulShellBranchData.$branch(
-          
           routes: [
             GoRouteData.$route(
               path: '/home',
@@ -38,6 +37,7 @@ RouteBase get $homeStatefulShellRoute => StatefulShellRouteData.$route(
                 GoRouteData.$route(
                   path: 'details',
                   name: 'account-details',
+                  parentNavigatorKey: AccountDetailsRoute.$parentNavigatorKey,
                   factory: $AccountDetailsRouteExtension._fromState,
                 ),
               ],

@@ -75,6 +75,8 @@ class AccountDetailsRoute extends GoRouteData {
   final String id;
   final int age;
 
+  static final GlobalKey<NavigatorState> $parentNavigatorKey = rootNavigatorKey;
+
   @override
   Widget build(BuildContext context, GoRouterState state) => AccountDetailsScreen(id: id, age: age);
 }

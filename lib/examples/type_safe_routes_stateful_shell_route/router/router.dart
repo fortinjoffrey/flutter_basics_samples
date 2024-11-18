@@ -9,6 +9,7 @@ part 'router.g.dart';
 part 'shell_route.dart';
 
 final GlobalKey<NavigatorState> _sectionANavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'sectionANav');
+final GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'root');
 
 class ScaffoldWithNavBar extends StatelessWidget {
   const ScaffoldWithNavBar({

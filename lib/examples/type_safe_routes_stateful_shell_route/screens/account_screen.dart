@@ -17,7 +17,7 @@ class AccountScreen extends StatelessWidget {
             TextButton(
               onPressed: () {
                 // const AccountDetailsRoute(id: 'id', age: 18).go(context);
-                const HomeSearchRoute().go(context);
+                const AccountDetailsRoute(id: 'id', age: 19).go(context);
               },
               child: const Text('View details'),
             ),

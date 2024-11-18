@@ -2,102 +2,21 @@ import 'package:flutter/material.dart';
 import 'package:flutter_basics_samples/examples/type_safe_routes_stateful_shell_route/router/router.dart';
 import 'package:go_router/go_router.dart';
 
-final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'root');
 final GlobalKey<NavigatorState> _sectionANavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'sectionANav');
 
 void mainTypeSafeStatefulShellRoute() {
-  runApp(NestedTabNavigationExampleApp());
+  runApp(App());
 }
 
-class NestedTabNavigationExampleApp extends StatelessWidget {
-  NestedTabNavigationExampleApp({super.key});
+class App extends StatelessWidget {
+  App({super.key});
 
   final _router = GoRouter(
     routes: $appRoutes,
-    initialLocation: const HomeRoute().location,
+    navigatorKey: rootNavigatorKey,
+    // initialLocation: const HomeRoute().location,
+    initialLocation: const AccountDetailsRoute(id: '', age: 19).location,
   );
-  // final GoRouter _router = GoRouter(
-  //   navigatorKey: _rootNavigatorKey,
-  //   initialLocation: '/b/details/1/2',
-  //   routes: <RouteBase>[
-  //     StatefulShellRoute.indexedStack(
-  //       builder: (BuildContext context, GoRouterState state, StatefulNavigationShell navigationShell) {
-  //         return ScaffoldWithNavBar(navigationShell: navigationShell);
-  //       },
-  //       branches: <StatefulShellBranch>[
-  //         StatefulShellBranch(
-  //           navigatorKey: _sectionANavigatorKey,
-  //           routes: <RouteBase>[
-  //             GoRoute(
-  //               path: '/a',
-  //               builder: (BuildContext context, GoRouterState state) =>
-  //                   const RootScreen(label: 'A', detailsPath: '/a/details'),
-  //               routes: <RouteBase>[
-  //                 GoRoute(
-  //                   path: 'details',
-  //                   builder: (BuildContext context, GoRouterState state) => DetailsScreen(
-  //                     label: 'A',
-  //                     model: state.extra as DetailsModel,
-  //                   ),
-  //                 ),
-  //               ],
-  //             ),
-  //           ],
-  //         ),
-  //         StatefulShellBranch(
-  //           routes: <RouteBase>[
-  //             GoRoute(
-  //               path: '/b',
-  //               builder: (BuildContext context, GoRouterState state) {
-  //                 return const RootScreen(
-  //                   label: 'B',
-  //                   detailsPath: '/b/details/1/2',
-  //                   secondDetailsPath: '/b/details/2',
-  //                 );
-  //               },
-  //               routes: <RouteBase>[
-  //                 GoRoute(
-  //                   path: 'details/:param/:id',
-  //                   parentNavigatorKey: _rootNavigatorKey,
-  //                   builder: (BuildContext context, GoRouterState state) {
-  //                     final pathParams = state.pathParameters;
-
-  //                     return DetailsScreen(
-  //                       label: 'B',
-  //                       param: state.pathParameters['param'],
-  //                       model: state.extra as DetailsModel,
-  //                     );
-  //                   },
-  //                 ),
-  //               ],
-  //             ),
-  //           ],
-  //         ),
-  //         StatefulShellBranch(
-  //           routes: <RouteBase>[
-  //             GoRoute(
-  //               path: '/c',
-  //               builder: (BuildContext context, GoRouterState state) => const RootScreen(
-  //                 label: 'C',
-  //                 detailsPath: '/c/details',
-  //               ),
-  //               routes: <RouteBase>[
-  //                 GoRoute(
-  //                   path: 'details',
-  //                   builder: (BuildContext context, GoRouterState state) => DetailsScreen(
-  //                     label: 'C',
-  //                     extra: state.extra,
-  //                     model: state.extra as DetailsModel,
-  //                   ),
-  //                 ),
-  //               ],
-  //             ),
-  //           ],
-  //         ),
-  //       ],
-  //     ),
-  //   ],
-  // );
 
   @override
   Widget build(BuildContext context) {

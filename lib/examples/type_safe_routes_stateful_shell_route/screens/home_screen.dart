@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_basics_samples/examples/type_safe_routes_stateful_shell_route/router/router.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -9,16 +10,16 @@ class HomeScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Home screeen'),
       ),
-      body: const Center(
+      body: Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
-            // TextButton(
-            //   onPressed: () {
-            //     GoRouter.of(context).go(detailsPath, extra: DetailsModel('XGS'));
-            //   },
-            //   child: const Text('View details'),
-            // ),
+            TextButton(
+              onPressed: () {
+                const AccountRoute().go(context);
+              },
+              child: const Text('View details'),
+            ),
             // const Padding(padding: EdgeInsets.all(4)),
             // if (secondDetailsPath != null)
             //   TextButton(
