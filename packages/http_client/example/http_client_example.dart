@@ -47,6 +47,27 @@ class Post {
   String toString() => 'Post(id: $id, userId: $userId, title: $title)';
 }
 
+// void initDependencies() {
+
+//   final getIt = GetIt.instance;
+
+//   getIt.registerFactory<HttpClient>(() => CoreHttpClient(
+//     tokenProvider: SimpleTokenProvider(),
+//     baseUrlProvider: JsonPlaceholderUrlProvider(),
+//     logger: CoreHttpLogger(),
+//   ); )
+
+// }
+
+// abstract class UseCase<T,P> {}
+
+// class GetUser extends UseCase<String, String> {
+//   Future<String> call([String id]) {
+//     final client = getIt<HttpClient>();
+//   }
+// }
+
+
 void main() async {
   final client = CoreHttpClient(
     tokenProvider: SimpleTokenProvider(),
@@ -79,31 +100,31 @@ void main() async {
       authorizationNeeded: false,
     );
 
-    // final updatedPost = await client.put<Map<String, dynamic>, Post>(
-    //   '/posts/1',
-    //   data: {
-    //     'id': 1,
-    //     'title': 'Updated title',
-    //     'body': 'Updated body',
-    //     'userId': 1,
-    //   },
-    //   builder: Post.fromJson,
-    //   authorizationNeeded: false,
-    // );
+    final updatedPost = await client.put<Map<String, dynamic>, Post>(
+      '/posts/1',
+      data: {
+        'id': 1,
+        'title': 'Updated title',
+        'body': 'Updated body',
+        'userId': 1,
+      },
+      builder: Post.fromJson,
+      authorizationNeeded: false,
+    );
 
-    // final patchedPost = await client.patch<Map<String, dynamic>, Post>(
-    //   '/posts/1',
-    //   data: {
-    //     'title': 'Patched title',
-    //   },
-    //   builder: Post.fromJson,
-    //   authorizationNeeded: false,
-    // );
+    final patchedPost = await client.patch<Map<String, dynamic>, Post>(
+      '/posts/1',
+      data: {
+        'title': 'Patched title',
+      },
+      builder: Post.fromJson,
+      authorizationNeeded: false,
+    );
 
-    // await client.delete<Map<String, dynamic>, void>(
-    //   '/posts/1',
-    //   builder: (_) {},
-    //   authorizationNeeded: false,
-    // );
+    await client.delete<Map<String, dynamic>, void>(
+      '/posts/1',
+      builder: (_) {},
+      authorizationNeeded: false,
+    );
   } catch (e) {}
 }

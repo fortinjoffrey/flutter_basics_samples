@@ -1,4 +1,4 @@
-import 'package:http_client/src/interfaces/logger.dart';
+import 'logger.dart';
 
 import 'base_url_provider.dart';
 import 'token_provider.dart';

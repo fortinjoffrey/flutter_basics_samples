@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart' as dio;
-import 'package:http_client/src/interfaces/logger.dart';
-import 'package:http_client/src/mappers/response_mapper.dart';
+import 'interfaces/logger.dart';
+import 'mappers/response_mapper.dart';
 
 class CoreHttpInterceptor extends dio.Interceptor {
   final Logger logger;

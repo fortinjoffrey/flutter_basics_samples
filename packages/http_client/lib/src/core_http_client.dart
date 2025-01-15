@@ -1,30 +1,26 @@
 import 'dart:io';
 
 import 'package:dio/dio.dart' as dio;
-import 'package:http_client/src/interfaces/base_url_provider.dart';
-import 'package:http_client/src/interfaces/logger.dart';
+import 'interfaces/base_url_provider.dart';
+import 'interfaces/logger.dart';
 
-import 'core_error_handler.dart';
+import 'core_exception_handler.dart';
 import 'core_exceptions.dart';
 import 'interfaces/http_client.dart';
 import 'interfaces/token_provider.dart';
 import 'response.dart';
 import 'core_http_interceptor.dart';
 
-// TODO: better solution to use dio interceptor but we need to redefine our own
-//   RequestInterceptorHandler, Response, RequestOptions...
-//   _dio.interceptors.add(LoggerInterceptor());
-
 class CoreHttpClient extends HttpClient {
   final dio.Dio _dio;
-  final CoreHttpClientErrorHandler _errorHandler;
+  final CoreHttpClientExceptionHandler _exceptionHandler;
 
   CoreHttpClient({
     required TokenProvider tokenProvider,
     required BaseUrlProvider baseUrlProvider,
     Logger? logger,
   })  : _dio = dio.Dio(),
-        _errorHandler = CoreHttpClientErrorHandler(),
+        _exceptionHandler = CoreHttpClientExceptionHandler(),
         super(
           tokenProvider: tokenProvider,
           baseUrlProvider: baseUrlProvider,
@@ -60,7 +56,7 @@ class CoreHttpClient extends HttpClient {
 
       return _handleResponse<R, T>(response, builder);
     } catch (e) {
-      final error = _errorHandler.getError(e);
+      final error = _exceptionHandler.getError(e);
       throw error;
     }
   }
@@ -88,7 +84,7 @@ class CoreHttpClient extends HttpClient {
 
       return _handleResponse<R, T>(response, builder);
     } catch (e) {
-      throw _errorHandler.getError(e);
+      throw _exceptionHandler.getError(e);
     }
   }
 
@@ -115,7 +111,7 @@ class CoreHttpClient extends HttpClient {
 
       return _handleResponse<R, T>(response, builder);
     } catch (e) {
-      throw _errorHandler.getError(e);
+      throw _exceptionHandler.getError(e);
     }
   }
 
@@ -142,7 +138,7 @@ class CoreHttpClient extends HttpClient {
 
       return _handleResponse<R, T>(response, builder);
     } catch (e) {
-      throw _errorHandler.getError(e);
+      throw _exceptionHandler.getError(e);
     }
   }
 
@@ -171,7 +167,7 @@ class CoreHttpClient extends HttpClient {
 
       return _handleResponse<R, T>(response, builder);
     } catch (e) {
-      throw _errorHandler.getError(e);
+      throw _exceptionHandler.getError(e);
     }
   }
 

@@ -47,7 +47,6 @@ void main() async {
   );
 
   try {
-    // Cette requête devrait échouer avec un 403 car le token est invalide
     await client.get<List<dynamic>, List<Repository>>(
       '/user/repos',
       builder: (data) => data.map((json) => Repository.fromJson(json as Map<String, dynamic>)).toList(),
@@ -60,7 +59,6 @@ void main() async {
   }
 
   try {
-    // Cette requête devrait fonctionner car c'est une API publique
     final publicRepo = await client.get<Map<String, dynamic>, Repository>(
       '/repos/flutter/flutter',
       builder: Repository.fromJson,

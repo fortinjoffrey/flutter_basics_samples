@@ -2,6 +2,8 @@ import 'package:http_client/src/interfaces/logger.dart';
 import 'package:http_client/src/response.dart';
 import 'package:logger/logger.dart' as logger;
 
+import 'core_exception_handler.dart';
+
 class CoreHttpLogger implements Logger {
   final logger.Logger _logger;
 
@@ -9,7 +11,7 @@ class CoreHttpLogger implements Logger {
 
   @override
   void onError(Object error) {
-    _logger.e(error);
+    _logger.e(CoreHttpClientExceptionHandler().getError(error));
   }
 
   @override

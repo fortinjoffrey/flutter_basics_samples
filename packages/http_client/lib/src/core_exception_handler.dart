@@ -2,7 +2,7 @@ import 'package:dio/dio.dart' as dio;
 import 'core_exceptions.dart';
 import 'mappers/response_mapper.dart';
 
-class CoreHttpClientErrorHandler {
+class CoreHttpClientExceptionHandler {
   Object getError(Object e) {
     if (e is! dio.DioException) {
       return e;

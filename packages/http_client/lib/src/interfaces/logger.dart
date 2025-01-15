@@ -1,4 +1,4 @@
-import 'package:http_client/src/response.dart';
+import '../response.dart';
 
 abstract class Logger {
   void onRequest(String endpoint, Map<String, dynamic>? queryParameters);
