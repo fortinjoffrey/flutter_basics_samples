@@ -2,13 +2,13 @@ import 'dart:io';
 
 import 'package:dio/dio.dart' as dio;
 import 'interfaces/base_url_provider.dart';
-import 'interfaces/logger.dart';
+import 'interfaces/interceptor.dart';
 
 import 'core_exception_handler.dart';
 import 'core_exceptions.dart';
 import 'interfaces/http_client.dart';
 import 'interfaces/token_provider.dart';
-import 'response.dart';
+import 'models/response.dart';
 import 'core_http_interceptor.dart';
 
 class CoreHttpClient extends HttpClient {
@@ -18,17 +18,17 @@ class CoreHttpClient extends HttpClient {
   CoreHttpClient({
     required TokenProvider tokenProvider,
     required BaseUrlProvider baseUrlProvider,
-    Logger? logger,
+    Interceptor? interceptor,
   })  : _dio = dio.Dio(),
         _exceptionHandler = CoreHttpClientExceptionHandler(),
         super(
           tokenProvider: tokenProvider,
           baseUrlProvider: baseUrlProvider,
-          logger: logger,
+          interceptor: interceptor,
         ) {
-    if (logger != null) {
+    if (interceptor != null) {
       _dio.interceptors.add(
-        CoreHttpInterceptor(logger: logger),
+        CoreHttpInterceptor(interceptor: interceptor),
       );
     }
   }

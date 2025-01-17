@@ -1,6 +1,5 @@
 // ignore_for_file: unused_local_variable
-
-import 'package:http_client/http_client.dart';
+import 'package:core_http_client/http_client.dart';
 
 class SimpleTokenProvider implements TokenProvider {
   @override
@@ -72,7 +71,7 @@ void main() async {
   final client = CoreHttpClient(
     tokenProvider: SimpleTokenProvider(),
     baseUrlProvider: JsonPlaceholderUrlProvider(),
-    logger: CoreHttpLogger(),
+    interceptor: CoreHttpLoggerInterceptor(),
   );
 
   try {
@@ -126,5 +125,8 @@ void main() async {
       builder: (_) {},
       authorizationNeeded: false,
     );
-  } catch (e) {}
+  } catch (e) {
+    print(e);
+  }
+
 }

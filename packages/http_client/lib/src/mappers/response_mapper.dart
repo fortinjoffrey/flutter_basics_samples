@@ -1,5 +1,5 @@
 import 'package:dio/dio.dart' as dio;
-import 'package:http_client/src/response.dart';
+import '../models/response.dart';
 
 Response<T> mapDioResponse<T>(dio.Response dioResponse) {
   return Response(

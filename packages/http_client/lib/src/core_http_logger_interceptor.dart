@@ -1,13 +1,17 @@
-import 'package:http_client/src/interfaces/logger.dart';
-import 'package:http_client/src/response.dart';
+import 'models/response.dart';
 import 'package:logger/logger.dart' as logger;
 
 import 'core_exception_handler.dart';
+import 'interfaces/interceptor.dart';
 
-class CoreHttpLogger implements Logger {
+abstract class LoggerInterface {
+  void debug();
+}
+
+class CoreHttpLoggerInterceptor implements Interceptor {
   final logger.Logger _logger;
 
-  CoreHttpLogger() : _logger = logger.Logger();
+  CoreHttpLoggerInterceptor() : _logger = logger.Logger();
 
   @override
   void onError(Object error) {

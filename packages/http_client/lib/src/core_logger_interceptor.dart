@@ -1,8 +1,8 @@
-import 'interfaces/logger.dart';
-import 'response.dart';
+import 'interfaces/interceptor.dart';
+import 'models/response.dart';
 
 class CoreLoggerInterceptor {
-  final Logger _logger;
+  final Interceptor _logger;
 
   CoreLoggerInterceptor(this._logger);
 

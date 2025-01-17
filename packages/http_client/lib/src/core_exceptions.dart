@@ -1,4 +1,4 @@
-import 'package:http_client/src/response.dart';
+import 'models/response.dart';
 
 enum CoreHttpClientExceptionType {
   connectionTimeout,

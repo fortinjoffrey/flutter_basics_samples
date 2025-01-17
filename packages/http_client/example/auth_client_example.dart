@@ -1,8 +1,8 @@
-import 'package:http_client/http_client.dart';
+import 'package:core_http_client/http_client.dart';
 
 class AuthTokenProvider implements TokenProvider {
   @override
-  String get token => 'invalid_token'; // Token invalide pour tester le 403
+  String get token => 'invalid_token'; 
 }
 
 class GithubApiProvider implements BaseUrlProvider {
@@ -43,7 +43,7 @@ void main() async {
   final client = CoreHttpClient(
     tokenProvider: AuthTokenProvider(),
     baseUrlProvider: GithubApiProvider(),
-    logger: CoreHttpLogger(),
+    interceptor: CoreHttpLoggerInterceptor(),
   );
 
   try {

@@ -1,4 +1,4 @@
-import 'logger.dart';
+import 'interceptor.dart';
 
 import 'base_url_provider.dart';
 import 'token_provider.dart';
@@ -6,12 +6,12 @@ import 'token_provider.dart';
 abstract class HttpClient {
   final TokenProvider tokenProvider;
   final BaseUrlProvider baseUrlProvider;
-  final Logger? logger;
+  final Interceptor? interceptor;
 
   HttpClient({
     required this.tokenProvider,
     required this.baseUrlProvider,
-    this.logger,
+    this.interceptor,
   });
 
   Future<T> get<R, T>(
