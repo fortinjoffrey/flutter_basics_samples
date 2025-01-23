@@ -1,4 +1,4 @@
-class Response<T> {
+class CoreHttpResponse<T> {
   final T? data;
   final int? statusCode;
   final String? statusMessage;
@@ -7,7 +7,7 @@ class Response<T> {
   final Uri realUri;
   final Map<String, dynamic> extra;
 
-  const Response({
+  const CoreHttpResponse({
     this.data,
     this.statusCode,
     this.statusMessage,
@@ -19,7 +19,7 @@ class Response<T> {
 
   @override
   String toString() {
-    return 'Response('
+    return 'CoreHttpResponse('
         'data: $data, '
         'statusCode: $statusCode, '
         'statusMessage: $statusMessage, '

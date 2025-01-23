@@ -1,30 +1,30 @@
 import 'package:dio/dio.dart' as dio;
-import 'interfaces/interceptor.dart';
+import 'interfaces/http_observer.dart';
 import 'mappers/response_mapper.dart';
 
-class CoreHttpInterceptor extends dio.Interceptor {
-  final Interceptor interceptor;
+class DioObserverAdapter extends dio.Interceptor {
+  final HttpObserver httpObserver;
 
-  CoreHttpInterceptor({
-    required this.interceptor,
+  DioObserverAdapter({
+    required this.httpObserver,
   });
 
   @override
   void onRequest(dio.RequestOptions options, dio.RequestInterceptorHandler handler) {
-    interceptor.onRequest(options.uri.toString(), options.data);
+    httpObserver.onRequest(options.uri.toString(), options.data);
 
     handler.next(options);
   }
 
   @override
   void onResponse(dio.Response response, dio.ResponseInterceptorHandler handler) {
-    interceptor.onResponse(mapDioResponse(response));
+    httpObserver.onResponse(mapDioResponse(response));
     handler.next(response);
   }
 
   @override
   void onError(dio.DioException err, dio.ErrorInterceptorHandler handler) {
-    interceptor.onError(err);
+    httpObserver.onError(err);
     handler.next(err);
   }
 }

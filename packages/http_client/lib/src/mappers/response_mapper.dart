@@ -1,8 +1,8 @@
 import 'package:dio/dio.dart' as dio;
-import '../models/response.dart';
+import '../models/core_http_response.dart';
 
-Response<T> mapDioResponse<T>(dio.Response dioResponse) {
-  return Response(
+CoreHttpResponse<T> mapDioResponse<T>(dio.Response dioResponse) {
+  return CoreHttpResponse(
     data: dioResponse.data,
     statusCode: dioResponse.statusCode,
     statusMessage: dioResponse.statusMessage,

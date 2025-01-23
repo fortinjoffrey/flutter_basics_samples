@@ -46,32 +46,11 @@ class Post {
   String toString() => 'Post(id: $id, userId: $userId, title: $title)';
 }
 
-// void initDependencies() {
-
-//   final getIt = GetIt.instance;
-
-//   getIt.registerFactory<HttpClient>(() => CoreHttpClient(
-//     tokenProvider: SimpleTokenProvider(),
-//     baseUrlProvider: JsonPlaceholderUrlProvider(),
-//     logger: CoreHttpLogger(),
-//   ); )
-
-// }
-
-// abstract class UseCase<T,P> {}
-
-// class GetUser extends UseCase<String, String> {
-//   Future<String> call([String id]) {
-//     final client = getIt<HttpClient>();
-//   }
-// }
-
-
 void main() async {
-  final client = CoreHttpClient(
+  final client = CoreHttpClientFactory.create(
     tokenProvider: SimpleTokenProvider(),
     baseUrlProvider: JsonPlaceholderUrlProvider(),
-    interceptor: CoreHttpLoggerInterceptor(),
+    observer: CoreHttpObserver(),
   );
 
   try {
@@ -128,5 +107,4 @@ void main() async {
   } catch (e) {
     print(e);
   }
-
 }

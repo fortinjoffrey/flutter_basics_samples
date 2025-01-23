@@ -2,14 +2,14 @@ import 'dart:io';
 
 import 'package:dio/dio.dart' as dio;
 import 'interfaces/base_url_provider.dart';
-import 'interfaces/interceptor.dart';
+import 'interfaces/http_observer.dart';
 
 import 'core_exception_handler.dart';
-import 'core_exceptions.dart';
+import 'models/core_http_client_exception.dart';
 import 'interfaces/http_client.dart';
 import 'interfaces/token_provider.dart';
-import 'models/response.dart';
-import 'core_http_interceptor.dart';
+import 'models/core_http_response.dart';
+import 'dio_observer_adapter.dart';
 
 class CoreHttpClient extends HttpClient {
   final dio.Dio _dio;
@@ -18,17 +18,18 @@ class CoreHttpClient extends HttpClient {
   CoreHttpClient({
     required TokenProvider tokenProvider,
     required BaseUrlProvider baseUrlProvider,
-    Interceptor? interceptor,
-  })  : _dio = dio.Dio(),
+    required dio.Dio dio,
+    HttpObserver? httpObserver,
+  })  : _dio = dio,
         _exceptionHandler = CoreHttpClientExceptionHandler(),
         super(
           tokenProvider: tokenProvider,
           baseUrlProvider: baseUrlProvider,
-          interceptor: interceptor,
+          interceptor: httpObserver,
         ) {
-    if (interceptor != null) {
+    if (httpObserver != null) {
       _dio.interceptors.add(
-        CoreHttpInterceptor(interceptor: interceptor),
+        DioObserverAdapter(httpObserver: httpObserver),
       );
     }
   }
@@ -208,7 +209,7 @@ class CoreHttpClient extends HttpClient {
       type: CoreHttpClientExceptionType.emptyResponse,
       stackTrace: StackTrace.current,
       message: 'Response data is null',
-      response: Response(
+      response: CoreHttpResponse(
         data: response.data,
         statusCode: response.statusCode,
         statusMessage: response.statusMessage,

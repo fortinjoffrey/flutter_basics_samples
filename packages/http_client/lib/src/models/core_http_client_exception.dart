@@ -1,4 +1,4 @@
-import 'models/response.dart';
+import 'core_http_response.dart';
 
 enum CoreHttpClientExceptionType {
   connectionTimeout,
@@ -17,7 +17,7 @@ class CoreHttpClientException implements Exception {
   final Map<String, dynamic>? headers;
   final Map<String, dynamic>? queryParameters;
   final dynamic data;
-  final Response? response;
+  final CoreHttpResponse? response;
   final CoreHttpClientExceptionType type;
   final Object? error;
   final StackTrace stackTrace;

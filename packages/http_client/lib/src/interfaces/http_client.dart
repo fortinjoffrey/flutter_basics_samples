@@ -1,4 +1,4 @@
-import 'interceptor.dart';
+import 'http_observer.dart';
 
 import 'base_url_provider.dart';
 import 'token_provider.dart';
@@ -6,13 +6,15 @@ import 'token_provider.dart';
 abstract class HttpClient {
   final TokenProvider tokenProvider;
   final BaseUrlProvider baseUrlProvider;
-  final Interceptor? interceptor;
+  final HttpObserver? interceptor;
 
   HttpClient({
     required this.tokenProvider,
     required this.baseUrlProvider,
     this.interceptor,
   });
+
+  static const String _defaultContentType = 'application/json; charset=utf-8';
 
   Future<T> get<R, T>(
     String endpoint, {
@@ -26,7 +28,7 @@ abstract class HttpClient {
   Future<T> post<R, T>(
     String endpoint, {
     required dynamic data,
-    String contentType = 'application/json; charset=utf-8',
+    String contentType = _defaultContentType,
     required T Function(R) builder,
     required bool authorizationNeeded,
     Map<String, dynamic>? extraHeaders,
@@ -35,7 +37,7 @@ abstract class HttpClient {
   Future<T> put<R, T>(
     String endpoint, {
     required dynamic data,
-    String contentType = 'application/json; charset=utf-8',
+    String contentType = _defaultContentType,
     required T Function(R) builder,
     required bool authorizationNeeded,
     Map<String, dynamic>? extraHeaders,
@@ -44,7 +46,7 @@ abstract class HttpClient {
   Future<T> patch<R, T>(
     String endpoint, {
     required dynamic data,
-    String contentType = 'application/json; charset=utf-8',
+    String contentType = _defaultContentType,
     required T Function(R) builder,
     required bool authorizationNeeded,
     Map<String, dynamic>? extraHeaders,

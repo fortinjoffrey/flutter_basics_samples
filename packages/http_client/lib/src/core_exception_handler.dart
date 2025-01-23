@@ -1,5 +1,5 @@
 import 'package:dio/dio.dart' as dio;
-import 'core_exceptions.dart';
+import 'models/core_http_client_exception.dart';
 import 'mappers/response_mapper.dart';
 
 class CoreHttpClientExceptionHandler {

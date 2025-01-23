@@ -1,3 +1,3 @@
-abstract class BaseUrlProvider {
+abstract interface class BaseUrlProvider {
   String get baseUrl;
 }

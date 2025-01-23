@@ -40,10 +40,10 @@ class Repository {
 }
 
 void main() async {
-  final client = CoreHttpClient(
+  final client = CoreHttpClientFactory.create(
     tokenProvider: AuthTokenProvider(),
     baseUrlProvider: GithubApiProvider(),
-    interceptor: CoreHttpLoggerInterceptor(),
+    observer: CoreHttpObserver(),
   );
 
   try {
