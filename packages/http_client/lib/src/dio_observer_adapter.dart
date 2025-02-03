@@ -18,7 +18,8 @@ class DioObserverAdapter extends dio.Interceptor {
 
   @override
   void onResponse(dio.Response response, dio.ResponseInterceptorHandler handler) {
-    httpObserver.onResponse(mapDioResponse(response));
+    final res = mapDioResponse(response);
+    httpObserver.onResponse(res.data, res.statusCode);
     handler.next(response);
   }
 

@@ -11,9 +11,13 @@ import 'interfaces/token_provider.dart';
 import 'models/core_http_response.dart';
 import 'dio_observer_adapter.dart';
 
-class CoreHttpClient extends HttpClient {
+class CoreHttpClient implements HttpClient {
   final dio.Dio _dio;
+  final TokenProvider _tokenProvider;
+  final BaseUrlProvider _baseUrlProvider;
   final CoreHttpClientExceptionHandler _exceptionHandler;
+
+  static const _defaultContentType = 'application/json; charset=utf-8';
 
   CoreHttpClient({
     required TokenProvider tokenProvider,
@@ -21,12 +25,9 @@ class CoreHttpClient extends HttpClient {
     required dio.Dio dio,
     HttpObserver? httpObserver,
   })  : _dio = dio,
-        _exceptionHandler = CoreHttpClientExceptionHandler(),
-        super(
-          tokenProvider: tokenProvider,
-          baseUrlProvider: baseUrlProvider,
-          interceptor: httpObserver,
-        ) {
+        _tokenProvider = tokenProvider,
+        _baseUrlProvider = baseUrlProvider,
+        _exceptionHandler = CoreHttpClientExceptionHandler() {
     if (httpObserver != null) {
       _dio.interceptors.add(
         DioObserverAdapter(httpObserver: httpObserver),
@@ -66,7 +67,7 @@ class CoreHttpClient extends HttpClient {
   Future<T> post<R, T>(
     String endpoint, {
     required dynamic data,
-    String contentType = 'application/json; charset=utf-8',
+    String? contentType,
     required T Function(R) builder,
     required bool authorizationNeeded,
     Map<String, dynamic>? extraHeaders,
@@ -93,7 +94,7 @@ class CoreHttpClient extends HttpClient {
   Future<T> put<R, T>(
     String endpoint, {
     required dynamic data,
-    String contentType = 'application/json; charset=utf-8',
+    String? contentType,
     required T Function(R) builder,
     required bool authorizationNeeded,
     Map<String, dynamic>? extraHeaders,
@@ -120,7 +121,7 @@ class CoreHttpClient extends HttpClient {
   Future<T> patch<R, T>(
     String endpoint, {
     required dynamic data,
-    String contentType = 'application/json; charset=utf-8',
+    String? contentType,
     required T Function(R) builder,
     required bool authorizationNeeded,
     Map<String, dynamic>? extraHeaders,
@@ -147,7 +148,7 @@ class CoreHttpClient extends HttpClient {
   Future<T> delete<R, T>(
     String endpoint, {
     dynamic data,
-    String contentType = 'application/json; charset=utf-8',
+    String? contentType,
     required T Function(R) builder,
     required bool authorizationNeeded,
     Map<String, dynamic>? extraHeaders,
@@ -173,28 +174,41 @@ class CoreHttpClient extends HttpClient {
   }
 
   Future<T> _handleResponse<R, T>(dio.Response<R> response, T Function(R) builder) {
+    // Si R est void, on retourne directement void/null sans appeler le builder
+    if (null is R) {
+      return Future<T>.value();
+    }
+
     final R? data = response.data;
-
-    if (R == Null) return Future<T>.value(null);
-
     if (data == null) {
       _throwEmptyResponseException(response);
     }
-
     return Future<T>.value(builder(data));
   }
 
+  // Future<T> _handleResponse<R, T>(dio.Response<R> response, T Function(R) builder) {
+  //   final R? data = response.data;
+
+  //   if (R == Null) return Future<T>.value(null);
+
+  //   if (data == null) {
+  //     _throwEmptyResponseException(response);
+  //   }
+
+  //   return Future<T>.value(builder(data));
+  // }
+
   void _initClientOptions({
-    String? contentType = 'application/json; charset=utf-8',
+    String? contentType = _defaultContentType,
     required bool authorizationNeeded,
     String? baseUrl,
     Map<String, dynamic>? extraHeaders,
   }) {
     _dio.options = _dio.options.copyWith(
-      baseUrl: baseUrl ?? baseUrlProvider.baseUrl,
+      baseUrl: baseUrl ?? _baseUrlProvider.baseUrl,
       contentType: contentType,
       headers: <String, dynamic>{
-        if (authorizationNeeded) HttpHeaders.authorizationHeader: 'Bearer ${tokenProvider.token}',
+        if (authorizationNeeded) HttpHeaders.authorizationHeader: 'Bearer ${_tokenProvider.token}',
         ...?extraHeaders,
       },
     );

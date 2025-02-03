@@ -366,4 +366,103 @@ void main() {
       );
     });
   });
+
+  group('Builder Tests', () {
+    test('should correctly transform response data using builder', () async {
+      final mockResponseData = {'id': 1, 'name': 'Test User', 'email': 'test@example.com'};
+
+      when(() => mockDio.get<Map<String, dynamic>>(any())).thenAnswer(
+        (_) async => dio.Response(
+          data: mockResponseData,
+          statusCode: 200,
+          requestOptions: dio.RequestOptions(path: ''),
+        ),
+      );
+
+      final result = await client.get<Map<String, dynamic>, String>(
+        '/test',
+        builder: (data) => data['name'] as String,
+      );
+
+      expect(result, equals('Test User'));
+    });
+
+    test('should handle complex object transformation in builder', () async {
+      final mockResponseData = {
+        'users': [
+          {'id': 1, 'name': 'User 1'},
+          {'id': 2, 'name': 'User 2'},
+        ]
+      };
+
+      when(() => mockDio.get<Map<String, dynamic>>(any())).thenAnswer(
+        (_) async => dio.Response(
+          data: mockResponseData,
+          statusCode: 200,
+          requestOptions: dio.RequestOptions(path: ''),
+        ),
+      );
+
+      final result = await client.get<Map<String, dynamic>, List<String>>(
+        '/test',
+        builder: (data) => (data['users'] as List).map((user) => user['name'] as String).toList(),
+      );
+
+      expect(result, equals(['User 1', 'User 2']));
+    });
+
+    test('should throw when builder throws', () async {
+      final mockResponseData = {'wrongKey': 'value'};
+
+      when(() => mockDio.get<Map<String, dynamic>>(any())).thenAnswer(
+        (_) async => dio.Response(
+          data: mockResponseData,
+          statusCode: 200,
+          requestOptions: dio.RequestOptions(path: ''),
+        ),
+      );
+
+      expect(
+        () => client.get<Map<String, dynamic>, String>(
+          '/test',
+          builder: (data) => data['nonExistentKey'] as String,
+        ),
+        throwsA(isA<TypeError>()),
+      );
+    });
+
+    test('should handle null response with void type parameter', () async {
+      when(() => mockDio.get<void>(any())).thenAnswer(
+        (_) async => dio.Response<void>(
+          data: null,
+          statusCode: 204,
+          requestOptions: dio.RequestOptions(path: ''),
+        ),
+      );
+
+      await client.get<void, void>(
+        '/test',
+        builder: (_) {},
+      );
+    });
+
+    test('should handle different input and output types', () async {
+      final mockResponseData = {'count': '42'};
+
+      when(() => mockDio.get<Map<String, dynamic>>(any())).thenAnswer(
+        (_) async => dio.Response(
+          data: mockResponseData,
+          statusCode: 200,
+          requestOptions: dio.RequestOptions(path: ''),
+        ),
+      );
+
+      final result = await client.get<Map<String, dynamic>, int>(
+        '/test',
+        builder: (data) => int.parse(data['count'] as String),
+      );
+
+      expect(result, equals(42));
+    });
+  });
 }

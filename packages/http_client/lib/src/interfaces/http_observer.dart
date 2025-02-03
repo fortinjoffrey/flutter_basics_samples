@@ -1,7 +1,5 @@
-import '../models/core_http_response.dart';
-
-abstract class HttpObserver {
+abstract interface class HttpObserver {
   void onRequest(String endpoint, Map<String, dynamic>? queryParameters);
-  void onResponse(CoreHttpResponse response);
+  void onResponse(dynamic data, final int? statusCode);
   void onError(Object error);
 }

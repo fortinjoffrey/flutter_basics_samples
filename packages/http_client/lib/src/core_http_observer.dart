@@ -1,4 +1,3 @@
-import 'models/core_http_response.dart';
 import 'package:logger/logger.dart' as logger;
 
 import 'core_exception_handler.dart';
@@ -23,7 +22,8 @@ class CoreHttpObserver implements HttpObserver {
   }
 
   @override
-  void onResponse(CoreHttpResponse response) {
-    _logger.i('RESPONSE Data: ${response.data}');
+  void onResponse(dynamic data, final int? statusCode) {
+    _logger.i('STATUS Code: $statusCode');
+    _logger.i('RESPONSE Data: $data');
   }
 }

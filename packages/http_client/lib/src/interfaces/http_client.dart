@@ -1,21 +1,4 @@
-import 'http_observer.dart';
-
-import 'base_url_provider.dart';
-import 'token_provider.dart';
-
-abstract class HttpClient {
-  final TokenProvider tokenProvider;
-  final BaseUrlProvider baseUrlProvider;
-  final HttpObserver? interceptor;
-
-  HttpClient({
-    required this.tokenProvider,
-    required this.baseUrlProvider,
-    this.interceptor,
-  });
-
-  static const String _defaultContentType = 'application/json; charset=utf-8';
-
+abstract interface class HttpClient {
   Future<T> get<R, T>(
     String endpoint, {
     Map<String, dynamic>? queryParameters,
@@ -28,7 +11,7 @@ abstract class HttpClient {
   Future<T> post<R, T>(
     String endpoint, {
     required dynamic data,
-    String contentType = _defaultContentType,
+    String? contentType,
     required T Function(R) builder,
     required bool authorizationNeeded,
     Map<String, dynamic>? extraHeaders,
@@ -37,7 +20,7 @@ abstract class HttpClient {
   Future<T> put<R, T>(
     String endpoint, {
     required dynamic data,
-    String contentType = _defaultContentType,
+    String? contentType,
     required T Function(R) builder,
     required bool authorizationNeeded,
     Map<String, dynamic>? extraHeaders,
@@ -46,7 +29,7 @@ abstract class HttpClient {
   Future<T> patch<R, T>(
     String endpoint, {
     required dynamic data,
-    String contentType = _defaultContentType,
+    String? contentType,
     required T Function(R) builder,
     required bool authorizationNeeded,
     Map<String, dynamic>? extraHeaders,
@@ -55,7 +38,7 @@ abstract class HttpClient {
   Future<T> delete<R, T>(
     String endpoint, {
     dynamic data,
-    String contentType = 'application/json; charset=utf-8',
+    String? contentType,
     required T Function(R) builder,
     required bool authorizationNeeded,
     Map<String, dynamic>? extraHeaders,

@@ -1,3 +1,3 @@
-abstract class TokenProvider {
+abstract interface class TokenProvider {
   String get token;
 }
