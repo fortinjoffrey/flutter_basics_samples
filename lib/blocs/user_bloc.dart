@@ -15,7 +15,7 @@ class UserBloc extends Bloc<UserBlocEvent, UserBlocState> {
     on<UserLogoutEvent>(_onLogout);
     on<UserChangesEvent>(_onUserChanges);
 
-    _userSubscription = UserManagerSDK.instance.onUserChanges.listen((user) {
+    _userSubscription = UserManager.instance.onUserChanges.listen((user) {
       add(UserChangesEvent(user: user));
     });
   }
@@ -27,7 +27,7 @@ class UserBloc extends Bloc<UserBlocEvent, UserBlocState> {
   }
 
   Future<void> _onLogout(UserLogoutEvent event, Emitter<UserBlocState> emit) async {
-    await UserManagerSDK.instance.logout();
+    await UserManager.instance.logout();
   }
 
   void _onUserChanges(UserChangesEvent event, Emitter<UserBlocState> emit) {

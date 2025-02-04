@@ -1,13 +1,20 @@
 import 'package:flutter_basics_samples/packages_core/core_secure_storage.dart';
-import 'package:flutter_basics_samples/packages_core/core_token_manager/interfaces/token_manager.dart';
+import 'package:flutter_basics_samples/packages_core/core_tokens_manager/interfaces/tokens_manager.dart';
 
-class UserTokensManager implements TokenManager {
+class UserTokensManager implements TokensManager {
+  static UserTokensManager? _instance;
   final CoreSecureStorage _storage;
 
   static const _accessTokenKey = 'accessToken';
   static const _refreshTokenKey = 'refreshToken';
 
-  UserTokensManager({CoreSecureStorage? storage}) : _storage = storage ?? CoreSecureStorage();
+  UserTokensManager._internal() : _storage = CoreSecureStorage();
+
+  static UserTokensManager get instance {
+    _instance ??= UserTokensManager._internal();
+    return _instance!;
+  }
+
 
   @override
   Future<String?> get accessToken => _storage.read(_accessTokenKey);

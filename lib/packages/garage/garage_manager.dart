@@ -1,19 +1,18 @@
 import 'package:flutter_basics_samples/packages/garage/models/vehicle.dart';
 import 'package:flutter_basics_samples/packages_core/core_http_client/core_http_client.dart';
-import 'package:flutter_basics_samples/packages_core/core_token_manager/interfaces/token_manager.dart';
-import 'package:flutter_basics_samples/packages_core/core_token_manager/user_tokens_manager.dart';
+import 'package:flutter_basics_samples/packages_core/core_tokens_manager/interfaces/tokens_manager.dart';
+import 'package:flutter_basics_samples/packages_core/core_tokens_manager/user_tokens_manager.dart';
 
 class GarageManager {
   static GarageManager? _instance;
-
   // ignore: unused_field
   final CoreHttpClient _client;
 
-  GarageManager._internal(TokenManager tokenManager)
+  GarageManager._internal(TokensManager tokenManager)
       : _client = CoreHttpClient(tokenProvider: tokenManager);
 
   static Future<void> initialize() async {
-    final tokenManager = UserTokensManager();
+    final tokenManager = UserTokensManager.instance;
     _instance = GarageManager._internal(tokenManager);
   }
 

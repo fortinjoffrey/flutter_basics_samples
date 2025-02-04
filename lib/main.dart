@@ -3,7 +3,7 @@ import 'package:flutter_basics_samples/blocs/user_bloc.dart';
 import 'package:flutter_basics_samples/blocs/user_bloc_state.dart';
 import 'package:flutter_basics_samples/core/service_locator.dart';
 import 'package:flutter_basics_samples/packages/garage/garage_manager.dart';
-import 'package:flutter_basics_samples/packages/garage/widgets/garage_view.dart';
+import 'package:flutter_basics_samples/packages/garage/widgets/garage_page.dart';
 import 'package:flutter_basics_samples/packages/user_connection/models/user.dart';
 import 'package:flutter_basics_samples/packages/user_connection/user_manager.dart';
 import 'package:flutter_basics_samples/pages/home_page.dart';
@@ -15,12 +15,12 @@ final navigatorKey = GlobalKey<NavigatorState>();
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  await initDependencies();
-
-  await UserManagerSDK.initialize();
+  await UserManager.initialize();
   await GarageManager.initialize();
 
-  final User? currentUser = UserManagerSDK.instance.currentUser;
+  await initDependencies();
+
+  final User? currentUser = UserManager.instance.currentUser;
 
   print('currentUser: $currentUser');
 

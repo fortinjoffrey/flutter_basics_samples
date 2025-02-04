@@ -14,7 +14,7 @@ class UserConnectionWidget extends StatelessWidget {
       ),
       body: Center(
         child: TextButton(
-          onPressed: UserManagerSDK.instance.login,
+          onPressed: UserManager.instance.login,
           child: Text('Connect'),
         ),
       ),

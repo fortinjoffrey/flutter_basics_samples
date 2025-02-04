@@ -2,14 +2,14 @@ import 'dart:async';
 
 import 'package:flutter_basics_samples/packages/user_connection/models/user.dart';
 import 'package:flutter_basics_samples/packages_core/core_http_client/core_http_client.dart';
-import 'package:flutter_basics_samples/packages_core/core_token_manager/interfaces/token_manager.dart';
-import 'package:flutter_basics_samples/packages_core/core_token_manager/user_tokens_manager.dart';
+import 'package:flutter_basics_samples/packages_core/core_tokens_manager/interfaces/tokens_manager.dart';
+import 'package:flutter_basics_samples/packages_core/core_tokens_manager/user_tokens_manager.dart';
 
-class UserManagerSDK {
-  static UserManagerSDK? _instance;
+class UserManager {
+  static UserManager? _instance;
   // ignore: unused_field
   final CoreHttpClient _client;
-  final TokenManager _tokenManager;
+  final TokensManager _tokenManager;
   final StreamController<User?> _userController = StreamController<User?>.broadcast();
 
   User? _currentUser;
@@ -17,7 +17,7 @@ class UserManagerSDK {
   Stream<User?> get onUserChanges => _userController.stream;
   User? get currentUser => _currentUser;
 
-  UserManagerSDK._internal(TokenManager tokenManager)
+  UserManager._internal(TokensManager tokenManager)
       : _tokenManager = tokenManager,
         _client = CoreHttpClient(tokenProvider: tokenManager) {
     _userController.stream.listen((user) {
@@ -26,12 +26,12 @@ class UserManagerSDK {
   }
 
   static Future<void> initialize() async {
-    final tokenManager = UserTokensManager();
-    _instance = UserManagerSDK._internal(tokenManager);
+    final tokenManager = UserTokensManager.instance;
+    _instance = UserManager._internal(tokenManager);
     await _instance!._restoreUserSession();
   }
 
-  static UserManagerSDK get instance {
+  static UserManager get instance {
     if (_instance == null) {
       throw StateError('UserManagerSDK not initialized. Call initialize() first.');
     }

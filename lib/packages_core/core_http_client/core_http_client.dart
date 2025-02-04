@@ -1,5 +1,5 @@
 import 'package:dio/dio.dart';
-import 'package:flutter_basics_samples/packages_core/core_token_manager/interfaces/tokens_provider.dart';
+import 'package:flutter_basics_samples/packages_core/core_tokens_manager/interfaces/tokens_provider.dart';
 
 class CoreHttpClient {
   final Dio dio;
