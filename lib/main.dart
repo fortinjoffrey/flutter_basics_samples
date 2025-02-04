@@ -1,74 +1,65 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_basics_samples/packages/garage_view.dart';
+import 'package:flutter_basics_samples/blocs/user_bloc.dart';
+import 'package:flutter_basics_samples/blocs/user_bloc_state.dart';
+import 'package:flutter_basics_samples/core/service_locator.dart';
+import 'package:flutter_basics_samples/packages/garage/garage_manager.dart';
+import 'package:flutter_basics_samples/packages/garage/widgets/garage_view.dart';
+import 'package:flutter_basics_samples/packages/user_connection/models/user.dart';
 import 'package:flutter_basics_samples/packages/user_connection/user_manager.dart';
-import 'package:flutter_basics_samples/pages/user_info_page.dart';
-import 'package:get_it/get_it.dart';
+import 'package:flutter_basics_samples/pages/home_page.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'packages/user_connection/widgets/user_connection_widget.dart';
 
-import 'packages/user_connection/user_connection_widget.dart';
-import 'packages_core/core_http_client.dart';
+final navigatorKey = GlobalKey<NavigatorState>();
 
-Future<void> initDependencies() async {
-  final locator = GetIt.instance;
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
 
-  locator.registerSingleton<TokenProvider>(TokenProviderImpl());
+  await initDependencies();
 
-  // Initialisation du UserManagerSDK avec le tokenProvider
-  UserManagerSDK.initialize(locator.get<TokenProvider>());
+  await UserManagerSDK.initialize();
+  await GarageManager.initialize();
+
+  final User? currentUser = UserManagerSDK.instance.currentUser;
+
+  print('currentUser: $currentUser');
+
+  runApp(MyApp(currentUser: currentUser));
 }
 
-void main() {
-  initDependencies();
-  runApp(const MyApp());
-}
+class MyApp extends StatelessWidget {
+  const MyApp({super.key, required this.currentUser});
 
-class MyApp extends StatefulWidget {
-  const MyApp({super.key});
-
-  @override
-  State<MyApp> createState() => _MyAppState();
-}
-
-class _MyAppState extends State<MyApp> {
-  @override
-  void initState() {
-    super.initState();
-    UserManagerSDK.instance.userStream.listen((User? user) {
-      if (user != null) {
-        Navigator.pushNamed(context, '/garage_page');
-      } else {
-        Navigator.pushNamed(context, '/login');
-      }
-    });
-  }
+  final User? currentUser;
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
+    return BlocProvider(
+      create: (context) => UserBloc(currentUser: currentUser),
+      child: BlocListener<UserBloc, UserBlocState>(
+        listenWhen: (previous, current) {
+          return current is UserUnauthenticated && previous is UserAuthenticated ||
+              current is UserAuthenticated && previous is UserUnauthenticated;
+        },
+        listener: (context, state) {
+          if (state is UserUnauthenticated) {
+            navigatorKey.currentState?.pushReplacementNamed('/login');
+          } else if (state is UserAuthenticated) {
+            navigatorKey.currentState?.pushReplacementNamed('/home');
+          }
+        },
+        child: MaterialApp(
+          navigatorKey: navigatorKey,
+          title: 'Flutter Demo',
+          theme: ThemeData(useMaterial3: true),
+          initialRoute: currentUser != null ? '/home' : '/login',
+          routes: {
+            '/login': (context) => const UserConnectionWidget(),
+            '/home': (context) => const HomePage(),
+            '/garage_page': (context) => GaragePage(),
+          },
+        ),
       ),
-      initialRoute: '/login',
-      onGenerateInitialRoutes: (initialRoute) {
-        if (initialRoute == '/login') {
-          return [MaterialPageRoute(builder: (context) => UserConnectionWidget())];
-        }
-        return null;
-      },
-      routes: {
-        '/login': (context) => UserConnectionWidget(
-            // onSuccess: () {
-            //   Navigator.pushNamed(context, '/user_info_page');
-            // },
-            // onError: () {},
-            ),
-        '/user_info_page': (context) => const UserInfoPage(),
-        '/garage_page': (context) => GaragePage(
-              tokenProvider: GetIt.instance.get(),
-              vehicleIds: [],
-            ),
-      },
     );
   }
 }

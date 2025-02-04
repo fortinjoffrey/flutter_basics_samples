@@ -4,12 +4,7 @@ import 'package:flutter_basics_samples/packages/user_connection/user_manager.dar
 class UserConnectionWidget extends StatelessWidget {
   const UserConnectionWidget({
     super.key,
-    // required this.onSuccess,
-    // required this.onError,
   });
-
-  // final VoidCallback onSuccess;
-  // final VoidCallback onError;
 
   @override
   Widget build(BuildContext context) {
