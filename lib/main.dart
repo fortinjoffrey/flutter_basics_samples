@@ -4,23 +4,23 @@ import 'package:flutter_basics_samples/blocs/user_bloc_state.dart';
 import 'package:flutter_basics_samples/core/service_locator.dart';
 import 'package:flutter_basics_samples/packages/garage/garage_manager.dart';
 import 'package:flutter_basics_samples/packages/garage/widgets/garage_page.dart';
-import 'package:flutter_basics_samples/packages/user_connection/models/user.dart';
-import 'package:flutter_basics_samples/packages/user_connection/user_manager.dart';
+import 'package:flutter_basics_samples/packages/user_auth/models/user.dart';
+import 'package:flutter_basics_samples/packages/user_auth/user_auth_manager.dart';
 import 'package:flutter_basics_samples/pages/home_page.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'packages/user_connection/widgets/user_connection_widget.dart';
+import 'packages/user_auth/widgets/user_connection_widget.dart';
 
 final navigatorKey = GlobalKey<NavigatorState>();
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  await UserManager.initialize();
+  await UserAuthManager.initialize();
   await GarageManager.initialize();
 
   await initDependencies();
 
-  final User? currentUser = UserManager.instance.currentUser;
+  final User? currentUser = UserAuthManager.instance.currentUser;
 
   print('currentUser: $currentUser');
 
@@ -51,10 +51,10 @@ class MyApp extends StatelessWidget {
         child: MaterialApp(
           navigatorKey: navigatorKey,
           title: 'Flutter Demo',
-          theme: ThemeData(useMaterial3: true),
+          // theme: ThemeData(useMaterial3: true),
           initialRoute: currentUser != null ? '/home' : '/login',
           routes: {
-            '/login': (context) => const UserConnectionWidget(),
+            '/login': (context) => const UserLoginInvitationPage(),
             '/home': (context) => const HomePage(),
             '/garage_page': (context) => GaragePage(),
           },

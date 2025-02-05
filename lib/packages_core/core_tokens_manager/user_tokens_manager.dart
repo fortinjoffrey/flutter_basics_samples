@@ -15,7 +15,6 @@ class UserTokensManager implements TokensManager {
     return _instance!;
   }
 
-
   @override
   Future<String?> get accessToken => _storage.read(_accessTokenKey);
 

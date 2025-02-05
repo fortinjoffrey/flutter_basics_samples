@@ -1,4 +1,4 @@
-import 'package:flutter_basics_samples/packages/user_connection/models/user.dart';
+import 'package:flutter_basics_samples/packages/user_auth/models/user.dart';
 
 sealed class UserBlocEvent {
   const UserBlocEvent();
