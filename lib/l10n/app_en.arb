@@ -1,0 +1,17 @@
+{
+  "@@locale": "en",
+  "helloWorld": "Hello World!",
+  "@helloWorld": {
+    "description": "The conventional newborn programmer greeting"
+  },
+  "counter": "You have pushed the button this many times:",
+  "@counter": {},
+  "language_en": "🇬🇧 English",
+  "@language_en": {},
+  "language_fr": "🇫🇷 French",
+  "@language_fr": {},
+  "change_language_title": "Change Language Demo",
+  "@change_language_title": {},
+  "increment": "Increment",
+  "@increment": {}
+}

@@ -1,0 +1,14 @@
+{
+  "@@locale": "fr",
+  "helloWorld": "Bonjour le monde!",
+  "counter": "Vous avez appuyé sur le bouton ce nombre de fois:",
+  "@counter": {},
+  "language_en": "🇬🇧 Anglais",
+  "@language_en": {},
+  "language_fr": "🇫🇷 Français",
+  "@language_fr": {},
+  "change_language_title": "Changer la langue Demo",
+  "@change_language_title": {},
+  "increment": "Incrémenter",
+  "@increment": {}
+}
