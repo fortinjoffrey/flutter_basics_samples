@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_basics_samples/presentation/tabs/bloc/tab_bloc.dart';
-import 'package:flutter_basics_samples/router.dart';
+import 'package:flutter_basics_samples/presentation/main/tabs/bloc/tab_bloc.dart';
+import 'package:flutter_basics_samples/presentation/navigation/router.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 void main() {
