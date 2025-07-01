@@ -1,6 +1,6 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_basics_samples/card.dart';
+import 'package:flutter_basics_samples/old/card.dart';
 
 const roseLighter = Color(0xFFFEE1F9);
 const greenLighter = Color(0xFFBCEBE4);
@@ -39,6 +39,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
       body: LayoutBuilder(builder: (context, constraints) {
         // final double cardHeight = 300;
         final cardHeight = constraints.maxHeight - MediaQuery.of(context).padding.top - (displayedSurveysCount - 1) * MainScreen.spacing;
+        print('displayedIndex: $displayedIndex');
         return Stack(
           children: [
             ...surveys
@@ -70,8 +71,12 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
                             print("swiping down");
                             if (isCardSwipedUp) {
                               setState(() {
-                                isCardSwipedUp = false;
-                                displayedIndex--;
+                                if (displayedIndex > 0) {
+                                  displayedIndex--;
+                                }
+                                if (displayedIndex == 0) {
+                                  isCardSwipedUp = false;
+                                }
                               });
                             }
                           },

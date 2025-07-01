@@ -130,6 +130,7 @@ class _MyCardState extends State<MyCard> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
+
       onVerticalDragUpdate: _onVerticalDragUpdate,
       onVerticalDragEnd: _onVerticalDragEnd,
       onTap: () {
