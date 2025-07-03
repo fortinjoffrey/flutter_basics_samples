@@ -8,7 +8,7 @@ class LoadSurveysEvent extends SurveysEvent {
 
 class PassSurveyEvent extends SurveysEvent {
   const PassSurveyEvent({
-    required this.surveyId, 
+    required this.surveyId,
     required this.shouldBeMarkedAsSkipped,
     required this.currentIndex,
   });
@@ -16,4 +16,14 @@ class PassSurveyEvent extends SurveysEvent {
   final String surveyId;
   final bool shouldBeMarkedAsSkipped;
   final int currentIndex;
+}
+
+class AnswerSurveyEvent extends SurveysEvent {
+  const AnswerSurveyEvent({
+    required this.surveyId,
+    required this.answer,
+  });
+
+  final String surveyId;
+  final String answer;
 }

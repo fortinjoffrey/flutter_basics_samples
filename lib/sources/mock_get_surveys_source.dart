@@ -16,7 +16,7 @@ class MockGetSurveysSource implements GetSurveysSource {
     await Future.delayed(Duration(milliseconds: 500));
 
     final allSurveys = List.generate(
-        24,
+        10,
         (index) => Survey(
               id: index.toString(),
               question: 'Question $index',

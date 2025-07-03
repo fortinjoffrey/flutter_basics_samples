@@ -3,10 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter_basics_samples/bloc/surveys_state.dart';
 import 'package:flutter_basics_samples/models/survey.dart';
+import 'package:flutter_basics_samples/survey_card.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_basics_samples/bloc/surveys_bloc.dart';
 import 'package:flutter_basics_samples/bloc/surveys_event.dart';
-import 'package:flutter_basics_samples/survey_card.dart';
 import 'package:value_state/value_state.dart';
 
 const roseLighter = Color(0xFFFEE1F9);
@@ -16,9 +16,6 @@ const orangeLighter = Color(0xFFFDDED9);
 const blueLighter = Color(0xFFD6E3FF);
 
 const colors = [roseLighter, greenLighter, purpleLighter, orangeLighter, blueLighter];
-
-// final surveys =
-//     List.generate(3, (index) => Survey(id: index.toString(), question: 'Question $index', displayResults: false));
 
 const displayedSurveysCount = 3;
 
@@ -55,6 +52,16 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     super.dispose();
   }
 
+  /// Crée une animation avec une courbe douce
+  Animation<double> _createSmoothAnimation(double begin, double end) {
+    return Tween<double>(begin: begin, end: end).animate(
+      CurvedAnimation(
+        parent: _controller,
+        curve: Curves.easeOutCubic,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
@@ -70,32 +77,18 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                 case Value(data: final List<Survey> surveys):
                   return Stack(
                     children: [
-                      // Fake card de fin (cachée en bas quand on est sur la dernière vraie carte)
                       if (displayedIndex >= surveys.length - 1)
-                        Positioned(
-                          top: MediaQuery.of(context).padding.top +
-                              (displayedSurveysCount - 1) * spacing, // Même position que les cartes cachées
-                          left: 0,
-                          right: 0,
-                          child: ConstrainedBox(
-                            constraints: BoxConstraints(maxHeight: cardHeight),
-                            child: GestureDetector(
-                              onVerticalDragUpdate: (displayedIndex >= surveys.length)
-                                  ? (details) => _onVerticalDragUpdate(details, surveys)
-                                  : null,
-                              onVerticalDragEnd: (displayedIndex >= surveys.length)
-                                  ? (details) => _onVerticalDragEnd(details, cardHeight, surveys, context)
-                                  : null,
-                              child: SurveyCard(
-                                question: "🎉 Fin des questions !\n\nSwipez vers le bas pour revenir",
-                                backgroundColor: Colors.grey[300]!,
-                              ),
-                            ),
-                          ),
+                        _NoMoreSurveysCard(
+                          cardHeight: cardHeight,
+                          displayedIndex: displayedIndex,
+                          surveys: surveys,
+                          onVerticalDragUpdate: (details, surveys) => _onVerticalDragUpdate(details, surveys),
+                          onVerticalDragEnd: (details, cardHeight, surveys, context) =>
+                              _onVerticalDragEnd(details, cardHeight, surveys, context),
                         ),
                       ...surveys
                           .getRange(
-                              math.max(0, displayedIndex > 0 ? displayedIndex - 1 : displayedIndex),
+                              displayedIndex > 0 ? displayedIndex - 1 : displayedIndex,
                               math.min(
                                   surveys.length,
                                   (displayedIndex > 0 ? displayedIndex - 1 : displayedIndex) +
@@ -113,17 +106,17 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                               final displayIndex = displayedIndex > 0 ? localIndex - 1 : localIndex;
 
                               if (displayIndex >= displayedSurveysCount) {
-                                // Dernière carte : même position que l'avant-dernière (cachée derrière)
+                                // Dernière carte cachée : même position que l'avant-dernière (cachée derrière)
                                 baseTopPosition = MediaQuery.of(context).padding.top;
                               } else {
-                                // Cartes normales
+                                // Cartes visibles
                                 baseTopPosition = (displayedSurveysCount - displayIndex - 1) * spacing +
                                     MediaQuery.of(context).padding.top;
                               }
                             }
 
                             return Positioned(
-                              top: baseTopPosition, // Position de base uniquement
+                              top: baseTopPosition,
                               left: 0,
                               right: 0,
                               child: ConstrainedBox(
@@ -139,9 +132,17 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                                     final globalIndex = displayedIndex > 0
                                         ? displayedIndex - 1 + localIndex
                                         : displayedIndex + localIndex;
+
                                     final card = SurveyCard(
-                                      question: survey.question,
+                                      key: ValueKey(survey.id),
+                                      survey: survey,
                                       backgroundColor: colors[globalIndex % colors.length],
+                                      onAnswer: (answer) {
+                                        context.read<SurveysBloc>().add(AnswerSurveyEvent(
+                                              surveyId: survey.id,
+                                              answer: answer,
+                                            ));
+                                      },
                                     );
 
                                     // Calcul des offsets dynamiques pour chaque carte
@@ -210,8 +211,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       final targetY = -(cardHeight + MediaQuery.of(context).padding.top);
 
       _controller.reset();
-      _animation = Tween<double>(begin: offsetY, end: targetY).animate(_controller);
-      _othersAnimation = Tween<double>(begin: 0, end: 10).animate(_controller);
+      _animation = _createSmoothAnimation(offsetY, targetY);
+      _othersAnimation = _createSmoothAnimation(0, 10);
 
       void animationListener() {
         setState(() {
@@ -248,8 +249,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       final currentCardTargetY = cardHeight + MediaQuery.of(context).padding.top;
 
       _controller.reset();
-      _animation = Tween<double>(begin: offsetY, end: currentCardTargetY).animate(_controller);
-      _othersAnimation = Tween<double>(begin: 0, end: -10).animate(_controller);
+      _animation = _createSmoothAnimation(offsetY, currentCardTargetY);
+      _othersAnimation = _createSmoothAnimation(0, -10);
 
       void animationListener() {
         setState(() {
@@ -279,7 +280,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     } else {
       // Retour à la position initiale
       _controller.reset();
-      _animation = Tween<double>(begin: offsetY, end: 0).animate(_controller);
+      _animation = _createSmoothAnimation(offsetY, 0);
 
       void animationListener() {
         setState(() {
@@ -305,6 +306,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
   void _onVerticalDragUpdate(DragUpdateDetails details, List<Survey> surveys) {
     if (isAnimating) return;
+
     setState(() {
       offsetY += details.delta.dy;
 
@@ -317,5 +319,48 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
   bool _isCurrentCard(int localIndex) {
     return localIndex == (displayedIndex > 0 ? 1 : 0);
+  }
+}
+
+class _NoMoreSurveysCard extends StatelessWidget {
+  const _NoMoreSurveysCard({
+    required this.cardHeight,
+    required this.displayedIndex,
+    required this.surveys,
+    required this.onVerticalDragUpdate,
+    required this.onVerticalDragEnd,
+  });
+
+  final double cardHeight;
+  final int displayedIndex;
+  final List<Survey> surveys;
+  final void Function(DragUpdateDetails details, List<Survey> surveys) onVerticalDragUpdate;
+  final void Function(DragEndDetails details, double cardHeight, List<Survey> surveys, BuildContext context)
+      onVerticalDragEnd;
+
+  @override
+  Widget build(BuildContext context) {
+    final isCurrentCard = displayedIndex >= surveys.length;
+
+    return Positioned(
+      top: MediaQuery.of(context).padding.top + (displayedSurveysCount - 1) * spacing,
+      left: 0,
+      right: 0,
+      child: ConstrainedBox(
+        constraints: BoxConstraints(maxHeight: cardHeight),
+        child: GestureDetector(
+          onVerticalDragUpdate: isCurrentCard ? (details) => onVerticalDragUpdate(details, surveys) : null,
+          onVerticalDragEnd:
+              isCurrentCard ? (details) => onVerticalDragEnd(details, cardHeight, surveys, context) : null,
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colors.grey[300]!,
+              borderRadius: BorderRadius.circular(32),
+            ),
+            child: Center(child: const Text('No more surveys')),
+          ),
+        ),
+      ),
+    );
   }
 }

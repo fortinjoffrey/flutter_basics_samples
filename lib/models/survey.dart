@@ -1,7 +1,12 @@
-class Survey {
-  final String id;
-  final String question;
-  final bool displayResults;
+import 'package:freezed_annotation/freezed_annotation.dart';
 
-  const Survey({required this.id, required this.question, required this.displayResults});
+part 'survey.freezed.dart';
+
+@freezed
+abstract class Survey with _$Survey {
+  const factory Survey({
+    required String id,
+    required String question,
+    required bool displayResults,
+  }) = _Survey;
 }

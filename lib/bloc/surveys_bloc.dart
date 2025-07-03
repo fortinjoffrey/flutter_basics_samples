@@ -14,6 +14,8 @@ class SurveysBloc extends Bloc<SurveysEvent, SurveysState> {
           await _onLoadSurveysEvent(event, emit);
         case PassSurveyEvent():
           await _onPassSurveyEvent(event, emit);
+        case AnswerSurveyEvent():
+          await _onAnswerSurveyEvent(event, emit);
       }
     });
   }
@@ -58,11 +60,28 @@ class SurveysBloc extends Bloc<SurveysEvent, SurveysState> {
     final distanceToEnd = loadedSurveysCount - event.currentIndex - 1;
     final shouldPaginate = distanceToEnd <= 5 && state.hasMore;
 
-    print('Current index: ${event.currentIndex}, Loaded surveys: $loadedSurveysCount, Distance to end: $distanceToEnd, Should paginate: $shouldPaginate');
+    print(
+        'Current index: ${event.currentIndex}, Loaded surveys: $loadedSurveysCount, Distance to end: $distanceToEnd, Should paginate: $shouldPaginate');
 
     if (shouldPaginate) {
       print('🔄 Pagination déclenchée - chargement de la page ${state.currentPage + 1}');
       await _getSurveys(state.currentPage + 1, emit);
     }
+  }
+
+  /// Gère la réponse à un sondage
+  Future<void> _onAnswerSurveyEvent(AnswerSurveyEvent event, Emitter<SurveysState> emit) async {
+    final currentSurveys = state.surveysState.data;
+    if (state.surveysState.isFetching || currentSurveys == null) return;
+
+    final surveyIndex = currentSurveys.indexWhere((survey) => survey.id == event.surveyId);
+    if (surveyIndex == -1) return;
+
+    final updatedSurveys = [...currentSurveys];
+    updatedSurveys[surveyIndex] = updatedSurveys[surveyIndex].copyWith(displayResults: true);
+
+    emit(state.copyWith(surveysState: Value.success(updatedSurveys)));
+
+    print('✅ Survey ${event.surveyId} answered with: ${event.answer}');
   }
 }
