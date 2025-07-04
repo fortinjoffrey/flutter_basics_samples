@@ -35,6 +35,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   late Animation<double> _animation;
   late Animation<double> _othersAnimation;
   bool isAnimating = false;
+  bool isSwipeDownAnimation = false;
   double othersOffsetY = 0;
 
   @override
@@ -156,18 +157,30 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                                       // Carte précédente : suit tous les mouvements de drag
                                       dynamicOffsetY = offsetY;
                                       print('JFO dynamicOffsetY: $dynamicOffsetY');
-                                    } else if (_isCurrentCard(localIndex)) {
+                                    } else if (_isCurrentCard(localIndex) && offsetY < 0) {
                                       // Carte courante : seulement swipe up
-                                      dynamicOffsetY = offsetY < 0 ? offsetY : 0;
-                                    } else {
-                                      // Autres cartes : suivent othersOffsetY (sauf cartes cachées)
-                                      final bool isHiddenCard = displayedIndex > 0
-                                          ? (localIndex - 1) >= displayedSurveysCount
-                                          : localIndex >= displayedSurveysCount;
-                                      if (!isHiddenCard) {
-                                        dynamicOffsetY = othersOffsetY;
+                                      dynamicOffsetY = offsetY;
+                                                                          } else {
+                                        // Logique différente selon si on fait un swipe down ou non
+                                        if (isSwipeDownAnimation) {
+                                          // Pendant un swipe down, seules les cartes qui étaient visibles AVANT le swipe
+                                          // doivent remonter de 10 pixels. La dernière carte visible devient cachée.
+                                          final displayIndex = displayedIndex > 0 ? localIndex - 1 : localIndex;
+                                          final shouldFollowOthersOffset = displayIndex >= 0 && displayIndex < displayedSurveysCount - 1;
+                                          
+                                          if (shouldFollowOthersOffset) {
+                                            dynamicOffsetY = othersOffsetY;
+                                          }
+                                        } else {
+                                          // Logique normale pour les autres cas
+                                          final bool isHiddenCard = displayedIndex > 0
+                                              ? (localIndex - 1) >= displayedSurveysCount
+                                              : localIndex >= displayedSurveysCount;
+                                          if (!isHiddenCard) {
+                                            dynamicOffsetY = othersOffsetY;
+                                          }
+                                        }
                                       }
-                                    }
 
                                     return Transform.translate(
                                       offset: Offset(0, dynamicOffsetY),
@@ -240,6 +253,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             offsetY = 0;
             othersOffsetY = 0;
             isAnimating = false;
+            isSwipeDownAnimation = false;
           });
           _animation.removeListener(animationListener);
           _controller.removeStatusListener(statusListener);
@@ -277,6 +291,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             offsetY = 0;
             othersOffsetY = 0;
             isAnimating = false;
+            isSwipeDownAnimation = false;
           });
           _animation.removeListener(animationListener);
           _controller.removeStatusListener(statusListener);
@@ -287,6 +302,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       _controller.addStatusListener(statusListener);
 
       isAnimating = true;
+      isSwipeDownAnimation = true;
       _controller.forward();
     } else {
       // Retour à la position initiale
@@ -302,6 +318,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       void statusListener(AnimationStatus status) {
         if (status == AnimationStatus.completed) {
           isAnimating = false;
+          isSwipeDownAnimation = false;
           _animation.removeListener(animationListener);
           _controller.removeStatusListener(statusListener);
         }
