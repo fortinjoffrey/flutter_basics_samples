@@ -71,6 +71,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           final cardHeight =
               constraints.maxHeight - MediaQuery.of(context).padding.top - (displayedSurveysCount - 1) * spacing;
 
+          // final cardHeight =
+          //     (constraints.maxHeight - MediaQuery.of(context).padding.top - (displayedSurveysCount - 1) * spacing)/2;
           return BlocBuilder<SurveysBloc, SurveysState>(
             builder: (context, state) {
               switch (state.surveysState) {
@@ -100,7 +102,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
                             if (localIndex == 0 && displayedIndex > 0) {
                               // Carte précédente : cachée en haut (position de base)
-                              baseTopPosition = -cardHeight + 30;
+                              baseTopPosition = -cardHeight;
                             } else {
                               // Calcul de l'index d'affichage réel
                               final displayIndex = displayedIndex > 0 ? localIndex - 1 : localIndex;
@@ -114,6 +116,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                                     MediaQuery.of(context).padding.top;
                               }
                             }
+
+                            print('JFO baseTopPosition: $baseTopPosition, localIndex: $localIndex');
 
                             return Positioned(
                               top: baseTopPosition,
@@ -151,6 +155,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                                     if (localIndex == 0 && displayedIndex > 0) {
                                       // Carte précédente : suit tous les mouvements de drag
                                       dynamicOffsetY = offsetY;
+                                      print('JFO dynamicOffsetY: $dynamicOffsetY');
                                     } else if (_isCurrentCard(localIndex)) {
                                       // Carte courante : seulement swipe up
                                       dynamicOffsetY = offsetY < 0 ? offsetY : 0;
@@ -206,8 +211,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   ) {
     if (isAnimating) return;
 
-    if (offsetY < -100 && displayedIndex < surveys.length) {
-      // Swipe up validé - animation vers le haut
+    final isSwipeUp = offsetY < -100 && displayedIndex < surveys.length;
+    final isSwipeDown = offsetY > 100 && displayedIndex > 0;
+
+    if (isSwipeUp) {
       final targetY = -(cardHeight + MediaQuery.of(context).padding.top);
 
       _controller.reset();
@@ -244,9 +251,11 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
       isAnimating = true;
       _controller.forward();
-    } else if (offsetY > 100 && displayedIndex > 0) {
-      // Swipe down validé - animation vers le bas (retour en arrière)
-      final currentCardTargetY = cardHeight + MediaQuery.of(context).padding.top;
+    } else if (isSwipeDown) {
+      print('JFO IS SWIPE DOWN');
+      final currentCardTargetY =
+          cardHeight + MediaQuery.of(context).padding.top + (displayedSurveysCount - 1) * spacing;
+      print('JFO currentCardTargetY: $currentCardTargetY');
 
       _controller.reset();
       _animation = _createSmoothAnimation(offsetY, currentCardTargetY);
@@ -256,6 +265,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         setState(() {
           offsetY = _animation.value;
           othersOffsetY = _othersAnimation.value;
+          print('JFO offsetY: $offsetY');
+          print('JFO othersOffsetY: $othersOffsetY');
         });
       }
 

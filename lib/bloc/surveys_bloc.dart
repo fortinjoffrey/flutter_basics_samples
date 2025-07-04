@@ -12,10 +12,13 @@ class SurveysBloc extends Bloc<SurveysEvent, SurveysState> {
       switch (event) {
         case LoadSurveysEvent():
           await _onLoadSurveysEvent(event, emit);
+          break;
         case PassSurveyEvent():
           await _onPassSurveyEvent(event, emit);
+          break;
         case AnswerSurveyEvent():
           await _onAnswerSurveyEvent(event, emit);
+          break;
       }
     });
   }

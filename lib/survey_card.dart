@@ -3,7 +3,6 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_basics_samples/models/survey.dart';
 
-
 class SurveyCard extends StatefulWidget {
   const SurveyCard({
     super.key,
@@ -32,7 +31,7 @@ class _SurveyCardState extends State<SurveyCard> with SingleTickerProviderStateM
       vsync: this,
     );
     _flipAnimation = Tween<double>(begin: 0, end: math.pi).animate(_flipController);
-    
+
     if (widget.survey.displayResults) {
       _flipController.value = 1.0;
     }
@@ -44,16 +43,10 @@ class _SurveyCardState extends State<SurveyCard> with SingleTickerProviderStateM
     super.dispose();
   }
 
-  @override
-  void didUpdateWidget(covariant SurveyCard oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (!oldWidget.survey.displayResults && widget.survey.displayResults) {
-      _flipController.forward();
-    }
-  }
-
   void _onAnswerTapped(String answer) {
     if (_flipController.isAnimating) return;
+
+    _flipController.forward();
 
     widget.onAnswer(answer);
   }
