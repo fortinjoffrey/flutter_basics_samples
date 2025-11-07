@@ -1,6 +1,6 @@
 {
-    "name": "flutter_basics_samples",
-    "short_name": "flutter_basics_samples",
+    "name": "tic_tac_toe_app",
+    "short_name": "tic_tac_toe_app",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
